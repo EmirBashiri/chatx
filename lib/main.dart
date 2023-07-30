@@ -1,14 +1,14 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
-import 'package:flutter_chatx/Model/FireBase/firebase_options.dart';
+import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
+import 'package:flutter_chatx/Model/Dependency/InitialaizeInjection/init_injection.dart';
 import 'package:flutter_chatx/Model/Theme/theme.dart';
 import 'package:flutter_chatx/View/RootScreen/root_screen.dart';
 import 'package:get/get.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await InitialaizeDependencies.init();
   runApp(const MyApp());
 }
 
@@ -17,9 +17,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CustomTheme customTheme=Get.find<DependencyController>().customTheme;
     return GetMaterialApp(
       title: appName,
-      theme: CustomTheme.themeData,
+      theme: customTheme.themeData,
       home: const RootScreen(),
     );
   }

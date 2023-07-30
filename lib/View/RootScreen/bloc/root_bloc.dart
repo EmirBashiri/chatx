@@ -10,7 +10,7 @@ class RootBloc extends Bloc<RootEvent, RootState> {
       (event, emit) {
         if (event is RootStart) {
           // TODO Check authentication status
-          emit(RootShowAuthentication());
+          emit(RootShowSplash());
         }
       },
     );
