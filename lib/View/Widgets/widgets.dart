@@ -6,10 +6,14 @@ class CustomButton extends StatelessWidget {
       {super.key,
       required this.backgroundColor,
       required this.title,
-      required this.onPressed});
+      required this.onPressed,
+      this.suffixIcon,
+      this.titleStyle});
   final Color backgroundColor;
   final String title;
+  final TextStyle? titleStyle;
   final void Function() onPressed;
+  final Widget? suffixIcon;
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -18,7 +22,7 @@ class CustomButton extends StatelessWidget {
       width: Get.width,
       height: 80,
       padding: const EdgeInsets.fromLTRB(15, 5, 15, 10),
-      child: ElevatedButton(
+      child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           shape: RoundedRectangleBorder(
@@ -26,9 +30,11 @@ class CustomButton extends StatelessWidget {
           ),
         ),
         onPressed: onPressed,
-        child: Text(
+        icon: suffixIcon ?? Container(),
+        label: Text(
           title,
-          style: textTheme.headlineSmall!.copyWith(color: colorScheme.primary),
+          style: titleStyle ??
+              textTheme.headlineSmall!.copyWith(color: colorScheme.primary),
         ),
       ),
     );
