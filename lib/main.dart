@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Dependency/InitialaizeInjection/init_injection.dart';
+import 'package:flutter_chatx/View/Screens/RootScreen/root_screen.dart';
 import 'package:flutter_chatx/View/Theme/theme.dart';
-import 'package:flutter_chatx/View/RootScreen/root_screen.dart';
 import 'package:get/get.dart';
 
 void main() async {
@@ -17,7 +17,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CustomTheme customTheme=Get.find<DependencyController>().customTheme;
+    final CustomTheme customTheme =
+        Get.find<DependencyController>().customTheme;
     return GetMaterialApp(
       title: appName,
       theme: customTheme.themeData,
