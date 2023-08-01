@@ -29,6 +29,9 @@ class AuthFunctions {
     passwordKey.currentState!.validate();
 
     if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      emailController.clear();
+      passwordController.clear();
+      nameController?.clear();
       return UserEntity(
           email: emailController.text,
           password: passwordController.text,

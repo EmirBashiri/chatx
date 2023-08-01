@@ -51,7 +51,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorScheme.secondary,
+        backgroundColor: colorScheme.primary,
         centerTitle: true,
         title: Text(
           appName,
@@ -68,7 +68,9 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
         },
         child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
           builder: (context, state) {
-            if (state is AuthenticationSignupScreen) {
+            if (state is AuthenticationLoadingScreen) {
+              return const CustomLoadingScreen();
+            } else if (state is AuthenticationSignupScreen) {
               return AuthenticationTemplate(
                   loginMode: false,
                   topTitle: createAcount,
@@ -125,6 +127,11 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   emailController: emailController,
                   passwordKey: passwordKey,
                   passwordController: passwordController);
+            } else if (state is AuthenticationErrorScreen) {
+              return CustomErrorScreen(
+                  callBack: () =>
+                      _authenticationBloc!.add(AuthenticationStart()),
+                  errorMessage: state.errorMessage);
             }
             return Container();
           },
