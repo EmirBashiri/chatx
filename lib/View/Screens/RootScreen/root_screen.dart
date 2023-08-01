@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/View/Screens/AuthenticationScreen/authentication_screen.dart';
+import 'package:flutter_chatx/View/Screens/HomeScreen/home_screen.dart';
 import 'package:flutter_chatx/View/Screens/RootScreen/bloc/root_bloc.dart';
 
 import 'package:flutter_chatx/View/Screens/SplashScreen/splash_screen.dart';
@@ -22,6 +23,8 @@ class RootScreen extends StatelessWidget {
             return const SplashScreen();
           } else if (state is RootShowAuthentication) {
             return const AuthenticationScreen();
+          } else if (state is RootShowHomeScreen) {
+            return const HomeScreen();
           }
           return Container();
         },
