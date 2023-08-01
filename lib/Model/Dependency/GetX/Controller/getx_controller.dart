@@ -1,4 +1,4 @@
-import 'package:flutter_chatx/Model/Theme/theme.dart';
+import 'package:flutter_chatx/View/Theme/theme.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/app_functions.dart';
 import 'package:flutter_chatx/ViewModel/NavigationSystem/navigation_system.dart';
 import 'package:get/get.dart';

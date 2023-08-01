@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/Model/Theme/icons.dart';
+import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/AuthenticationScreen/bloc/authentication_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/AuthFunctions/auth_functions.dart';
