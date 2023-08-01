@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
+import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
+import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/Model/Theme/icons.dart';
 import 'package:flutter_chatx/View/AuthenticationScreen/bloc/authentication_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/AuthFunctions/auth_functions.dart';
+import 'package:get/get.dart';
 
 // Agreee checkBox
 bool? _agreeBox = false;
 // Password visibility
-bool _passwordVisibility = false;
+bool _passwordVisibility = true;
 
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({super.key});
@@ -16,7 +20,7 @@ class AuthenticationScreen extends StatefulWidget {
   @override
   State<AuthenticationScreen> createState() => _AuthenticationScreenState();
 }
-  
+
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
   // instance from authenticationbloc for call events
   AuthenticationBloc? _authenticationBloc;
@@ -28,6 +32,12 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  // Instance of Dependency Controller for use app functions
+  final DependencyController dpController = Get.find();
+  // Instance of Auth Functions
+  late final AuthFunctions authFunctions =
+      dpController.appFunctions.authFunctions;
 
   @override
   void dispose() {
@@ -58,17 +68,29 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
         },
         child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
           builder: (context, state) {
-            if (state is AuthenticationSignUp) {
+            if (state is AuthenticationSignupScreen) {
               return AuthenticationTemplate(
                   loginMode: false,
                   topTitle: createAcount,
                   topDescription1: haveAcount,
                   topDescription2: login,
                   authButtonTitle: createAcount,
-                  // TODO implement create account here
-                  authButtonTap: () {},
-                  // TODO implement continoue with google here
-                  googleButtonTap: () {},
+                  authButtonTap: () {
+                    final UserEntity? userEntity =
+                        authFunctions.buildUserEntity(
+                            emailKey: emailKey,
+                            passwordKey: passwordKey,
+                            nameKey: nameKey,
+                            emailController: emailController,
+                            passwordController: passwordController,
+                            nameController: nameController);
+                    if (userEntity != null) {
+                      _authenticationBloc!.add(AuthenticationSignup(
+                          userEntity: userEntity, isPrivacyAgreed: _agreeBox!));
+                    }
+                  },
+                  googleButtonTap: () => _authenticationBloc!
+                      .add(AuthenticationContinueWithGoogle()),
                   topDescription2ButtonTap: () =>
                       _authenticationBloc!.add(AuthenticationGoLogin()),
                   nameKey: nameKey,
@@ -77,17 +99,26 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   emailController: emailController,
                   passwordKey: passwordKey,
                   passwordController: passwordController);
-            } else if (state is AuthenticationLogin) {
+            } else if (state is AuthenticationLoginScreen) {
               return AuthenticationTemplate(
                   loginMode: true,
                   topTitle: welcomeBack,
                   topDescription1: dontHaveAccount,
                   topDescription2: signUp,
                   authButtonTitle: login,
-                  // TODO implement login here
-                  authButtonTap: () {},
-                  // TODO implement continoue with google here
-                  googleButtonTap: () {},
+                  authButtonTap: () {
+                    final UserEntity? userEntity =
+                        authFunctions.buildUserEntity(
+                            emailKey: emailKey,
+                            passwordKey: passwordKey,
+                            emailController: emailController,
+                            passwordController: passwordController);
+                    if (userEntity != null) {
+                      _authenticationBloc!.add(AuthenticationLogin(userEntity));
+                    }
+                  },
+                  googleButtonTap: () => _authenticationBloc!
+                      .add(AuthenticationContinueWithGoogle()),
                   topDescription2ButtonTap: () =>
                       _authenticationBloc!.add(AuthenticationGoSignUp()),
                   emailKey: emailKey,
@@ -329,6 +360,11 @@ class CustomTextFiled extends StatefulWidget {
 }
 
 class _CustomTextFiledState extends State<CustomTextFiled> {
+  // Instance of Dependency Controller for use app functions
+  final DependencyController dpController = Get.find();
+  // Instance of Auth Functions
+  late final AuthFunctions authFunctions =
+      dpController.appFunctions.authFunctions;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -336,7 +372,8 @@ class _CustomTextFiledState extends State<CustomTextFiled> {
       child: Form(
         key: widget.formKey,
         child: TextFormField(
-          obscureText: widget.isPasswordFill ? _passwordVisibility : true,
+          validator: authFunctions.validator,
+          obscureText: widget.isPasswordFill ? _passwordVisibility : false,
           controller: widget.controller,
           decoration: InputDecoration(
               border:
@@ -348,7 +385,7 @@ class _CustomTextFiledState extends State<CustomTextFiled> {
                         _passwordVisibility = !_passwordVisibility;
                       }),
                       icon: Icon(
-                          _passwordVisibility ? visibileIcon : inVisibileIcon),
+                          _passwordVisibility ? inVisibileIcon : visibileIcon),
                     )
                   : null),
         ),

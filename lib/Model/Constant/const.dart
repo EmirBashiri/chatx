@@ -43,6 +43,8 @@ const String confirmNewPassword = "Confirm your new password";
 const String fullName = "Full name";
 const String email = "Email";
 const String password = "Password";
+const String validateError = "This field required";
+const String agreeThePrivacy = "Please agree privacy policy to continue";
 
 // ///////////////////////////////////////////////////////////////////////
 
@@ -50,5 +52,14 @@ const String password = "Password";
 
 // Default scroll physics
 const ScrollPhysics defaultPhysics = BouncingScrollPhysics();
-
+const String defaultErrorMessage = "Undefined Error";
 //////////////////////////////////////////////////////////////////////////
+
+// Duplicate paths //////////////////////////////////////////////////////
+const String usersCollectionPath = "Users";
+const String userEmail = "Email";
+const String userPassword = "Password";
+const String userFullName = "Full Name";
+const String userUID = "User UID";
+
+// /////////////////////////////////////////////////////////////////////

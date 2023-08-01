@@ -40,3 +40,17 @@ class CustomButton extends StatelessWidget {
     );
   }
 }
+
+void showSnakeBar({
+  required String title,
+  required String message,
+  Color? backgroundColor,
+}) {
+  final ColorScheme colorScheme = Get.theme.colorScheme;
+  Get.closeAllSnackbars();
+  Get.snackbar(
+    title,
+    message,
+    backgroundColor: backgroundColor ?? colorScheme.primaryContainer,
+  );
+}
