@@ -14,7 +14,7 @@ class RootBloc extends Bloc<RootEvent, RootState> {
           if (firebaseAuth.currentUser != null) {
             emit(RootShowHomeScreen());
           } else {
-            emit(RootShowSplash());
+            emit(RootShowIntro());
           }
         }
       },

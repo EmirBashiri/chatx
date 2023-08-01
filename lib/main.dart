@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Dependency/InitialaizeInjection/init_injection.dart';
-import 'package:flutter_chatx/View/Screens/RootScreen/root_screen.dart';
+import 'package:flutter_chatx/View/Screens/SplashScreen/splash_screen.dart';
 import 'package:flutter_chatx/View/Theme/theme.dart';
 import 'package:get/get.dart';
 
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: appName,
       theme: customTheme.themeData,
-      home: const RootScreen(),
+      home: const SplashScreen(),
     );
   }
 }

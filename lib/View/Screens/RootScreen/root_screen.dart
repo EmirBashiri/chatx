@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chatx/View/Screens/AuthenticationScreen/authentication_screen.dart';
 import 'package:flutter_chatx/View/Screens/HomeScreen/home_screen.dart';
 import 'package:flutter_chatx/View/Screens/RootScreen/bloc/root_bloc.dart';
 
-import 'package:flutter_chatx/View/Screens/SplashScreen/splash_screen.dart';
+import 'package:flutter_chatx/View/Screens/IntroScreen/intro_screen.dart';
 
 class RootScreen extends StatelessWidget {
   const RootScreen({super.key});
@@ -19,10 +18,8 @@ class RootScreen extends StatelessWidget {
       },
       child: BlocBuilder<RootBloc, RootState>(
         builder: (context, state) {
-          if (state is RootShowSplash) {
-            return const SplashScreen();
-          } else if (state is RootShowAuthentication) {
-            return const AuthenticationScreen();
+          if (state is RootShowIntro) {
+            return const IntroScreen();
           } else if (state is RootShowHomeScreen) {
             return const HomeScreen();
           }

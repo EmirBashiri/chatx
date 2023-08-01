@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 
 const String appName = "ChatX";
 
-// Splash Screen ////////////////////////////////////////////////
+// Intro Screen ////////////////////////////////////////////////
 
 // Dialogs
-const String splashMainContent = '''
+const String introMainContent = '''
 Simpliest 
 Messaging App 
 ''';
 
-const String splashGetStarted = "Get Started";
+const String introGetStarted = "Get Started";
 
 // Images path
 const String splashImagePath = "assets/Images/splash-image.svg";

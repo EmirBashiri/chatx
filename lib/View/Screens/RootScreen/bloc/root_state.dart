@@ -5,8 +5,6 @@ abstract class RootState {}
 
 class RootInitial extends RootState {}
 
-class RootShowSplash extends RootState {}
-
-class RootShowAuthentication extends RootState {}
+class RootShowIntro extends RootState {}
 
 class RootShowHomeScreen extends RootState {}
