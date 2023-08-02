@@ -5,14 +5,16 @@ class AppUser {
   final String email;
   final String? password;
   final String userUID;
+  final String userProfileUrl;
 
   AppUser({
-     this.fullName,
+    this.fullName,
     required this.email,
-     this.password,
+    this.password,
     required this.userUID,
+    this.userProfileUrl = defaultUserProfileUrl,
   });
- 
+
   late final Map<String, dynamic> userEntityJSON = {
     userFullName: this.fullName,
     userEmail: this.email,

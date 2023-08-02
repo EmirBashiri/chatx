@@ -53,6 +53,7 @@ const String tryAgain = "Try again";
 // Default scroll physics
 const ScrollPhysics defaultPhysics = BouncingScrollPhysics();
 const String defaultErrorMessage = "Undefined Error";
+const String defaultUserProfileUrl="https://firebasestorage.googleapis.com/v0/b/chatx-31159.appspot.com/o/person.png?alt=media&token=0ea8b78a-2fb1-4ac2-879a-6cff10daa48d";
 //////////////////////////////////////////////////////////////////////////
 
 // Duplicate paths //////////////////////////////////////////////////////
