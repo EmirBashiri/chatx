@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:233569956709:android:3d9fe89754fed9dc87278c',
     messagingSenderId: '233569956709',
     projectId: 'chatx-31159',
+    databaseURL: 'https://chatx-31159-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'chatx-31159.appspot.com',
   );
 
@@ -62,9 +63,10 @@ class DefaultFirebaseOptions {
     appId: '1:233569956709:ios:eb2b4b7b3e2d4ff287278c',
     messagingSenderId: '233569956709',
     projectId: 'chatx-31159',
+    databaseURL: 'https://chatx-31159-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'chatx-31159.appspot.com',
-    iosClientId:
-        '233569956709-4h3vau5avc3bipb4bvd6aq9itk1joe3h.apps.googleusercontent.com',
+    androidClientId: '233569956709-g848c1f5olpnkdomdotk63tv2ngnu940.apps.googleusercontent.com',
+    iosClientId: '233569956709-4h3vau5avc3bipb4bvd6aq9itk1joe3h.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterChatx',
   );
 }

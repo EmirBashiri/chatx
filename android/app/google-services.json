@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "233569956709",
+    "firebase_url": "https://chatx-31159-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "chatx-31159",
     "storage_bucket": "chatx-31159.appspot.com"
   },
@@ -14,7 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "233569956709-itqod7k2m157d0c0bu796jn76hr5b190.apps.googleusercontent.com",
+          "client_id": "233569956709-g848c1f5olpnkdomdotk63tv2ngnu940.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_chatx",
+            "certificate_hash": "33d48405e6259444182622a28fa5057f4a044fa2"
+          }
+        },
+        {
+          "client_id": "233569956709-5ftgdsl68dbdaev6qdb6eehplqhggurk.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +36,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "233569956709-itqod7k2m157d0c0bu796jn76hr5b190.apps.googleusercontent.com",
+              "client_id": "233569956709-5ftgdsl68dbdaev6qdb6eehplqhggurk.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "233569956709-4h3vau5avc3bipb4bvd6aq9itk1joe3h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterChatx"
+              }
             }
           ]
         }

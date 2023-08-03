@@ -29,13 +29,15 @@ class AuthFunctions {
     passwordKey.currentState!.validate();
 
     if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      final UserEntity userEntity = UserEntity(
+        email: emailController.text,
+        password: passwordController.text,
+        fullName: nameController?.text,
+      );
       emailController.clear();
       passwordController.clear();
       nameController?.clear();
-      return UserEntity(
-          email: emailController.text,
-          password: passwordController.text,
-          fullName: nameController?.text);
+      return userEntity;
     } else {
       return null;
     }
@@ -87,5 +89,5 @@ class AuthFunctions {
   Future<void> _mergeInDB({required AppUser appUser}) async => await _firestore
       .collection(usersCollectionPath)
       .doc(appUser.email)
-      .set(appUser.userEntityJSON, SetOptions(merge: true));
+      .set(appUser.userEntityToJSON, SetOptions(merge: true));
 }
