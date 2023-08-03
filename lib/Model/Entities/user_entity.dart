@@ -5,22 +5,32 @@ class AppUser {
   final String email;
   final String? password;
   final String userUID;
-  final String userProfileUrl;
+  final String profileUrl;
 
   AppUser({
     this.fullName,
     required this.email,
     this.password,
     required this.userUID,
-    this.userProfileUrl = defaultUserProfileUrl,
+    this.profileUrl = defaultUserProfileUrl,
   });
 
-  late final Map<String, dynamic> userEntityJSON = {
-    userFullName: this.fullName,
-    userEmail: this.email,
-    userPassword: this.password,
-    userUID: this.userUID
+  late final Map<String, dynamic> userEntityToJSON = {
+    userFullName: fullName,
+    userEmail: email,
+    userPassword: password,
+    userUid: userUID,
+    userProfileUrl: profileUrl
   };
+
+  factory AppUser.fromJson(Map<String, dynamic> json) {
+    return AppUser(
+        fullName: json[userFullName],
+        email: json[userEmail],
+        password: json[userPassword],
+        userUID: json[userUid],
+        profileUrl: json[userProfileUrl]);
+  }
 }
 
 class UserEntity {
