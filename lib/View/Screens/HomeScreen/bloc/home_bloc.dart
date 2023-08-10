@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
@@ -14,17 +13,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final DependencyController dpController = Get.find();
     final HomeFunctioins homeFunctioins =
         dpController.appFunctions.homeFunctioins;
-    on<HomeEvent>((event, emit) {
+    on<HomeEvent>((event, emit) async {
       if (event is HomeStart) {
-        final List<AppUser> userList = [];
-        final Stream<QuerySnapshot<Map<String, dynamic>>> userListStream =
-            homeFunctioins.userListStream();
-        userListStream.listen((event) async {
-          for (var json in event.docs) {
-            userList.add(AppUser.fromJson(json.data()));
-          }
-        });
-        emit(HomeMainScreen(userList));
+        emit(HomeLoadingScreen());
+        homeFunctioins.listenToUsers(homeBloc: this);
+      } else if (event is HomeFechUserList) {
+        emit(HomeMainScreen(event.userList));
       }
     });
   }

@@ -79,9 +79,10 @@ class AuthFunctions {
     UserCredential userCredential =
         await _firebaseAuth.signInWithProvider(GoogleAuthProvider());
     final AppUser appUser = AppUser(
-      email: userCredential.user!.email!,
-      userUID: userCredential.user!.uid,
-    );
+        fullName: userCredential.user!.displayName,
+        email: userCredential.user!.email!,
+        userUID: userCredential.user!.uid,
+        profileUrl: userCredential.user!.photoURL ?? defaultUserProfileUrl);
     await _mergeInDB(appUser: appUser);
   }
 

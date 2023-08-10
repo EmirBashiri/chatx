@@ -5,6 +5,8 @@ abstract class HomeState {}
 
 class HomeInitial extends HomeState {}
 
+class HomeLoadingScreen extends HomeState {}
+
 class HomeMainScreen extends HomeState {
   final List<AppUser> userList;
 
