@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/View/Screens/HomeScreen/bloc/home_bloc.dart';
@@ -28,5 +29,12 @@ class HomeFunctioins {
         homeBloc.add(HomeFechUserList(userList));
       },
     );
+  }
+
+  //  Fech current user
+  AppUser fechCurrentUser(
+      {required List<AppUser> userList, required User firebaseCurrentUser}) {
+    return userList
+        .firstWhere((appUser) => appUser.userUID == firebaseCurrentUser.uid);
   }
 }

@@ -9,6 +9,7 @@ class HomeLoadingScreen extends HomeState {}
 
 class HomeMainScreen extends HomeState {
   final List<AppUser> userList;
+  final AppUser currnetUser;
 
-  HomeMainScreen(this.userList);
+  HomeMainScreen({required this.userList, required this.currnetUser});
 }

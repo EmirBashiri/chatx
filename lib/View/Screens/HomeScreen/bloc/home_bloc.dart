@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
@@ -13,12 +14,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final DependencyController dpController = Get.find();
     final HomeFunctioins homeFunctioins =
         dpController.appFunctions.homeFunctioins;
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     on<HomeEvent>((event, emit) async {
       if (event is HomeStart) {
         emit(HomeLoadingScreen());
         homeFunctioins.listenToUsers(homeBloc: this);
       } else if (event is HomeFechUserList) {
-        emit(HomeMainScreen(event.userList));
+        final List<AppUser> userList = event.userList;
+        final AppUser currnetUser = homeFunctioins.fechCurrentUser(
+            userList: userList, firebaseCurrentUser: firebaseAuth.currentUser!);
+
+        emit(HomeMainScreen(userList: userList, currnetUser: currnetUser));
       }
     });
   }

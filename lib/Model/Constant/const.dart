@@ -46,8 +46,15 @@ const String password = "Password";
 const String validateError = "This field required";
 const String agreeThePrivacy = "Please agree privacy policy to continue";
 const String tryAgain = "Try again";
-const String messages = "Messages";
 // ///////////////////////////////////////////////////////////////////////
+
+// Home Screen //////////////////////////////////////////
+
+// Dialogs
+const String messages = "Messages";
+const String savedMessages = "Saved Messages";
+
+////////////////////////////////////////////////////////
 
 // Duplicate tools ///////////////////////////////////////////////////////
 

@@ -1,5 +1,6 @@
 import 'package:flutter_chatx/Model/Constant/const.dart';
 
+// Apps user entity
 class AppUser {
   final String? fullName;
   final String email;
@@ -15,13 +16,15 @@ class AppUser {
     this.profileUrl = defaultUserProfileUrl,
   });
 
-  late final Map<String, dynamic> userEntityToJSON = {
-    userFullName: fullName,
-    userEmail: email,
-    userPassword: password,
-    userUid: userUID,
-    userProfileUrl: profileUrl
-  };
+  static Map<String, dynamic> userEntityToJSON({required AppUser appUser}) {
+    return {
+      userFullName: appUser.fullName,
+      userEmail: appUser.email,
+      userPassword: appUser.password,
+      userUid: appUser.userUID,
+      userProfileUrl: appUser.profileUrl
+    };
+  }
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
     return AppUser(
@@ -33,6 +36,7 @@ class AppUser {
   }
 }
 
+// Entirty that come from controllers
 class UserEntity {
   final String? fullName;
   final String email;

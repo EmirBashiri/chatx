@@ -90,5 +90,5 @@ class AuthFunctions {
   Future<void> _mergeInDB({required AppUser appUser}) async => await _firestore
       .collection(usersCollectionPath)
       .doc(appUser.email)
-      .set(appUser.userEntityToJSON, SetOptions(merge: true));
+      .set(AppUser.userEntityToJSON(appUser: appUser), SetOptions(merge: true));
 }

@@ -6,3 +6,4 @@ const IconData settingIcon = Icons.settings;
 const IconData googelIcon = FontAwesomeIcons.google;
 const IconData visibileIcon = Icons.visibility;
 const IconData inVisibileIcon = Icons.visibility_off;
+const IconData tagIcon = FontAwesomeIcons.tags;
