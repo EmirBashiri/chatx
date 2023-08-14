@@ -13,3 +13,10 @@ class HomeMainScreen extends HomeState {
 
   HomeMainScreen({required this.userList, required this.currnetUser});
 }
+
+// TODO implement this screen
+class HomeErrorScreen extends HomeState {
+  final String errorMessage;
+
+  HomeErrorScreen(this.errorMessage);
+}
