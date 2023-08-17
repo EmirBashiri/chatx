@@ -20,7 +20,9 @@ dependencies:
   cloud_firestore: ^4.8.4
   flutter_spinkit: ^5.2.0
   firebase_auth: ^4.7.2
-  cached_network_image: ^3.2.3
+  extended_image: ^8.0.2
+  flutter_cache_manager: ^3.3.1
+  percent_indicator: ^4.2.3
 
 dev_dependencies:
   flutter_test:

@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -143,4 +144,33 @@ class CustomErrorScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class CustomImageWidget extends StatelessWidget {
+  const CustomImageWidget({
+    super.key,
+    required this.imageUrl,
+  });
+
+  final String imageUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExtendedImage.network(
+      imageUrl,
+      loadStateChanged: (state) {
+        switch (state.extendedImageLoadState) {
+          case LoadState.loading:
+            return const CustomLoadingScreen();
+
+          default:
+            return state.completedWidget;
+        }
+      },
+    );
+  }
+}
+
+ExtendedNetworkImageProvider networkImageProvider({required String imageUr}) {
+  return ExtendedNetworkImageProvider(imageUr, cache: true);
 }

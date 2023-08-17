@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
@@ -94,7 +93,7 @@ class _HomeMainWidget extends StatelessWidget {
                       ),
                       leading: CircleAvatar(
                         backgroundImage:
-                            CachedNetworkImageProvider(user.profileUrl),
+                            networkImageProvider(imageUr: user.profileUrl),
                       ),
                       title: duplicateText(
                           textTheme: textTheme,

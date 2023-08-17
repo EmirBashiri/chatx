@@ -1,42 +1,47 @@
-// Server keys
-
-const String _senderUserKey = "Sender User";
-const String _receiverUserKey = "Receiver User Id";
-const String _messageKey = "Message";
-const String _messageTypeKey = "Message Type";
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessageEntity {
   final String senderUserId;
   final String receiverUserID;
   final dynamic message;
   final MessageType messageType;
+  final Timestamp timestamp;
+
+// Server keys
+  static const String senderUserKey = "Sender User";
+  static const String receiverUserKey = "Receiver User Id";
+  static const String messageKey = "Message";
+  static const String messageTypeKey = "Message Type";
+  static const String timestampKey = "Time Stamp";
 
   MessageEntity({
     required this.senderUserId,
     required this.receiverUserID,
     required this.message,
     required this.messageType,
+    required this.timestamp,
   });
 
   // Function to send message map to DB
   static Map<String, dynamic> toJson({required MessageEntity messageEntity}) {
     return {
-      _senderUserKey: messageEntity.senderUserId,
-      _receiverUserKey: messageEntity.receiverUserID,
-      _messageKey: messageEntity.message,
-      _messageTypeKey: messageEntity.messageType.name
+      senderUserKey: messageEntity.senderUserId,
+      receiverUserKey: messageEntity.receiverUserID,
+      messageKey: messageEntity.message,
+      messageTypeKey: messageEntity.messageType.name,
+      timestampKey: messageEntity.timestamp
     };
   }
 
   // Function to parse message entity from DB
   factory MessageEntity.fromJson({required Map<String, dynamic> json}) {
     return MessageEntity(
-      senderUserId: json[_senderUserKey],
-      receiverUserID: json[_receiverUserKey],
-      message: json[_messageKey],
-      messageType: MessageType.values
-          .firstWhere((type) => type.name == json[_messageTypeKey]),
-    );
+        senderUserId: json[senderUserKey],
+        receiverUserID: json[receiverUserKey],
+        message: json[messageKey],
+        messageType: MessageType.values
+            .firstWhere((type) => type.name == json[messageTypeKey]),
+        timestamp: json[timestampKey]);
   }
 }
 
