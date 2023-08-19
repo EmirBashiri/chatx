@@ -21,8 +21,8 @@ class MessageBoxScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc = MessageBoxBloc(messageEntity: messageEntity);
-        bloc.add(MessageBoxStart());
+        final bloc = MessageBoxBloc();
+        bloc.add(MessageBoxStart(messageEntity));
         messageBoxBloc = bloc;
         return bloc;
       },
@@ -179,7 +179,7 @@ class _FileMessage extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         print(messageEntity);
-        messageBoxBloc.add(MessageDownloadFile());
+        messageBoxBloc.add(MessageDownloadFile(messageEntity));
       },
       child: _MessageBox(
         messageEntity: messageEntity,
@@ -237,11 +237,12 @@ class _FileMessageLoading extends StatelessWidget {
                 final DownloadProgress downloadProgress =
                     snapshot.data as DownloadProgress;
                 return CircularPercentIndicator(
+                  // TODO clean here
                   radius: 60,
                   lineWidth: 5,
                   percent: downloadProgress.progress!,
                   center: Text(
-                      "${downloadProgress.progress!.roundToDouble() * 10}"),
+                      "${downloadProgress.downloaded}"),
                 );
               } else {
                 return CircleAvatar(

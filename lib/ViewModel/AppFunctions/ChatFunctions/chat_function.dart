@@ -66,14 +66,14 @@ class ChatFunctions {
       {required String fileUrl, required MessageBoxBloc messageBoxBloc}) {
     final Stream<FileResponse> stream =
         DefaultCacheManager().getFileStream(fileUrl, withProgress: true);
-    stream.listen(
-      (event) {
-        if (event is FileInfo) {
-          // TODO implement add download completed event
-          print(event);
-        }
-      },
-    );
+    // stream.listen(
+    //   (event) {
+    //     if (event is FileInfo) {
+    //       // TODO implement add download completed event
+    //       print(event);
+    //     }
+    //   },
+    // );
     return stream;
   }
 

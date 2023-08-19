@@ -9,13 +9,14 @@ part 'message_box_event.dart';
 part 'message_box_state.dart';
 
 class MessageBoxBloc extends Bloc<MessageBoxEvent, MessageBoxState> {
-  final MessageEntity messageEntity;
   final DependencyController _dependencyController = Get.find();
   late final ChatFunctions chatFunctions =
       _dependencyController.appFunctions.chatFunctions;
-  MessageBoxBloc({required this.messageEntity}) : super(MessageBoxInitial()) {
+
+  MessageBoxBloc() : super(MessageBoxInitial()) {
     on<MessageBoxEvent>((event, emit) {
       if (event is MessageBoxStart) {
+        final MessageEntity messageEntity = event.messageEntity;
         switch (messageEntity.messageType) {
           case MessageType.txt:
             emit(MessageTextBox(messageEntity));
@@ -28,8 +29,7 @@ class MessageBoxBloc extends Bloc<MessageBoxEvent, MessageBoxState> {
             break;
         }
       } else if (event is MessageDownloadFile) {
-        print(messageEntity);
-        emit(MessageLoadingFileBox(messageEntity));
+        emit(MessageLoadingFileBox(event.messageEntity));
       } else if (event is MessageOpenFile) {
         // TODO implement open file here
       }
