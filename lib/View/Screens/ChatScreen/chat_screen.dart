@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessageBox/message_box_screen.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/bloc/chat_bloc.dart';
+import 'package:flutter_chatx/View/Screens/ChatScreen/ChatBloc/chat_bloc.dart';
+import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessageScreen/image_message_screen.dart';
+import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/othet_messages_screen.dart';
+import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/TextMessageScreen/text_message_screen.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:get/get.dart';
@@ -21,7 +23,7 @@ class ChatScteen extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar( 
         forceMaterialTransparency: true,
         centerTitle: true,
         title: Text(
@@ -58,7 +60,17 @@ class ChatScteen extends StatelessWidget {
                   reverse: true,
                   itemCount: messagesList.length,
                   itemBuilder: (context, index) {
-                    return MessageBoxScreen(messageEntity: messagesList[index]);
+                    final MessageEntity messageEntity = messagesList[index];
+                    switch (messageEntity.messageType) {
+                      case MessageType.txt:
+                        return TexetMessageScreen(messageEntity: messageEntity);
+                      case MessageType.image:
+                        return ImageMessageScreen(messageEntity: messageEntity);
+                      case MessageType.other:
+                        return OthetMessagesScreen(
+                          messageEntity: messageEntity,
+                        );
+                    }
                   },
                 ),
               );

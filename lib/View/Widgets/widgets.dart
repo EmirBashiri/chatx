@@ -1,6 +1,9 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
+import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
+import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
@@ -173,4 +176,51 @@ class CustomImageWidget extends StatelessWidget {
 
 ExtendedNetworkImageProvider networkImageProvider({required String imageUr}) {
   return ExtendedNetworkImageProvider(imageUr, cache: true);
+}
+
+class MessageBox extends StatelessWidget {
+  MessageBox({super.key, required this.messageEntity, required this.child});
+  final MessageEntity messageEntity;
+  final Widget child;
+  final ColorScheme colorScheme = Get.theme.colorScheme;
+
+  final DependencyController dependencyController = Get.find();
+
+  late final ChatFunctions chatFunctions =
+      dependencyController.appFunctions.chatFunctions;
+
+  // Fech message align
+  late final Alignment messageAlign = chatFunctions.fechMessageAlign(
+    senderUserId: messageEntity.senderUserId,
+  );
+
+  // Fech message box border
+  late final BorderRadiusGeometry boxBorderRadius =
+      chatFunctions.fechMessageBorder(
+    senderUserId: messageEntity.senderUserId,
+  );
+
+  // Fech message box color
+  late final Color boxColor = chatFunctions.fechMessageBoxColor(
+      senderUserId: messageEntity.senderUserId, colorScheme: colorScheme);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: messageAlign,
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: Get.height * 0.45,
+          maxWidth: Get.width * 0.65,
+        ),
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: boxBorderRadius,
+          color: boxColor,
+        ),
+        child: child,
+      ),
+    );
+  }
 }

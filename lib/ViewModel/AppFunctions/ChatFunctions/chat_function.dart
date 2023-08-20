@@ -5,8 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessageBox/bloc/message_box_bloc.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/bloc/chat_bloc.dart';
+import 'package:flutter_chatx/View/Screens/ChatScreen/ChatBloc/chat_bloc.dart';
 
 // Server keys
 const String messagesCollectionKey = "Messages";
@@ -60,12 +59,27 @@ class ChatFunctions {
     });
   }
 
-  // Funtion to downlodad file from storage server
+  // Function to buid message title
+  String fechFileMessageTitle({required String messageUrl}) {
+    // TODO change this with real logic on firebase storage
+    return messageUrl;
+  }
 
-  Stream<FileResponse> downloadFile(
-      {required String fileUrl, required MessageBoxBloc messageBoxBloc}) {
+  // Function to check file availabelity
+  Future<bool> isMessageFileDownloaded({required messageUrl}) async {
+    final DefaultCacheManager cacheManager = DefaultCacheManager();
+    final FileInfo? fileInfo = await cacheManager.store.getFile(messageUrl);
+    if (fileInfo != null && fileInfo.file.existsSync()) {
+      return true;
+    }
+    return false;
+  }
+
+  // Funtion to downlodad file from storage server
+  Stream<FileResponse> downloadFile({required String fileUrl}) {
     final Stream<FileResponse> stream =
         DefaultCacheManager().getFileStream(fileUrl, withProgress: true);
+    // TODO
     // stream.listen(
     //   (event) {
     //     if (event is FileInfo) {
