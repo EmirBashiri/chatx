@@ -61,8 +61,9 @@ const String savedMessages = "Saved Messages";
 // Default scroll physics
 const ScrollPhysics defaultPhysics = BouncingScrollPhysics();
 const String defaultErrorMessage = "Undefined Error";
+// TODO check that can access to this image without access token
 const String defaultUserProfileUrl =
-    "https://firebasestorage.googleapis.com/v0/b/chatx-31159.appspot.com/o/person.png?alt=media&token=0ea8b78a-2fb1-4ac2-879a-6cff10daa48d";
+    "https://firebasestorage.googleapis.com/v0/b/chatx-31159.appspot.com/o/ChatXTools%2Fperson.png?alt=media&token=94609089-bd1e-4f4e-a49c-34d1af3b5329";
 //////////////////////////////////////////////////////////////////////////
 
 // Duplicate paths //////////////////////////////////////////////////////

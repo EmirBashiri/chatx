@@ -1,5 +1,6 @@
 import 'package:flutter_chatx/ViewModel/AppFunctions/AuthFunctions/auth_functions.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/HomeFunctions/home_functions.dart';
 
 class AppFunctions {
@@ -11,4 +12,7 @@ class AppFunctions {
 
   // Instance of Chat functions class
   final ChatFunctions chatFunctions = ChatFunctions();
+
+  // Instance of Messages functions class
+  final MessagesFunctions messagesFunctions = MessagesFunctions();
 }

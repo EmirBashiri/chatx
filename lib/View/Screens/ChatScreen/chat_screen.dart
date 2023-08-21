@@ -8,7 +8,7 @@ import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessa
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/othet_messages_screen.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/TextMessageScreen/text_message_screen.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
-import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
 
 class ChatScteen extends StatelessWidget {
@@ -16,18 +16,18 @@ class ChatScteen extends StatelessWidget {
   final AppUser senderUser;
   final AppUser receiverUser;
   final DependencyController dependencyController = Get.find();
-  late final ChatFunctions chatFunctions =
-      dependencyController.appFunctions.chatFunctions;
+  late final MessagesFunctions messagesFunctions =
+      dependencyController.appFunctions.messagesFunctions;
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar( 
+      appBar: AppBar(
         forceMaterialTransparency: true,
         centerTitle: true,
         title: Text(
-          chatFunctions.fechChatScreenTitle(
+          messagesFunctions.fechChatScreenTitle(
             senderUser: senderUser,
             receiverUser: receiverUser,
           ),
@@ -63,9 +63,14 @@ class ChatScteen extends StatelessWidget {
                     final MessageEntity messageEntity = messagesList[index];
                     switch (messageEntity.messageType) {
                       case MessageType.txt:
-                        return TexetMessageScreen(messageEntity: messageEntity);
+                        return TexetMessageScreen(
+                          messageEntity: messageEntity,
+                          messagesFunctions: messagesFunctions,
+                        );
                       case MessageType.image:
-                        return ImageMessageScreen(messageEntity: messageEntity);
+                        return ImageMessageScreen(
+                            messageEntity: messageEntity,
+                            messagesFunctions: messagesFunctions);
                       case MessageType.other:
                         return OthetMessagesScreen(
                           messageEntity: messageEntity,

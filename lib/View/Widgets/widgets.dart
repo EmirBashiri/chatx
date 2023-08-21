@@ -1,11 +1,14 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
-import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
+import 'package:flutter_chatx/View/Theme/icons.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 class CustomButton extends StatelessWidget {
   const CustomButton(
@@ -63,13 +66,14 @@ void showSnakeBar({
 
 class CustomLoadingScreen extends StatelessWidget {
   const CustomLoadingScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: colorScheme.background,
-      body: Center(child: SpinKitPianoWave(color: colorScheme.primary)),
+      body: Center(
+        child: SpinKitPianoWave(color: colorScheme.primary),
+      ),
     );
   }
 }
@@ -164,7 +168,7 @@ class CustomImageWidget extends StatelessWidget {
       loadStateChanged: (state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
-            return const CustomLoadingScreen();
+            return const LoadingWidget();
 
           default:
             return state.completedWidget;
@@ -178,48 +182,209 @@ ExtendedNetworkImageProvider networkImageProvider({required String imageUr}) {
   return ExtendedNetworkImageProvider(imageUr, cache: true);
 }
 
+// This widgest are blong to chat screen
 class MessageBox extends StatelessWidget {
   MessageBox({super.key, required this.messageEntity, required this.child});
   final MessageEntity messageEntity;
   final Widget child;
-  final ColorScheme colorScheme = Get.theme.colorScheme;
 
   final DependencyController dependencyController = Get.find();
-
-  late final ChatFunctions chatFunctions =
-      dependencyController.appFunctions.chatFunctions;
-
-  // Fech message align
-  late final Alignment messageAlign = chatFunctions.fechMessageAlign(
-    senderUserId: messageEntity.senderUserId,
-  );
-
-  // Fech message box border
-  late final BorderRadiusGeometry boxBorderRadius =
-      chatFunctions.fechMessageBorder(
-    senderUserId: messageEntity.senderUserId,
-  );
-
-  // Fech message box color
-  late final Color boxColor = chatFunctions.fechMessageBoxColor(
-      senderUserId: messageEntity.senderUserId, colorScheme: colorScheme);
+  late final MessagesFunctions messagesFunctions =
+      dependencyController.appFunctions.messagesFunctions;
 
   @override
   Widget build(BuildContext context) {
+    return messagesFunctions.senderIsCurrentUser(messageEntity: messageEntity)
+        ? _SenderIsCurrentUserBox(
+            messagesFunctions: messagesFunctions,
+            messageEntity: messageEntity,
+            child: child,
+          )
+        : _ReceiverIsCurrentUserBox(
+            messagesFunctions: messagesFunctions,
+            messageEntity: messageEntity,
+            child: child,
+          );
+  }
+}
+
+class _SenderIsCurrentUserBox extends StatelessWidget {
+  const _SenderIsCurrentUserBox({
+    required this.messagesFunctions,
+    required this.messageEntity,
+    required this.child,
+  });
+  final MessagesFunctions messagesFunctions;
+  final MessageEntity messageEntity;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    const Radius duplicateRadius = Radius.circular(12);
+
+    return _AlignedWidgets(
+      messagesFunctions: messagesFunctions,
+      messageEntity: messageEntity,
+      boxRadius: const BorderRadiusDirectional.only(
+        topStart: duplicateRadius,
+        topEnd: duplicateRadius,
+        bottomStart: duplicateRadius,
+      ),
+      boxAlignment: Alignment.bottomRight,
+      boxColor: colorScheme.primaryContainer,
+      chlidrenAlignment: CrossAxisAlignment.start,
+      textsColor: colorScheme.secondary,
+      child: child,
+    );
+  }
+}
+
+class _ReceiverIsCurrentUserBox extends StatelessWidget {
+  const _ReceiverIsCurrentUserBox(
+      {required this.messagesFunctions,
+      required this.messageEntity,
+      required this.child});
+  final MessagesFunctions messagesFunctions;
+  final MessageEntity messageEntity;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    const Radius duplicateRadius = Radius.circular(12);
+
+    return _AlignedWidgets(
+      messagesFunctions: messagesFunctions,
+      messageEntity: messageEntity,
+      boxRadius: const BorderRadiusDirectional.only(
+        topStart: duplicateRadius,
+        topEnd: duplicateRadius,
+        bottomEnd: duplicateRadius,
+      ),
+      boxAlignment: Alignment.bottomLeft,
+      boxColor: colorScheme.inversePrimary,
+      chlidrenAlignment: CrossAxisAlignment.end,
+      textsColor: colorScheme.background,
+      child: child,
+    );
+  }
+}
+
+class _AlignedWidgets extends StatelessWidget {
+  const _AlignedWidgets({
+    required this.child,
+    required this.messagesFunctions,
+    required this.messageEntity,
+    required this.boxRadius,
+    required this.boxAlignment,
+    required this.boxColor,
+    required this.textsColor,
+    required this.chlidrenAlignment,
+  });
+  final BorderRadiusGeometry boxRadius;
+  final Widget child;
+  final MessagesFunctions messagesFunctions;
+  final Alignment boxAlignment;
+  final MessageEntity messageEntity;
+  final Color boxColor;
+  final Color textsColor;
+  final CrossAxisAlignment chlidrenAlignment;
+
+  @override
+  Widget build(BuildContext context) {
+    const EdgeInsetsGeometry duplicatePadding = EdgeInsets.all(12);
+
     return Align(
-      alignment: messageAlign,
+      alignment: boxAlignment,
       child: Container(
         constraints: BoxConstraints(
-          maxHeight: Get.height * 0.45,
           maxWidth: Get.width * 0.65,
         ),
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.all(12),
+        margin: duplicatePadding,
+        padding: duplicatePadding,
         decoration: BoxDecoration(
-          borderRadius: boxBorderRadius,
+          borderRadius: boxRadius,
           color: boxColor,
         ),
-        child: child,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: chlidrenAlignment,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: child,
+            ),
+            _TimeStampWidget(
+              messagesFunctions: messagesFunctions,
+              messageEntity: messageEntity,
+              textColor: textsColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TimeStampWidget extends StatelessWidget {
+  const _TimeStampWidget({
+    required this.messagesFunctions,
+    required this.messageEntity,
+    required this.textColor,
+  });
+
+  final MessagesFunctions messagesFunctions;
+  final MessageEntity messageEntity;
+  final Color textColor;
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return Text(
+      messagesFunctions.messageTimeStamp(timestamp: messageEntity.timestamp),
+      style: textTheme.labelSmall!.copyWith(
+        color: textColor,
+      ),
+    );
+  }
+}
+
+class LoadingWidget extends StatelessWidget {
+  const LoadingWidget({super.key, this.widgetColor, this.widgetSize});
+  final Color? widgetColor;
+  final double? widgetSize;
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return SpinKitPianoWave(
+      color: widgetColor ?? colorScheme.primary,
+      size: widgetSize ?? 50,
+    );
+  }
+}
+
+class CustomProgressIndicator extends StatelessWidget {
+  const CustomProgressIndicator({
+    super.key,
+    required this.downloadProgress,
+    required this.messageEntity,
+  });
+
+  final DownloadProgress downloadProgress;
+  final MessageEntity messageEntity;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return CircularPercentIndicator(
+      progressColor: colorScheme.primary,
+      radius: Get.width * 0.1,
+      lineWidth: 5,
+      percent: downloadProgress.progress!,
+      center: Icon(
+        downloadingIcon,
+        color: colorScheme.primary,
       ),
     );
   }

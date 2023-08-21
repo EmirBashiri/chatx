@@ -5,8 +5,8 @@ import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
-import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
+import 'package:get/get.dart';
 
 class OthetMessagesScreen extends StatelessWidget {
   const OthetMessagesScreen({super.key, required this.messageEntity});
@@ -17,7 +17,6 @@ class OthetMessagesScreen extends StatelessWidget {
       create: (context) {
         final bloc = OtherMessagesBloc();
         bloc.add(OtherMessagesStart(messageEntity));
-        // _otherMessagesBloc = bloc;
         return bloc;
       },
       child: BlocBuilder<OtherMessagesBloc, OtherMessagesState>(
@@ -25,17 +24,17 @@ class OthetMessagesScreen extends StatelessWidget {
           if (state is MessagesPervirewScreen) {
             return _FilePerviewScreen(
               messageEntity: state.messageEntity,
-              chatFunctions: state.chatFunctions,
+              messagesFunctions: state.messagesFunctions,
             );
           } else if (state is MessageFileDownloadingScreen) {
             return _FileLoadingScreen(
               messageEntity: state.messageEntity,
-              chatFunctions: state.chatFunctions,
+              messagesFunctions: state.messagesFunctions,
             );
           } else if (state is MessageFileReadyScreen) {
             return _FileReadyScreen(
               messageEntity: state.messageEntity,
-              chatFunctions: state.chatFunctions,
+              messagesFunctions: state.messagesFunctions,
             );
           }
           return Container();
@@ -46,9 +45,9 @@ class OthetMessagesScreen extends StatelessWidget {
 }
 
 class _FileTitle extends StatelessWidget {
-  const _FileTitle({required this.chatFunctions, required this.messageEntity});
+  const _FileTitle({required this.messagesFunctions, required this.messageEntity});
 
-  final ChatFunctions chatFunctions;
+  final MessagesFunctions messagesFunctions;
   final MessageEntity messageEntity;
   @override
   Widget build(BuildContext context) {
@@ -56,26 +55,43 @@ class _FileTitle extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Flexible(
-      child: chatFunctions.buildCustomTextWidget(
+      child: textWidget(
         textTheme: textTheme,
-        messageEntity: messageEntity,
-        text: chatFunctions.fechFileMessageTitle(
-          messageUrl: messageEntity.message,
-        ),
         colorScheme: colorScheme,
       ),
     );
+  }
+
+  Text textWidget(
+      {required TextTheme textTheme, required ColorScheme colorScheme}) {
+    final String messageFileTitle =
+        messagesFunctions.fechFileMessageTitle(messageUrl: messageEntity.message);
+    return messagesFunctions.senderIsCurrentUser(messageEntity: messageEntity)
+        ? Text(
+            messageFileTitle,
+            style: textTheme.bodyMedium!.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.secondary,
+            ),
+          )
+        : Text(
+            messageFileTitle,
+            style: textTheme.bodyMedium!.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.background,
+            ),
+          );
   }
 }
 
 class _FilePerviewScreen extends StatelessWidget {
   const _FilePerviewScreen({
     required this.messageEntity,
-    required this.chatFunctions,
+    required this.messagesFunctions,
   });
 
   final MessageEntity messageEntity;
-  final ChatFunctions chatFunctions;
+  final MessagesFunctions messagesFunctions;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +114,7 @@ class _FilePerviewScreen extends StatelessWidget {
               ),
             ),
             _FileTitle(
-              chatFunctions: chatFunctions,
+              messagesFunctions: messagesFunctions,
               messageEntity: messageEntity,
             )
           ],
@@ -111,46 +127,39 @@ class _FilePerviewScreen extends StatelessWidget {
 class _FileLoadingScreen extends StatelessWidget {
   const _FileLoadingScreen({
     required this.messageEntity,
-    required this.chatFunctions,
+    required this.messagesFunctions,
   });
   final MessageEntity messageEntity;
-  final ChatFunctions chatFunctions;
+  final MessagesFunctions messagesFunctions;
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
     return MessageBox(
       messageEntity: messageEntity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           StreamBuilder(
-            stream: chatFunctions.downloadFile(fileUrl: messageEntity.message),
+            
+            stream: messagesFunctions.downloadFile(
+              messageEntity: messageEntity,
+              otherMessagesBloc: context.read<OtherMessagesBloc>(),
+            ),
             builder: (context, snapshot) {
               if (snapshot.data is DownloadProgress) {
                 final DownloadProgress downloadProgress =
                     snapshot.data as DownloadProgress;
-                return CircularPercentIndicator(
-                  // TODO clean here
-                  radius: 60,
-                  lineWidth: 5,
-                  percent: downloadProgress.progress!,
-                  center: Text("${downloadProgress.downloaded}"),
+                return CustomProgressIndicator(
+                  downloadProgress: downloadProgress,
+                  messageEntity: messageEntity,
                 );
               } else {
-                return CircleAvatar(
-                  backgroundColor: colorScheme.primary,
-                  child: Icon(
-                    downloadIcon,
-                    color: colorScheme.background,
-                  ),
-                );
+                return LoadingWidget(widgetSize: Get.width * 0.1);
               }
             },
           ),
           _FileTitle(
-            chatFunctions: chatFunctions,
+            messagesFunctions: messagesFunctions,
             messageEntity: messageEntity,
           )
         ],
@@ -162,11 +171,11 @@ class _FileLoadingScreen extends StatelessWidget {
 class _FileReadyScreen extends StatelessWidget {
   const _FileReadyScreen({
     required this.messageEntity,
-    required this.chatFunctions,
+    required this.messagesFunctions,
   });
 
   final MessageEntity messageEntity;
-  final ChatFunctions chatFunctions;
+  final MessagesFunctions messagesFunctions;
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +198,7 @@ class _FileReadyScreen extends StatelessWidget {
               ),
             ),
             _FileTitle(
-              chatFunctions: chatFunctions,
+              messagesFunctions: messagesFunctions,
               messageEntity: messageEntity,
             )
           ],

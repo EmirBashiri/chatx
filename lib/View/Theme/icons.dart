@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -9,3 +10,4 @@ const IconData inVisibileIcon = Icons.visibility_off;
 const IconData tagIcon = FontAwesomeIcons.tags;
 const IconData downloadIcon = FontAwesomeIcons.download;
 const IconData fileIcon = FontAwesomeIcons.solidFile;
+const IconData downloadingIcon = CupertinoIcons.cloud_download;
