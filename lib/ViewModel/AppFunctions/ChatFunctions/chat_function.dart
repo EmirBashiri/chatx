@@ -1,9 +1,12 @@
 import 'dart:async';
 
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
+import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/ChatBloc/chat_bloc.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
+import 'package:get/get.dart';
 
 // Server keys
 const String messagesCollectionKey = "Messages";
@@ -12,7 +15,7 @@ const String messagesDocKey = "User Messages";
 class ChatFunctions {
   // Instance of firestore to speak with DB
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // Function to build room id
   String _buildRoomId({required RoomIdRequirements roomIdRequirements}) {
     final List<String> userIdList = [
@@ -57,4 +60,20 @@ class ChatFunctions {
     });
   }
 
+  // Fuction to fech chat screen title
+  String fechChatScreenTitle(
+      {required AppUser senderUser, required AppUser receiverUser}) {
+    if (senderUser.userUID != receiverUser.userUID) {
+      return receiverUser.fullName ?? receiverUser.email;
+    } else {
+      return savedMessages;
+    }
+  }
+
+  // Fuction to close chat screen
+  Future<void> closeChatScreen(
+      {required MessagesFunctions messagesFunctions}) async {
+    await messagesFunctions.cancelDownloadStreams();
+    Get.back();
+  }
 }

@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
-import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:open_file/open_file.dart';
@@ -16,6 +15,7 @@ import 'package:open_file/open_file.dart';
 class MessagesFunctions {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final StreamController fileStreamController = StreamController();
+  static Map<String, StreamSubscription?> subscriptionList = {};
 
   bool senderIsCurrentUser({required MessageEntity messageEntity}) {
     if (messageEntity.senderUserId == _firebaseAuth.currentUser!.uid) {
@@ -48,32 +48,48 @@ class MessagesFunctions {
     return false;
   }
 
-  // Funtion to downlodad file from storage server
-  Stream<FileResponse> downloadFile(
-      {required MessageEntity messageEntity,
-      required OtherMessagesBloc otherMessagesBloc}) {
-    final Stream<FileResponse> stream = DefaultCacheManager()
-        .getFileStream(messageEntity.message, withProgress: true);
-    final Stream<FileResponse> broadCastStream = stream.asBroadcastStream();
-
-    broadCastStream.listen(
+  // Function to listen download stream
+  void _listenToDownloadStream(
+      {required Stream stream,
+      required MessageEntity messageEntity,
+      required OtherMessagesBloc messagesBloc}) {
+    final StreamSubscription subscription = stream.listen(
       (event) {
         if (event is FileInfo) {
-          otherMessagesBloc.add(OtherMessagesFileCompleted(messageEntity));
+          messagesBloc.add(OtherMessagesFileCompleted(messageEntity));
         }
       },
     );
-    return broadCastStream;
+    final Map<String, StreamSubscription?> subscriptionEntity = {
+      messageEntity.message: subscription
+    };
+    subscriptionList.addEntries(subscriptionEntity.entries);
   }
 
-  // Fuction to fech chat screen title
-  String fechChatScreenTitle(
-      {required AppUser senderUser, required AppUser receiverUser}) {
-    if (senderUser.userUID != receiverUser.userUID) {
-      return receiverUser.fullName ?? receiverUser.email;
-    } else {
-      return savedMessages;
-    }
+  // Funtion to downlodad file from storage server
+  Stream<FileResponse> downloadFile({
+    required MessageEntity messageEntity,
+    required OtherMessagesBloc otherMessagesBloc,
+  }) {
+    final Stream<FileResponse> stream = DefaultCacheManager()
+        .getFileStream(messageEntity.message, withProgress: true)
+        .asBroadcastStream();
+
+    _listenToDownloadStream(
+      stream: stream,
+      messageEntity: messageEntity,
+      messagesBloc: otherMessagesBloc,
+    );
+
+    return stream;
+  }
+
+  // Function to cancel all download streams
+  Future<void> cancelDownloadStreams() async {
+    subscriptionList.forEach((key, value) async {
+      await value?.cancel();
+    });
+    subscriptionList.clear();
   }
 
   // Function to get message file from cache
@@ -119,7 +135,7 @@ class MessagesFunctions {
     }
   }
 
-// Function to open file
+  // Function to open file
   Future<void> openFile(
       {required MessageEntity messageEntity, required Emitter emitter}) async {
     final File? file =

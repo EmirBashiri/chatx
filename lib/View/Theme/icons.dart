@@ -11,3 +11,4 @@ const IconData tagIcon = FontAwesomeIcons.tags;
 const IconData downloadIcon = FontAwesomeIcons.download;
 const IconData fileIcon = FontAwesomeIcons.solidFile;
 const IconData downloadingIcon = CupertinoIcons.cloud_download;
+const IconData backIcon = CupertinoIcons.arrow_left;

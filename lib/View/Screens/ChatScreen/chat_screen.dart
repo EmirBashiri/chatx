@@ -7,27 +7,40 @@ import 'package:flutter_chatx/View/Screens/ChatScreen/ChatBloc/chat_bloc.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessageScreen/image_message_screen.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/othet_messages_screen.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/TextMessageScreen/text_message_screen.dart';
+import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
 
 class ChatScteen extends StatelessWidget {
   ChatScteen({super.key, required this.senderUser, required this.receiverUser});
+
   final AppUser senderUser;
   final AppUser receiverUser;
+
   final DependencyController dependencyController = Get.find();
+  late final ChatFunctions chatFunctions =
+      dependencyController.appFunctions.chatFunctions;
   late final MessagesFunctions messagesFunctions =
       dependencyController.appFunctions.messagesFunctions;
+
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () async => await chatFunctions.closeChatScreen(
+            messagesFunctions: messagesFunctions,
+          ),
+          icon: const Icon(backIcon),
+        ),
         forceMaterialTransparency: true,
         centerTitle: true,
         title: Text(
-          messagesFunctions.fechChatScreenTitle(
+          chatFunctions.fechChatScreenTitle(
             senderUser: senderUser,
             receiverUser: receiverUser,
           ),
