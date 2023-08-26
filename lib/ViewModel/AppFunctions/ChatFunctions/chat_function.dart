@@ -73,7 +73,7 @@ class ChatFunctions {
   // Fuction to close chat screen
   Future<void> closeChatScreen(
       {required MessagesFunctions messagesFunctions}) async {
-    await messagesFunctions.cancelDownloadStreams();
+    await messagesFunctions.cancelAllDownloadStreams();
     Get.back();
   }
 }

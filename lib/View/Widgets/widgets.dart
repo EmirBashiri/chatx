@@ -369,10 +369,12 @@ class CustomProgressIndicator extends StatelessWidget {
     super.key,
     required this.downloadProgress,
     required this.messageEntity,
+   required this.onCancelTapped,
   });
 
   final DownloadProgress downloadProgress;
   final MessageEntity messageEntity;
+  final void Function() onCancelTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -382,9 +384,12 @@ class CustomProgressIndicator extends StatelessWidget {
       radius: Get.width * 0.1,
       lineWidth: 5,
       percent: downloadProgress.progress!,
-      center: Icon(
-        downloadingIcon,
-        color: colorScheme.primary,
+      center: IconButton(
+        onPressed: onCancelTapped,
+        icon: Icon(
+          cancelIcon,
+          color: colorScheme.primary,
+        ),
       ),
     );
   }

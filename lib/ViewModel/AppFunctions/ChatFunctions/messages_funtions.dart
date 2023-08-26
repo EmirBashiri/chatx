@@ -85,11 +85,18 @@ class MessagesFunctions {
   }
 
   // Function to cancel all download streams
-  Future<void> cancelDownloadStreams() async {
+  Future<void> cancelAllDownloadStreams() async {
     subscriptionList.forEach((key, value) async {
       await value?.cancel();
     });
     subscriptionList.clear();
+  }
+
+  // Function to cancel  download stream
+  Future<void> cancelDownloadStream(
+      {required MessageEntity messageEntity}) async {
+    StreamSubscription? subscription = subscriptionList[messageEntity.message];
+    subscription?.cancel();
   }
 
   // Function to get message file from cache

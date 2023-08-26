@@ -12,37 +12,81 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   final DependencyController dependencyController = Get.find();
   late final MessagesFunctions messagesFunctions =
       dependencyController.appFunctions.messagesFunctions;
+
+  // This function called whenever event is OtherMessagesStart
+  Future<void> otherMessagesStart(
+      {required MessageEntity messageEntity, required Emitter emit}) async {
+    final bool isFileDownloaded =
+        await messagesFunctions.isMessageFileDownloaded(
+      messageUrl: messageEntity.message,
+    );
+    if (isFileDownloaded) {
+      emit(MessageFileReadyScreen(
+          messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+    } else {
+      emit(MessagesPervirewScreen(
+          messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+    }
+  }
+
+  // This function called whenever event is OtherMessagesDownloadFile
+  Future<void> otherMessagesDownloadFile(
+      {required MessageEntity messageEntity, required Emitter emit}) async {
+    emit(MessageFileDownloadingScreen(
+        messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+  }
+
+  // This function called whenever event is OtherMessagesFileCompleted
+  Future<void> otherMessagesFileCompleted(
+      {required MessageEntity messageEntity, required Emitter emit}) async {
+    emit(MessageFileReadyScreen(
+      messagesFunctions: messagesFunctions,
+      messageEntity: messageEntity,
+    ));
+  }
+
+  // This function called whenever event is OtherMessagesOpenFile
+  Future<void> otherMessagesOpenFile(
+      {required MessageEntity messageEntity, required Emitter emit}) async {
+    await messagesFunctions.openFile(
+        messageEntity: messageEntity, emitter: emit);
+  }
+
+  // This function called whenever event is OtherMessagesCancelDownloadin
+  Future<void> otherMessagesCancelDownloadin(
+      {required MessageEntity messageEntity, required Emitter emit}) async {
+    await messagesFunctions.cancelDownloadStream(messageEntity: messageEntity);
+    emit(MessagesPervirewScreen(
+        messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+  }
+
   OtherMessagesBloc() : super(OtherMessagesInitial()) {
     on<OtherMessagesEvent>((event, emit) async {
       if (event is OtherMessagesStart) {
-        final MessageEntity messageEntity = event.messageEntity;
-        final bool isFileDownloaded =
-            await messagesFunctions.isMessageFileDownloaded(
-          messageUrl: messageEntity.message,
+        await otherMessagesStart(
+          messageEntity: event.messageEntity,
+          emit: emit,
         );
-        if (isFileDownloaded) {
-          emit(MessageFileReadyScreen(
-              messageEntity: messageEntity,
-              messagesFunctions: messagesFunctions));
-        } else {
-          emit(MessagesPervirewScreen(
-              messageEntity: messageEntity,
-              messagesFunctions: messagesFunctions));
-        }
       } else if (event is OtherMessagesDownloadFile) {
-        emit(MessageFileDownloadingScreen(
-            messageEntity: event.messageEntity,
-            messagesFunctions: messagesFunctions));
+        await otherMessagesDownloadFile(
+          messageEntity: event.messageEntity,
+          emit: emit,
+        );
       } else if (event is OtherMessagesFileCompleted) {
-        emit(
-          MessageFileReadyScreen(
-            messagesFunctions: messagesFunctions,
-            messageEntity: event.messageEntity,
-          ),
+        await otherMessagesFileCompleted(
+          messageEntity: event.messageEntity,
+          emit: emit,
         );
       } else if (event is OtherMessagesOpenFile) {
-        await messagesFunctions.openFile(
-            messageEntity: event.messageEntity, emitter: emit);
+        await otherMessagesOpenFile(
+          messageEntity: event.messageEntity,
+          emit: emit,
+        );
+      } else if (event is OtherMessagesCancelDownloadin) {
+        await otherMessagesCancelDownloadin(
+          messageEntity: event.messageEntity,
+          emit: emit,
+        );
       }
     });
   }

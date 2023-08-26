@@ -10,5 +10,6 @@ const IconData inVisibileIcon = Icons.visibility_off;
 const IconData tagIcon = FontAwesomeIcons.tags;
 const IconData downloadIcon = FontAwesomeIcons.download;
 const IconData fileIcon = FontAwesomeIcons.solidFile;
-const IconData downloadingIcon = CupertinoIcons.cloud_download;
+const IconData cancelIcon = CupertinoIcons.xmark;
 const IconData backIcon = CupertinoIcons.arrow_left;
+const IconData errorIcon = Icons.error;

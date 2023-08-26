@@ -30,3 +30,10 @@ class OtherMessagesOpenFile extends OtherMessagesEvent {
 
   OtherMessagesOpenFile(this.messageEntity);
 }
+
+// This event is called whenever file was downloading and user tap to cancel it
+class OtherMessagesCancelDownloadin extends OtherMessagesEvent {
+  final MessageEntity messageEntity;
+
+  OtherMessagesCancelDownloadin(this.messageEntity);
+}

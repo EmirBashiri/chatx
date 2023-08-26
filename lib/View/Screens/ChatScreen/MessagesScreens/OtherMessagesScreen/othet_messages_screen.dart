@@ -45,7 +45,8 @@ class OthetMessagesScreen extends StatelessWidget {
 }
 
 class _FileTitle extends StatelessWidget {
-  const _FileTitle({required this.messagesFunctions, required this.messageEntity});
+  const _FileTitle(
+      {required this.messagesFunctions, required this.messageEntity});
 
   final MessagesFunctions messagesFunctions;
   final MessageEntity messageEntity;
@@ -64,8 +65,8 @@ class _FileTitle extends StatelessWidget {
 
   Text textWidget(
       {required TextTheme textTheme, required ColorScheme colorScheme}) {
-    final String messageFileTitle =
-        messagesFunctions.fechFileMessageTitle(messageUrl: messageEntity.message);
+    final String messageFileTitle = messagesFunctions.fechFileMessageTitle(
+        messageUrl: messageEntity.message);
     return messagesFunctions.senderIsCurrentUser(messageEntity: messageEntity)
         ? Text(
             messageFileTitle,
@@ -139,24 +140,9 @@ class _FileLoadingScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          StreamBuilder(
-            
-            stream: messagesFunctions.downloadFile(
-              messageEntity: messageEntity,
-              otherMessagesBloc: context.read<OtherMessagesBloc>(),
-            ),
-            builder: (context, snapshot) {
-              if (snapshot.data is DownloadProgress) {
-                final DownloadProgress downloadProgress =
-                    snapshot.data as DownloadProgress;
-                return CustomProgressIndicator(
-                  downloadProgress: downloadProgress,
-                  messageEntity: messageEntity,
-                );
-              } else {
-                return LoadingWidget(widgetSize: Get.width * 0.1);
-              }
-            },
+          _CustomStreamBuilder(
+            messagesFunctions: messagesFunctions,
+            messageEntity: messageEntity,
           ),
           _FileTitle(
             messagesFunctions: messagesFunctions,
@@ -164,6 +150,47 @@ class _FileLoadingScreen extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class _CustomStreamBuilder extends StatelessWidget {
+  const _CustomStreamBuilder({
+    required this.messagesFunctions,
+    required this.messageEntity,
+  });
+
+  final MessagesFunctions messagesFunctions;
+  final MessageEntity messageEntity;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: messagesFunctions.downloadFile(
+        messageEntity: messageEntity,
+        otherMessagesBloc: context.read<OtherMessagesBloc>(),
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.data is DownloadProgress) {
+          final DownloadProgress downloadProgress =
+              snapshot.data as DownloadProgress;
+          return CustomProgressIndicator(
+            downloadProgress: downloadProgress,
+            messageEntity: messageEntity,
+            onCancelTapped: () => context
+                .read<OtherMessagesBloc>()
+                .add(OtherMessagesCancelDownloadin(messageEntity)),
+          );
+        } else if (snapshot.hasError) {
+          return IconButton.filled(
+              onPressed: () => context
+                  .read<OtherMessagesBloc>()
+                  .add(OtherMessagesStart(messageEntity)),
+              icon: const Icon(errorIcon));
+        } else {
+          return LoadingWidget(widgetSize: Get.width * 0.1);
+        }
+      },
     );
   }
 }
