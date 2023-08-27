@@ -2,21 +2,23 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
+import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 
 class MessagesFunctions {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final StreamController fileStreamController = StreamController();
-  static Map<String, StreamSubscription?> subscriptionList = {};
+  Map<String, CancelToken> cancelTokens = {};
 
+  // Function to check message sender is applications current user or not
   bool senderIsCurrentUser({required MessageEntity messageEntity}) {
     if (messageEntity.senderUserId == _firebaseAuth.currentUser!.uid) {
       return true;
@@ -38,73 +40,95 @@ class MessagesFunctions {
     return uri.pathSegments[1];
   }
 
+  // Function to fech message file cached path
+  Future<String> _fechMesssageFileCachePath(
+      {required String messageUrl}) async {
+    final Directory cacheDirectory = await getApplicationCacheDirectory();
+    return "${cacheDirectory.path}/$messageUrl";
+  }
+
   // Function to check file availabelity
-  Future<bool> isMessageFileDownloaded({required messageUrl}) async {
-    final DefaultCacheManager cacheManager = DefaultCacheManager();
-    final FileInfo? fileInfo = await cacheManager.store.getFile(messageUrl);
-    if (fileInfo != null && fileInfo.file.existsSync()) {
+  Future<bool> isMessageFileDownloaded({required String messageUrl}) async {
+    final filePath = await _fechMesssageFileCachePath(messageUrl: messageUrl);
+    final File file = File(filePath);
+    if (file.existsSync()) {
       return true;
     }
     return false;
   }
 
-  // Function to listen download stream
-  void _listenToDownloadStream(
-      {required Stream stream,
-      required MessageEntity messageEntity,
-      required OtherMessagesBloc messagesBloc}) {
-    final StreamSubscription subscription = stream.listen(
-      (event) {
-        if (event is FileInfo) {
-          messagesBloc.add(OtherMessagesFileCompleted(messageEntity));
-        }
-      },
-    );
-    final Map<String, StreamSubscription?> subscriptionEntity = {
-      messageEntity.message: subscription
-    };
-    subscriptionList.addEntries(subscriptionEntity.entries);
+  // Function to build cansel token and add to tokens maps
+  CancelToken _buildCancelToken({required String messageUrl}) {
+    final CancelToken cancelToken = CancelToken();
+    cancelTokens.addAll({messageUrl: cancelToken});
+    return cancelToken;
+  }
+
+  // Function to remove cancel token from cancel tokens map
+  void _removeCancelToken({required String messageUrl}) {
+    cancelTokens.remove(messageUrl);
   }
 
   // Funtion to downlodad file from storage server
-  Stream<FileResponse> downloadFile({
+  Future<void> downloadFile({
     required MessageEntity messageEntity,
     required OtherMessagesBloc otherMessagesBloc,
-  }) {
-    final Stream<FileResponse> stream = DefaultCacheManager()
-        .getFileStream(messageEntity.message, withProgress: true)
-        .asBroadcastStream();
-
-    _listenToDownloadStream(
-      stream: stream,
-      messageEntity: messageEntity,
-      messagesBloc: otherMessagesBloc,
+  }) async {
+    final String filePath = await _fechMesssageFileCachePath(
+      messageUrl: messageEntity.message,
     );
-
-    return stream;
+    final CancelToken cancelToken =
+        _buildCancelToken(messageUrl: messageEntity.message);
+    try {
+      await Dio().download(
+        messageEntity.message,
+        filePath,
+        cancelToken: cancelToken,
+        onReceiveProgress: (count, total) {
+          otherMessagesBloc.add(
+            OtherMessagesDownloadStatus(
+              messageEntity: messageEntity,
+              downloadProgressStatus:
+                  DownloadProgressStatus(downloaded: count, total: total),
+            ),
+          );
+        },
+      );
+      _removeCancelToken(messageUrl: messageEntity.message);
+      otherMessagesBloc.add(OtherMessagesFileCompleted(messageEntity));
+    } catch (e) {
+      otherMessagesBloc.add(OtherMessagesDownloadError(messageEntity));
+    }
   }
 
-  // Function to cancel all download streams
-  Future<void> cancelAllDownloadStreams() async {
-    subscriptionList.forEach((key, value) async {
-      await value?.cancel();
+  // Function to fech file dwonload progress
+  double fechDownloadProgress(
+      {required DownloadProgressStatus downloadProgressStatus}) {
+    return downloadProgressStatus.downloaded / downloadProgressStatus.total;
+  }
+
+  // Function to cancel all downloads
+  void cancelAllDownloads() async {
+    cancelTokens.forEach((key, value) {
+      value.cancel();
     });
-    subscriptionList.clear();
+    cancelTokens.clear();
   }
 
-  // Function to cancel  download stream
-  Future<void> cancelDownloadStream(
-      {required MessageEntity messageEntity}) async {
-    StreamSubscription? subscription = subscriptionList[messageEntity.message];
-    subscription?.cancel();
+  // Function to _cancel downloading
+  void cancelDownload({required MessageEntity messageEntity}) {
+    CancelToken? cancelToken = cancelTokens[messageEntity.message];
+    cancelTokens.remove(messageEntity.message);
+    cancelToken?.cancel();
   }
 
   // Function to get message file from cache
   Future<File?> _getFileFromCache({required String messageUrl}) async {
-    final DefaultCacheManager cacheManager = DefaultCacheManager();
-    final FileInfo? fileInfo = await cacheManager.getFileFromCache(messageUrl);
-    if (fileInfo != null) {
-      return fileInfo.file;
+    final String filePath =
+        await _fechMesssageFileCachePath(messageUrl: messageUrl);
+    final File file = File(filePath);
+    if (file.existsSync()) {
+      return file;
     } else {
       return null;
     }
@@ -142,16 +166,15 @@ class MessagesFunctions {
     }
   }
 
-  // Function to open file
-  Future<void> openFile(
-      {required MessageEntity messageEntity, required Emitter emitter}) async {
+  // Function to open message file
+  Future<void> openFileMessage(
+      {required MessageEntity messageEntity, required OtherMessagesBloc otherMessagesBloc}) async {
     final File? file =
         await _getFileFromCache(messageUrl: messageEntity.message);
     if (file != null) {
       await _openFile(file: file);
     } else {
-      emitter.call(MessageFileDownloadingScreen(
-          messageEntity: messageEntity, messagesFunctions: this));
+      otherMessagesBloc.add(OtherMessagesStart(messageEntity));
     }
   }
 }

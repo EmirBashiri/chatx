@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
+import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
@@ -32,8 +33,10 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   // This function called whenever event is OtherMessagesDownloadFile
   Future<void> otherMessagesDownloadFile(
       {required MessageEntity messageEntity, required Emitter emit}) async {
-    emit(MessageFileDownloadingScreen(
+    emit(MessageFileLoadingScreen(
         messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+    await messagesFunctions.downloadFile(
+        messageEntity: messageEntity, otherMessagesBloc: this);
   }
 
   // This function called whenever event is OtherMessagesFileCompleted
@@ -48,16 +51,37 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   // This function called whenever event is OtherMessagesOpenFile
   Future<void> otherMessagesOpenFile(
       {required MessageEntity messageEntity, required Emitter emit}) async {
-    await messagesFunctions.openFile(
-        messageEntity: messageEntity, emitter: emit);
+    await messagesFunctions.openFileMessage(
+        messageEntity: messageEntity, otherMessagesBloc: this);
   }
 
-  // This function called whenever event is OtherMessagesCancelDownloadin
-  Future<void> otherMessagesCancelDownloadin(
+  // This function called whenever event is OtherMessagesCancelDownloading
+  Future<void> otherMessagesCancelDownloading(
       {required MessageEntity messageEntity, required Emitter emit}) async {
-    await messagesFunctions.cancelDownloadStream(messageEntity: messageEntity);
+    messagesFunctions.cancelDownload(messageEntity: messageEntity);
     emit(MessagesPervirewScreen(
         messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+  }
+
+  // This function called whenever event is OtherMessagesDownloadStatus
+  void otherMessagesDownloadStatus(
+      {required MessageEntity messageEntity,
+      required Emitter emit,
+      required DownloadProgressStatus downloadProgressStatus}) {
+    emit(MessageFileDownloadingScreen(
+      messageEntity: messageEntity,
+      messagesFunctions: messagesFunctions,
+      downloadProgressStatus: downloadProgressStatus,
+    ));
+  }
+
+  // This function called whenever event is OtherMessagesDownloadError
+  void otherMessagesDownloadError(
+      {required MessageEntity messageEntity, required Emitter emit}) {
+    emit(MessageFileErrorScreen(
+      messageEntity: messageEntity,
+      messagesFunctions: messagesFunctions,
+    ));
   }
 
   OtherMessagesBloc() : super(OtherMessagesInitial()) {
@@ -72,6 +96,17 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
           messageEntity: event.messageEntity,
           emit: emit,
         );
+      } else if (event is OtherMessagesDownloadStatus) {
+        otherMessagesDownloadStatus(
+          messageEntity: event.messageEntity,
+          emit: emit,
+          downloadProgressStatus: event.downloadProgressStatus,
+        );
+      } else if (event is OtherMessagesDownloadError) {
+        otherMessagesDownloadError(
+          messageEntity: event.messageEntity,
+          emit: emit,
+        );
       } else if (event is OtherMessagesFileCompleted) {
         await otherMessagesFileCompleted(
           messageEntity: event.messageEntity,
@@ -82,8 +117,8 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
           messageEntity: event.messageEntity,
           emit: emit,
         );
-      } else if (event is OtherMessagesCancelDownloadin) {
-        await otherMessagesCancelDownloadin(
+      } else if (event is OtherMessagesCancelDownloading) {
+        await otherMessagesCancelDownloading(
           messageEntity: event.messageEntity,
           emit: emit,
         );

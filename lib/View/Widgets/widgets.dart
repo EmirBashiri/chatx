@@ -1,6 +1,5 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
@@ -9,6 +8,8 @@ import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funt
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+
+import '../../Model/Entities/duplicate_entities.dart';
 
 class CustomButton extends StatelessWidget {
   const CustomButton(
@@ -367,14 +368,15 @@ class LoadingWidget extends StatelessWidget {
 class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({
     super.key,
-    required this.downloadProgress,
+    required this.downloadProgressStatus,
     required this.messageEntity,
-   required this.onCancelTapped,
+    required this.onCancelTapped,
+    required this.messagesFunctions,
   });
-
-  final DownloadProgress downloadProgress;
+  final DownloadProgressStatus downloadProgressStatus;
   final MessageEntity messageEntity;
   final void Function() onCancelTapped;
+  final MessagesFunctions messagesFunctions;
 
   @override
   Widget build(BuildContext context) {
@@ -383,7 +385,9 @@ class CustomProgressIndicator extends StatelessWidget {
       progressColor: colorScheme.primary,
       radius: Get.width * 0.1,
       lineWidth: 5,
-      percent: downloadProgress.progress!,
+      percent: messagesFunctions.fechDownloadProgress(
+        downloadProgressStatus: downloadProgressStatus,
+      ),
       center: IconButton(
         onPressed: onCancelTapped,
         icon: Icon(

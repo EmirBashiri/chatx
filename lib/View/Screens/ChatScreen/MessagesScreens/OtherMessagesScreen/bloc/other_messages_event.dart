@@ -32,8 +32,26 @@ class OtherMessagesOpenFile extends OtherMessagesEvent {
 }
 
 // This event is called whenever file was downloading and user tap to cancel it
-class OtherMessagesCancelDownloadin extends OtherMessagesEvent {
+class OtherMessagesCancelDownloading extends OtherMessagesEvent {
   final MessageEntity messageEntity;
 
-  OtherMessagesCancelDownloadin(this.messageEntity);
+  OtherMessagesCancelDownloading(this.messageEntity);
+}
+
+// This event is called whenever file was downloading
+class OtherMessagesDownloadStatus extends OtherMessagesEvent {
+  final MessageEntity messageEntity;
+  final DownloadProgressStatus downloadProgressStatus;
+
+  OtherMessagesDownloadStatus({
+    required this.downloadProgressStatus,
+    required this.messageEntity,
+  });
+}
+
+// This event is called whenever file was downloading and an error detected
+class OtherMessagesDownloadError extends OtherMessagesEvent {
+  final MessageEntity messageEntity;
+
+  OtherMessagesDownloadError(this.messageEntity);
 }

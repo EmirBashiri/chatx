@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
@@ -26,10 +25,35 @@ class OthetMessagesScreen extends StatelessWidget {
               messageEntity: state.messageEntity,
               messagesFunctions: state.messagesFunctions,
             );
-          } else if (state is MessageFileDownloadingScreen) {
-            return _FileLoadingScreen(
+          } else if (state is MessageFileLoadingScreen) {
+            return _FileDownloadingStatusScreen(
               messageEntity: state.messageEntity,
               messagesFunctions: state.messagesFunctions,
+              statusWidget: LoadingWidget(widgetSize: Get.width * 0.1),
+            );
+          } else if (state is MessageFileDownloadingScreen) {
+            return _FileDownloadingStatusScreen(
+              messageEntity: state.messageEntity,
+              messagesFunctions: state.messagesFunctions,
+              statusWidget: CustomProgressIndicator(
+                downloadProgressStatus: state.downloadProgressStatus,
+                messageEntity: messageEntity,
+                onCancelTapped: () => context
+                    .read<OtherMessagesBloc>()
+                    .add(OtherMessagesCancelDownloading(messageEntity)),
+                messagesFunctions: state.messagesFunctions,
+              ),
+            );
+          } else if (state is MessageFileErrorScreen) {
+            return _FileDownloadingStatusScreen(
+              messageEntity: state.messageEntity,
+              messagesFunctions: state.messagesFunctions,
+              statusWidget: IconButton.filled(
+                onPressed: () => context
+                    .read<OtherMessagesBloc>()
+                    .add(OtherMessagesStart(messageEntity)),
+                icon: const Icon(errorIcon),
+              ),
             );
           } else if (state is MessageFileReadyScreen) {
             return _FileReadyScreen(
@@ -125,14 +149,15 @@ class _FilePerviewScreen extends StatelessWidget {
   }
 }
 
-class _FileLoadingScreen extends StatelessWidget {
-  const _FileLoadingScreen({
+class _FileDownloadingStatusScreen extends StatelessWidget {
+  const _FileDownloadingStatusScreen({
     required this.messageEntity,
     required this.messagesFunctions,
+    required this.statusWidget,
   });
   final MessageEntity messageEntity;
   final MessagesFunctions messagesFunctions;
-
+  final Widget statusWidget;
   @override
   Widget build(BuildContext context) {
     return MessageBox(
@@ -140,57 +165,13 @@ class _FileLoadingScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _CustomStreamBuilder(
-            messagesFunctions: messagesFunctions,
-            messageEntity: messageEntity,
-          ),
+          statusWidget,
           _FileTitle(
             messagesFunctions: messagesFunctions,
             messageEntity: messageEntity,
           )
         ],
       ),
-    );
-  }
-}
-
-class _CustomStreamBuilder extends StatelessWidget {
-  const _CustomStreamBuilder({
-    required this.messagesFunctions,
-    required this.messageEntity,
-  });
-
-  final MessagesFunctions messagesFunctions;
-  final MessageEntity messageEntity;
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: messagesFunctions.downloadFile(
-        messageEntity: messageEntity,
-        otherMessagesBloc: context.read<OtherMessagesBloc>(),
-      ),
-      builder: (context, snapshot) {
-        if (snapshot.data is DownloadProgress) {
-          final DownloadProgress downloadProgress =
-              snapshot.data as DownloadProgress;
-          return CustomProgressIndicator(
-            downloadProgress: downloadProgress,
-            messageEntity: messageEntity,
-            onCancelTapped: () => context
-                .read<OtherMessagesBloc>()
-                .add(OtherMessagesCancelDownloadin(messageEntity)),
-          );
-        } else if (snapshot.hasError) {
-          return IconButton.filled(
-              onPressed: () => context
-                  .read<OtherMessagesBloc>()
-                  .add(OtherMessagesStart(messageEntity)),
-              icon: const Icon(errorIcon));
-        } else {
-          return LoadingWidget(widgetSize: Get.width * 0.1);
-        }
-      },
     );
   }
 }

@@ -13,11 +13,32 @@ class MessagesPervirewScreen extends OtherMessagesState {
       {required this.messageEntity, required this.messagesFunctions});
 }
 
+// This state is launched whenever messages file loading
+class MessageFileLoadingScreen extends OtherMessagesState {
+  final MessageEntity messageEntity;
+  final MessagesFunctions messagesFunctions;
+  MessageFileLoadingScreen({
+    required this.messageEntity,
+    required this.messagesFunctions,
+  });
+}
+
 // This state is launched whenever messages file downloading
 class MessageFileDownloadingScreen extends OtherMessagesState {
   final MessageEntity messageEntity;
   final MessagesFunctions messagesFunctions;
-  MessageFileDownloadingScreen({
+  final DownloadProgressStatus downloadProgressStatus;
+  MessageFileDownloadingScreen(
+      {required this.messageEntity,
+      required this.messagesFunctions,
+      required this.downloadProgressStatus});
+}
+
+// This state is launched whenever messages file downloading and an error detected
+class MessageFileErrorScreen extends OtherMessagesState {
+  final MessageEntity messageEntity;
+  final MessagesFunctions messagesFunctions;
+  MessageFileErrorScreen({
     required this.messageEntity,
     required this.messagesFunctions,
   });
