@@ -221,7 +221,6 @@ class _SenderIsCurrentUserBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    const Radius duplicateRadius = Radius.circular(12);
 
     return _AlignedWidgets(
       messagesFunctions: messagesFunctions,
@@ -252,7 +251,6 @@ class _ReceiverIsCurrentUserBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    const Radius duplicateRadius = Radius.circular(12);
 
     return _AlignedWidgets(
       messagesFunctions: messagesFunctions,

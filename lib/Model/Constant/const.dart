@@ -66,6 +66,9 @@ const String defaultUserProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/chatx-31159.appspot.com/o/ChatXTools%2Fperson.png?alt=media&token=94609089-bd1e-4f4e-a49c-34d1af3b5329";
 //////////////////////////////////////////////////////////////////////////
 
+// message box duplicate border radius
+const Radius duplicateRadius = Radius.circular(24);
+
 // Duplicate paths //////////////////////////////////////////////////////
 const String usersCollectionPath = "Users";
 const String userEmail = "Email";
