@@ -67,11 +67,11 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   void otherMessagesDownloadStatus(
       {required MessageEntity messageEntity,
       required Emitter emit,
-      required DownloadProgressStatus downloadProgressStatus}) {
+      required DownloadProgress downloadProgress}) {
     emit(MessageFileDownloadingScreen(
       messageEntity: messageEntity,
       messagesFunctions: messagesFunctions,
-      downloadProgressStatus: downloadProgressStatus,
+      downloadProgress: downloadProgress,
     ));
   }
 
@@ -100,7 +100,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
         otherMessagesDownloadStatus(
           messageEntity: event.messageEntity,
           emit: emit,
-          downloadProgressStatus: event.downloadProgressStatus,
+          downloadProgress: event.downloadProgress,
         );
       } else if (event is OtherMessagesDownloadError) {
         otherMessagesDownloadError(

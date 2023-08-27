@@ -1,7 +1,7 @@
 // File downloading progress items
-class DownloadProgressStatus {
+class DownloadProgress {
   final int downloaded;
   final int total;
 
-  DownloadProgressStatus({required this.downloaded, required this.total});
+  DownloadProgress({required this.downloaded, required this.total});
 }

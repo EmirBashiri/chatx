@@ -368,12 +368,12 @@ class LoadingWidget extends StatelessWidget {
 class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({
     super.key,
-    required this.downloadProgressStatus,
+    required this.downloadProgress,
     required this.messageEntity,
     required this.onCancelTapped,
     required this.messagesFunctions,
   });
-  final DownloadProgressStatus downloadProgressStatus;
+  final DownloadProgress downloadProgress;
   final MessageEntity messageEntity;
   final void Function() onCancelTapped;
   final MessagesFunctions messagesFunctions;
@@ -386,7 +386,7 @@ class CustomProgressIndicator extends StatelessWidget {
       radius: Get.width * 0.1,
       lineWidth: 5,
       percent: messagesFunctions.fechDownloadProgress(
-        downloadProgressStatus: downloadProgressStatus,
+        downloadProgressStatus: downloadProgress,
       ),
       center: IconButton(
         onPressed: onCancelTapped,

@@ -88,8 +88,8 @@ class MessagesFunctions {
           otherMessagesBloc.add(
             OtherMessagesDownloadStatus(
               messageEntity: messageEntity,
-              downloadProgressStatus:
-                  DownloadProgressStatus(downloaded: count, total: total),
+              downloadProgress:
+                  DownloadProgress(downloaded: count, total: total),
             ),
           );
         },
@@ -103,7 +103,7 @@ class MessagesFunctions {
 
   // Function to fech file dwonload progress
   double fechDownloadProgress(
-      {required DownloadProgressStatus downloadProgressStatus}) {
+      {required DownloadProgress downloadProgressStatus}) {
     return downloadProgressStatus.downloaded / downloadProgressStatus.total;
   }
 
