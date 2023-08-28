@@ -30,8 +30,8 @@ class ChatFunctions {
     return userIdList.join("_");
   }
 
-  // Function to  send message to DB
-  Future<void> sendMessage({required MessageEntity messageEntity}) async {
+  // Function to send message to DB
+  Future<void> _sendMessage({required MessageEntity messageEntity}) async {
     final String roomId = _buildRoomId(
       roomIdRequirements: RoomIdRequirements(
           senderUserId: messageEntity.senderUserId,
@@ -88,5 +88,20 @@ class ChatFunctions {
     } else {
       messageSenderController.canSendText.value = false;
     }
+  }
+
+  // Fuction to send text message
+  Future<void> sendTextMessage(
+      {required RoomIdRequirements roomIdRequirements}) async {
+    final MessageEntity messageEntity = MessageEntity(
+      senderUserId: roomIdRequirements.senderUserId,
+      receiverUserID: roomIdRequirements.receiverUserId,
+      message: messageSenderController.senderTextController.text,
+      messageType: MessageType.txt,
+      timestamp: Timestamp.now(),
+    );
+    messageSenderController.senderTextController.clear();
+    messageSenderController.canSendText.value = false;
+    await _sendMessage(messageEntity: messageEntity);
   }
 }

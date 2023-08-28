@@ -23,6 +23,7 @@ class ChatScreen extends StatelessWidget {
   final AppUser receiverUser;
 
   final DependencyController dependencyController = Get.find();
+  final MessageSenderController senderController = Get.find();
   late final ChatFunctions chatFunctions =
       dependencyController.appFunctions.chatFunctions;
   late final MessagesFunctions messagesFunctions =
@@ -75,6 +76,12 @@ class ChatScreen extends StatelessWidget {
               return _ChatMainWidget(
                 messagesList: state.messagesList,
                 messagesFunctions: messagesFunctions,
+                chatFunctions: chatFunctions,
+                senderController: senderController,
+                roomIdRequirements: RoomIdRequirements(
+                  senderUserId: senderUser.userUID,
+                  receiverUserId: receiverUser.userUID,
+                ),
               );
             }
             return Container();
@@ -90,11 +97,16 @@ class _ChatMainWidget extends StatelessWidget {
   const _ChatMainWidget({
     required this.messagesList,
     required this.messagesFunctions,
+    required this.senderController,
+    required this.chatFunctions,
+    required this.roomIdRequirements,
   });
 
   final List<MessageEntity> messagesList;
   final MessagesFunctions messagesFunctions;
-
+  final MessageSenderController senderController;
+  final ChatFunctions chatFunctions;
+  final RoomIdRequirements roomIdRequirements;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -107,7 +119,11 @@ class _ChatMainWidget extends StatelessWidget {
             messagesFunctions: messagesFunctions,
           ),
           // Chat message sender part
-          const _BottomPart()
+          _BottomPart(
+            senderController: senderController,
+            roomIdRequirements: roomIdRequirements,
+            chatFunctions: chatFunctions,
+          )
         ],
       ),
     );
@@ -155,8 +171,14 @@ class _MainPart extends StatelessWidget {
 
 // Chat screen bottom part (Message sender part)
 class _BottomPart extends StatelessWidget {
-  const _BottomPart();
-
+  const _BottomPart({
+    required this.senderController,
+    required this.chatFunctions,
+    required this.roomIdRequirements,
+  });
+  final MessageSenderController senderController;
+  final ChatFunctions chatFunctions;
+  final RoomIdRequirements roomIdRequirements;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -165,7 +187,11 @@ class _BottomPart extends StatelessWidget {
       child: Row(
         children: [
           _SenderTextField(),
-          _SenderRightAction(),
+          _SenderRightAction(
+            senderController: senderController,
+            chatFunctions: chatFunctions,
+            roomIdRequirements: roomIdRequirements,
+          ),
         ],
       ),
     );
@@ -223,8 +249,16 @@ class _SenderTextField extends StatelessWidget {
 
 // Chat bottom sender part right part
 class _SenderRightAction extends StatelessWidget {
-  _SenderRightAction();
-  final MessageSenderController senderController = Get.find();
+  const _SenderRightAction({
+    required this.senderController,
+    required this.chatFunctions,
+    required this.roomIdRequirements,
+  });
+
+  final MessageSenderController senderController;
+  final ChatFunctions chatFunctions;
+  final RoomIdRequirements roomIdRequirements;
+
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -232,12 +266,14 @@ class _SenderRightAction extends StatelessWidget {
     return Obx(
       () {
         return senderController.canSendText.value
+            // Text message sender button
             ? IconButton.filled(
-                onPressed: () {
-                  //TODO Implement voice sending feature here
-                },
+                onPressed: () async => await chatFunctions.sendTextMessage(
+                  roomIdRequirements: roomIdRequirements,
+                ),
                 icon: Icon(paperPlaneIcon, color: colorScheme.background),
               )
+            // Voice message sender button
             : IconButton.filled(
                 onPressed: () {
                   //TODO Implement voice sending feature here
