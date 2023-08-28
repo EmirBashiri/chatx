@@ -13,3 +13,6 @@ const IconData fileIcon = FontAwesomeIcons.solidFile;
 const IconData cancelIcon = CupertinoIcons.xmark;
 const IconData backIcon = CupertinoIcons.arrow_left;
 const IconData errorIcon = Icons.error;
+const IconData microphoneIcon = FontAwesomeIcons.microphone;
+const IconData paperClipIcon = FontAwesomeIcons.paperclip;
+const IconData paperPlaneIcon = FontAwesomeIcons.paperPlane;

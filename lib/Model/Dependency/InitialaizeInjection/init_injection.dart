@@ -7,6 +7,7 @@ class InitialaizeDependencies {
   static Future<void> init() async {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
+    Get.put(MessageSenderController());
     Get.put(DependencyController());
   }
 }

@@ -46,6 +46,7 @@ const String password = "Password";
 const String validateError = "This field required";
 const String agreeThePrivacy = "Please agree privacy policy to continue";
 const String tryAgain = "Try again";
+const String typeMessage = "Type a message";
 // ///////////////////////////////////////////////////////////////////////
 
 // Home Screen //////////////////////////////////////////

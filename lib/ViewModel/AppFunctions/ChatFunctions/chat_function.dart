@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
+import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/ChatBloc/chat_bloc.dart';
@@ -15,6 +16,9 @@ const String messagesDocKey = "User Messages";
 class ChatFunctions {
   // Instance of firestore to speak with DB
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Instance of message sender controller for use in whole class
+  final MessageSenderController messageSenderController = Get.find();
 
   // Function to build room id
   String _buildRoomId({required RoomIdRequirements roomIdRequirements}) {
@@ -75,5 +79,14 @@ class ChatFunctions {
       {required MessagesFunctions messagesFunctions}) async {
     messagesFunctions.cancelAllDownloads();
     Get.back();
+  }
+
+  // Fuction to fech can send message status
+  void fechCanSendMessage(String textFieldValue) {
+    if (textFieldValue.isNotEmpty) {
+      messageSenderController.canSendText.value = true;
+    } else {
+      messageSenderController.canSendText.value = false;
+    }
   }
 }
