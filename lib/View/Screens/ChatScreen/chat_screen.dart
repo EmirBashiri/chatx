@@ -15,8 +15,9 @@ import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
 
-class ChatScteen extends StatelessWidget {
-  ChatScteen({super.key, required this.senderUser, required this.receiverUser});
+// Application chat screen
+class ChatScreen extends StatelessWidget {
+  ChatScreen({super.key, required this.senderUser, required this.receiverUser});
 
   final AppUser senderUser;
   final AppUser receiverUser;
@@ -84,6 +85,36 @@ class ChatScteen extends StatelessWidget {
   }
 }
 
+// Chat screen main widget
+class _ChatMainWidget extends StatelessWidget {
+  const _ChatMainWidget({
+    required this.messagesList,
+    required this.messagesFunctions,
+  });
+
+  final List<MessageEntity> messagesList;
+  final MessagesFunctions messagesFunctions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          // Chat messages part
+          _MainPart(
+            messagesList: messagesList,
+            messagesFunctions: messagesFunctions,
+          ),
+          // Chat message sender part
+          const _BottomPart()
+        ],
+      ),
+    );
+  }
+}
+
+// Chat screen main part
 class _MainPart extends StatelessWidget {
   const _MainPart({
     required this.messagesList,
@@ -122,6 +153,26 @@ class _MainPart extends StatelessWidget {
   }
 }
 
+// Chat screen bottom part (Message sender part)
+class _BottomPart extends StatelessWidget {
+  const _BottomPart();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.bottomCenter,
+      margin: const EdgeInsets.only(left: 15, right: 15),
+      child: Row(
+        children: [
+          _SenderTextField(),
+          _SenderRightAction(),
+        ],
+      ),
+    );
+  }
+}
+
+// Chat message sender text field
 class _SenderTextField extends StatelessWidget {
   _SenderTextField();
 
@@ -170,6 +221,7 @@ class _SenderTextField extends StatelessWidget {
   }
 }
 
+// Chat bottom sender part right part
 class _SenderRightAction extends StatelessWidget {
   _SenderRightAction();
   final MessageSenderController senderController = Get.find();
@@ -193,52 +245,6 @@ class _SenderRightAction extends StatelessWidget {
                 icon: Icon(microphoneIcon, color: colorScheme.background),
               );
       },
-    );
-  }
-}
-
-class _BottomPart extends StatelessWidget {
-  const _BottomPart();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.bottomCenter,
-      margin: const EdgeInsets.only(left: 15, right: 15),
-      child: Row(
-        children: [
-          _SenderTextField(),
-          _SenderRightAction(),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChatMainWidget extends StatelessWidget {
-  const _ChatMainWidget({
-    required this.messagesList,
-    required this.messagesFunctions,
-  });
-
-  final List<MessageEntity> messagesList;
-  final MessagesFunctions messagesFunctions;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          // Chat messages part
-          _MainPart(
-            messagesList: messagesList,
-            messagesFunctions: messagesFunctions,
-          ),
-          // Chat message sender part
-          const _BottomPart()
-        ],
-      ),
     );
   }
 }

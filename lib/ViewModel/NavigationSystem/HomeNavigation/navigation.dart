@@ -11,7 +11,7 @@ class HomeNavigation {
       Get.context!,
       MaterialPageRoute(
         builder: (context) =>
-            ChatScteen(senderUser: senderUser, receiverUser: receiverUser),
+            ChatScreen(senderUser: senderUser, receiverUser: receiverUser),
       ),
     );
   }
