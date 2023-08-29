@@ -231,17 +231,82 @@ class _SenderTextField extends StatelessWidget {
           decoration: InputDecoration(
               hintText: typeMessage,
               hintStyle: textTheme.bodySmall,
-              prefixIcon: CupertinoButton(
-                onPressed: () {
-                  // TODO implement file and image sender feature here
-                },
-                child: Icon(
-                  paperClipIcon,
-                  color: colorScheme.primary,
-                ),
-              ),
+              prefixIcon: const _SendImageAndFileButton(),
               border: InputBorder.none),
         ),
+      ),
+    );
+  }
+}
+
+// Chat image and file message sender part
+class _SendImageAndFileButton extends StatelessWidget {
+  const _SendImageAndFileButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return CupertinoButton(
+      onPressed: () {
+        showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            return CupertinoAlertDialog(
+              title: Text(
+                selectMessageType,
+                style:
+                    textTheme.bodyLarge?.copyWith(color: colorScheme.primary),
+              ),
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // File message sender button
+                  senderButton(
+                    colorScheme: colorScheme,
+                    textTheme: textTheme,
+                    iconData: fileIcon,
+                    label: fileMessage,
+                    onPressed: () {
+                      // TODO send file message here
+                    },
+                  ),
+                  // Image message sender button
+                  senderButton(
+                    colorScheme: colorScheme,
+                    textTheme: textTheme,
+                    iconData: imageIcon,
+                    label: imageMessage,
+                    onPressed: () {
+                      // TODO send image message here
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+      child: Icon(
+        paperClipIcon,
+        color: colorScheme.primary,
+      ),
+    );
+  }
+
+  ElevatedButton senderButton(
+      {required ColorScheme colorScheme,
+      required TextTheme textTheme,
+      required void Function()? onPressed,
+      required IconData iconData,
+      required String label}) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(iconData, color: colorScheme.primary),
+      label: Text(
+        label,
+        style: textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
       ),
     );
   }

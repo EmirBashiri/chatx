@@ -47,6 +47,9 @@ const String validateError = "This field required";
 const String agreeThePrivacy = "Please agree privacy policy to continue";
 const String tryAgain = "Try again";
 const String typeMessage = "Type a message";
+const String fileMessage = "File";
+const String imageMessage = "Image";
+const String selectMessageType = "Select";
 // ///////////////////////////////////////////////////////////////////////
 
 // Home Screen //////////////////////////////////////////

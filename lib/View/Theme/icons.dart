@@ -16,3 +16,4 @@ const IconData errorIcon = Icons.error;
 const IconData microphoneIcon = FontAwesomeIcons.microphone;
 const IconData paperClipIcon = FontAwesomeIcons.paperclip;
 const IconData paperPlaneIcon = FontAwesomeIcons.paperPlane;
+const IconData imageIcon = FontAwesomeIcons.image;
