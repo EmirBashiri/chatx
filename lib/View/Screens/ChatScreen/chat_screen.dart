@@ -123,7 +123,7 @@ class _ChatMainWidget extends StatelessWidget {
             senderController: senderController,
             roomIdRequirements: roomIdRequirements,
             chatFunctions: chatFunctions,
-          )
+          ),
         ],
       ),
     );
@@ -231,7 +231,7 @@ class _SenderTextField extends StatelessWidget {
           decoration: InputDecoration(
               hintText: typeMessage,
               hintStyle: textTheme.bodySmall,
-              prefixIcon: const _SendImageAndFileButton(),
+              prefixIcon: _SendImageAndFileButton(chatFunctions: chatFunctions),
               border: InputBorder.none),
         ),
       ),
@@ -241,7 +241,8 @@ class _SenderTextField extends StatelessWidget {
 
 // Chat image and file message sender part
 class _SendImageAndFileButton extends StatelessWidget {
-  const _SendImageAndFileButton();
+  const _SendImageAndFileButton({required this.chatFunctions});
+  final ChatFunctions chatFunctions;
 
   @override
   Widget build(BuildContext context) {

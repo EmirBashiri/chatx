@@ -14,24 +14,43 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final DependencyController dependencyController = Get.find();
   late final ChatFunctions chatFunctions =
       dependencyController.appFunctions.chatFunctions;
+
+  // This function called whenever event is ChatStart
+  void chatStart({
+    required ChatFunctions chatFunctions,
+    required RoomIdRequirements roomIdRequirements,
+    required Emitter emit,
+  }) {
+    emit(ChatLoadingScreen());
+    chatFunctions.getMessage(
+      roomIdRequirements: roomIdRequirements,
+      chatBloc: this,
+    );
+  }
+
+  // This function called whenever event is ChatUpdate
+  void chatUpdate({
+    required List<MessageEntity> messageList,
+    required Emitter emit,
+  }) {
+    if (messageList.isNotEmpty) {
+      emit(ChatMainScreen(messageList));
+    } else {
+      emit(ChatEmptyScreen());
+    }
+  }
+
   ChatBloc() : super(ChatInitial()) {
     on<ChatEvent>((event, emit) async {
       try {
         if (event is ChatStart) {
-          emit(
-            ChatLoadingScreen(),
-          );
-          chatFunctions.getMessage(
+          chatStart(
+            chatFunctions: chatFunctions,
             roomIdRequirements: event.roomIdRequirements,
-            chatBloc: this,
+            emit: emit,
           );
         } else if (event is ChatUpdate) {
-          final List<MessageEntity> messagesList = event.messagesList;
-          if (messagesList.isNotEmpty) {
-            emit(ChatMainScreen(messagesList));
-          } else {
-            emit(ChatEmptyScreen());
-          }
+          chatUpdate(messageList: event.messageList, emit: emit);
         }
       } on FirebaseException catch (error) {
         emit(ChatErrorScreen(error.message ?? defaultErrorMessage));

@@ -12,7 +12,7 @@ class ChatStart extends ChatEvent {
 
 // Event called whenever state should update
 class ChatUpdate extends ChatEvent {
-  final List<MessageEntity> messagesList;
+  final List<MessageEntity> messageList;
 
-  ChatUpdate(this.messagesList);
+  ChatUpdate(this.messageList);
 }
