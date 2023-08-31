@@ -5,17 +5,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MessagesFunctions {
+  // Insrance of firebase auth for use in whole file
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final StreamController fileStreamController = StreamController();
+  // Insrance of firebase firestore DB for use in whole file
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // Insrance of firebase storage for use in whole file
+  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
+
+  // Map of cansel tokens for cansel downloads
   Map<String, CancelToken> cancelTokens = {};
 
   // Function to check message sender is applications current user or not
@@ -35,9 +44,9 @@ class MessagesFunctions {
 
   // Function to buid message title
   String fechFileMessageTitle({required String messageUrl}) {
-    // TODO change this with real logic on firebase storage
-    final Uri uri = Uri.parse(messageUrl);
-    return uri.pathSegments[1];
+    // TODO check here
+    final fileName = basename(messageUrl);
+    return fileName;
   }
 
   // Function to fech message file cached path
@@ -86,7 +95,7 @@ class MessagesFunctions {
         cancelToken: cancelToken,
         onReceiveProgress: (count, total) {
           otherMessagesBloc.add(
-            OtherMessagesDownloadStatus(
+            OtherMessagesOperationStatus(
               messageEntity: messageEntity,
               downloadProgress:
                   DownloadProgress(downloaded: count, total: total),
@@ -168,7 +177,8 @@ class MessagesFunctions {
 
   // Function to open message file
   Future<void> openFileMessage(
-      {required MessageEntity messageEntity, required OtherMessagesBloc otherMessagesBloc}) async {
+      {required MessageEntity messageEntity,
+      required OtherMessagesBloc otherMessagesBloc}) async {
     final File? file =
         await _getFileFromCache(messageUrl: messageEntity.message);
     if (file != null) {
@@ -176,5 +186,93 @@ class MessagesFunctions {
     } else {
       otherMessagesBloc.add(OtherMessagesStart(messageEntity));
     }
+  }
+
+  // Function to copy file to new file
+  Future<void> _copyFile({
+    required MessageEntity newMessageEntity,
+    required File oldFile,
+  }) async {
+    final Directory directory = await getApplicationCacheDirectory();
+    final File newFile = File("${directory.path}/${newMessageEntity.message}");
+    newFile.createSync(recursive: true);
+    oldFile.copy(newFile.path);
+    oldFile.deleteSync(recursive: true);
+  }
+
+  // Function to update message on DB
+  Future<void> _updateMessageOnDB({
+    required MessageEntity newMessageEntity,
+    required MessageEntity oldMessageEntity,
+    required ChatFunctions chatFunctions,
+  }) async {
+    final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
+      senderUserId: oldMessageEntity.senderUserId,
+      receiverUserId: oldMessageEntity.receiverUserID,
+    );
+    String docId = "";
+    final QuerySnapshot querySnapshot = await _firestore
+        .collection(messagesCollectionKey)
+        .doc(messagesDocKey)
+        .collection(
+          chatFunctions.buildRoomId(roomIdRequirements: roomIdRequirements),
+        )
+        .get();
+
+    for (var doc in querySnapshot.docs) {
+      if (doc.get(MessageEntity.messageKey) == oldMessageEntity.message) {
+        docId = doc.id;
+      }
+    }
+    
+    await _firestore
+        .collection(messagesCollectionKey)
+        .doc(messagesDocKey)
+        .collection(
+          chatFunctions.buildRoomId(roomIdRequirements: roomIdRequirements),
+        )
+        .doc(docId)
+        .update(MessageEntity.toJson(messageEntity: newMessageEntity));
+  }
+
+  // Function to uplead file on server and send file message
+  Future<void> uploadFileMessage(
+      {required OtherMessagesBloc otherMessagesBloc,
+      required MessageEntity messageEntity,
+      required ChatFunctions chatFunctions}) async {
+    final String fileName = basename(messageEntity.message);
+    final File messageFile = File(messageEntity.message);
+    final Reference reference =
+        _firebaseStorage.ref("$fileMessagesBucket$fileName");
+    final UploadTask uploadTask = reference.putFile(messageFile);
+    uploadTask.asStream().listen((event) {
+      otherMessagesBloc.add(
+        OtherMessagesOperationStatus(
+            downloadProgress: DownloadProgress(
+              downloaded: event.bytesTransferred,
+              total: event.totalBytes,
+            ),
+            messageEntity: messageEntity),
+      );
+    });
+    uploadTask.whenComplete(() async {
+      otherMessagesBloc.add(OtherMessagesLoading(messageEntity));
+      final String downloadUrl = await reference.getDownloadURL();
+      final MessageEntity newMessageEntity = MessageEntity(
+        senderUserId: messageEntity.senderUserId,
+        receiverUserID: messageEntity.receiverUserID,
+        message: downloadUrl,
+        messageType: messageEntity.messageType,
+        timestamp: messageEntity.timestamp,
+        isUploading: false,
+      );
+      await _copyFile(newMessageEntity: newMessageEntity, oldFile: messageFile);
+      await _updateMessageOnDB(
+        newMessageEntity: newMessageEntity,
+        oldMessageEntity: messageEntity,
+        chatFunctions: chatFunctions,
+      );
+      otherMessagesBloc.add(OtherMessagesFileCompleted(messageEntity));
+    });
   }
 }

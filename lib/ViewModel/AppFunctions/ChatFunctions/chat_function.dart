@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
@@ -21,7 +23,7 @@ class ChatFunctions {
   final MessageSenderController messageSenderController = Get.find();
 
   // Function to build room id
-  String _buildRoomId({required RoomIdRequirements roomIdRequirements}) {
+  String buildRoomId({required RoomIdRequirements roomIdRequirements}) {
     final List<String> userIdList = [
       roomIdRequirements.senderUserId,
       roomIdRequirements.receiverUserId,
@@ -32,7 +34,7 @@ class ChatFunctions {
 
   // Function to send message to DB
   Future<void> _sendMessage({required MessageEntity messageEntity}) async {
-    final String roomId = _buildRoomId(
+    final String roomId = buildRoomId(
       roomIdRequirements: RoomIdRequirements(
           senderUserId: messageEntity.senderUserId,
           receiverUserId: messageEntity.receiverUserID),
@@ -48,7 +50,7 @@ class ChatFunctions {
   void getMessage(
       {required RoomIdRequirements roomIdRequirements,
       required ChatBloc chatBloc}) {
-    final String roomId = _buildRoomId(roomIdRequirements: roomIdRequirements);
+    final String roomId = buildRoomId(roomIdRequirements: roomIdRequirements);
     final streamToDB = _firestore
         .collection(messagesCollectionKey)
         .doc(messagesDocKey)
@@ -99,9 +101,44 @@ class ChatFunctions {
       message: messageSenderController.senderTextController.text,
       messageType: MessageType.txt,
       timestamp: Timestamp.now(),
+      isUploading: false,
     );
     messageSenderController.senderTextController.clear();
     messageSenderController.canSendText.value = false;
     await _sendMessage(messageEntity: messageEntity);
+  }
+
+  // Fuction to pick file from user storage
+  Future<File?> _pickFile() async {
+    final FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      final File file = File(result.files.single.path!);
+      return file;
+    }
+    return null;
+  }
+
+  // Fuction to start file sending operation
+  Future<void> startFileUploading(
+      {required RoomIdRequirements roomIdRequirements,
+      required ChatBloc chatBloc}) async {
+    Get.back();
+    final File? file = await _pickFile();
+    if (file != null) {
+      final MessageEntity messageEntity = MessageEntity(
+        senderUserId: roomIdRequirements.senderUserId,
+        receiverUserID: roomIdRequirements.receiverUserId,
+        message: file.path,
+        messageType: MessageType.other,
+        timestamp: Timestamp.now(),
+        isUploading: true,
+      );
+      await _firestore
+          .collection(messagesCollectionKey)
+          .doc(messagesDocKey)
+          .collection(buildRoomId(roomIdRequirements: roomIdRequirements))
+          .add(MessageEntity.toJson(messageEntity: messageEntity));
+      getMessage(roomIdRequirements: roomIdRequirements, chatBloc: chatBloc);
+    }
   }
 }

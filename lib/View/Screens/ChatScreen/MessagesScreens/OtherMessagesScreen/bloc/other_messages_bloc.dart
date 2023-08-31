@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
 
@@ -13,20 +14,37 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   final DependencyController dependencyController = Get.find();
   late final MessagesFunctions messagesFunctions =
       dependencyController.appFunctions.messagesFunctions;
+  late final ChatFunctions chatFunctions =
+      dependencyController.appFunctions.chatFunctions;
 
   // This function called whenever event is OtherMessagesStart
   Future<void> otherMessagesStart(
       {required MessageEntity messageEntity, required Emitter emit}) async {
-    final bool isFileDownloaded =
-        await messagesFunctions.isMessageFileDownloaded(
-      messageUrl: messageEntity.message,
-    );
-    if (isFileDownloaded) {
-      emit(MessageFileReadyScreen(
-          messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+    if (messageEntity.isUploading) {
+      emit(MessageFileLoadingScreen(
+        messageEntity: messageEntity,
+        messagesFunctions: messagesFunctions,
+      ));
+    
+      await messagesFunctions.uploadFileMessage(
+          otherMessagesBloc: this,
+          messageEntity: messageEntity,
+          chatFunctions: chatFunctions);
+ 
     } else {
-      emit(MessagesPervirewScreen(
-          messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+      final bool isFileDownloaded =
+          await messagesFunctions.isMessageFileDownloaded(
+        messageUrl: messageEntity.message,
+      );
+      if (isFileDownloaded) {
+        emit(MessageFileReadyScreen(
+            messageEntity: messageEntity,
+            messagesFunctions: messagesFunctions));
+      } else {
+        emit(MessagesPervirewScreen(
+            messageEntity: messageEntity,
+            messagesFunctions: messagesFunctions));
+      }
     }
   }
 
@@ -68,7 +86,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
       {required MessageEntity messageEntity,
       required Emitter emit,
       required DownloadProgress downloadProgress}) {
-    emit(MessageFileDownloadingScreen(
+    emit(MessageFileOperationScreen(
       messageEntity: messageEntity,
       messagesFunctions: messagesFunctions,
       downloadProgress: downloadProgress,
@@ -79,6 +97,15 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   void otherMessagesDownloadError(
       {required MessageEntity messageEntity, required Emitter emit}) {
     emit(MessageFileErrorScreen(
+      messageEntity: messageEntity,
+      messagesFunctions: messagesFunctions,
+    ));
+  }
+
+  // This function called whenever event is OtherMessagesLoading
+  void otherMessagesLoading(
+      {required MessageEntity messageEntity, required Emitter emit}) {
+    emit(MessageFileLoadingScreen(
       messageEntity: messageEntity,
       messagesFunctions: messagesFunctions,
     ));
@@ -96,7 +123,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
           messageEntity: event.messageEntity,
           emit: emit,
         );
-      } else if (event is OtherMessagesDownloadStatus) {
+      } else if (event is OtherMessagesOperationStatus) {
         otherMessagesDownloadStatus(
           messageEntity: event.messageEntity,
           emit: emit,
@@ -122,6 +149,8 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
           messageEntity: event.messageEntity,
           emit: emit,
         );
+      } else if (event is OtherMessagesLoading) {
+        otherMessagesLoading(messageEntity: event.messageEntity, emit: emit);
       }
     });
   }

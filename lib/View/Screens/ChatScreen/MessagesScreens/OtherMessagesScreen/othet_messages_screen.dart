@@ -31,7 +31,7 @@ class OthetMessagesScreen extends StatelessWidget {
               messagesFunctions: state.messagesFunctions,
               statusWidget: LoadingWidget(widgetSize: Get.width * 0.1),
             );
-          } else if (state is MessageFileDownloadingScreen) {
+          } else if (state is MessageFileOperationScreen) {
             return _FileDownloadingStatusScreen(
               messageEntity: state.messageEntity,
               messagesFunctions: state.messagesFunctions,

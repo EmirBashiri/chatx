@@ -38,12 +38,12 @@ class OtherMessagesCancelDownloading extends OtherMessagesEvent {
   OtherMessagesCancelDownloading(this.messageEntity);
 }
 
-// This event is called whenever file was downloading
-class OtherMessagesDownloadStatus extends OtherMessagesEvent {
+// This event is called whenever operation loading
+class OtherMessagesOperationStatus extends OtherMessagesEvent {
   final MessageEntity messageEntity;
   final DownloadProgress downloadProgress;
 
-  OtherMessagesDownloadStatus({
+  OtherMessagesOperationStatus({
     required this.downloadProgress,
     required this.messageEntity,
   });
@@ -54,4 +54,18 @@ class OtherMessagesDownloadError extends OtherMessagesEvent {
   final MessageEntity messageEntity;
 
   OtherMessagesDownloadError(this.messageEntity);
+}
+
+// This event is called whenever operation needs loading
+class OtherMessagesLoading extends OtherMessagesEvent {
+  final MessageEntity messageEntity;
+
+  OtherMessagesLoading(this.messageEntity);
+}
+
+// This event is called whenever file was uploading and an error detected
+class OtherMessagesUploadError extends OtherMessagesEvent {
+  final MessageEntity messageEntity;
+
+  OtherMessagesUploadError(this.messageEntity);
 }

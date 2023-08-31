@@ -6,13 +6,15 @@ class MessageEntity {
   final dynamic message;
   final MessageType messageType;
   final Timestamp timestamp;
+  final bool isUploading;
 
 // Server keys
-  static const String senderUserKey = "Sender User";
+  static const String senderUserKey = "Sender User Id";
   static const String receiverUserKey = "Receiver User Id";
   static const String messageKey = "Message";
   static const String messageTypeKey = "Message Type";
   static const String timestampKey = "Time Stamp";
+  static const String isUploadingKey = "Is Uploading";
 
   MessageEntity({
     required this.senderUserId,
@@ -20,6 +22,7 @@ class MessageEntity {
     required this.message,
     required this.messageType,
     required this.timestamp,
+    required this.isUploading,
   });
 
   // Function to send message map to DB
@@ -29,19 +32,22 @@ class MessageEntity {
       receiverUserKey: messageEntity.receiverUserID,
       messageKey: messageEntity.message,
       messageTypeKey: messageEntity.messageType.name,
-      timestampKey: messageEntity.timestamp
+      timestampKey: messageEntity.timestamp,
+      isUploadingKey: messageEntity.isUploading,
     };
   }
 
   // Function to parse message entity from DB
   factory MessageEntity.fromJson({required Map<String, dynamic> json}) {
     return MessageEntity(
-        senderUserId: json[senderUserKey],
-        receiverUserID: json[receiverUserKey],
-        message: json[messageKey],
-        messageType: MessageType.values
-            .firstWhere((type) => type.name == json[messageTypeKey]),
-        timestamp: json[timestampKey]);
+      senderUserId: json[senderUserKey],
+      receiverUserID: json[receiverUserKey],
+      message: json[messageKey],
+      messageType: MessageType.values
+          .firstWhere((type) => type.name == json[messageTypeKey]),
+      timestamp: json[timestampKey],
+      isUploading: json[isUploadingKey],
+    );
   }
 }
 

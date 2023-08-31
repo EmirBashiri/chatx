@@ -186,7 +186,7 @@ class _BottomPart extends StatelessWidget {
       margin: const EdgeInsets.only(left: 15, right: 15),
       child: Row(
         children: [
-          _SenderTextField(),
+          _SenderTextField(roomIdRequirements: roomIdRequirements),
           _SenderRightAction(
             senderController: senderController,
             chatFunctions: chatFunctions,
@@ -200,13 +200,13 @@ class _BottomPart extends StatelessWidget {
 
 // Chat message sender text field
 class _SenderTextField extends StatelessWidget {
-  _SenderTextField();
+  _SenderTextField({required this.roomIdRequirements});
 
   final DependencyController dependencyController = Get.find();
   final MessageSenderController senderController = Get.find();
   late final ChatFunctions chatFunctions =
       dependencyController.appFunctions.chatFunctions;
-
+  final RoomIdRequirements roomIdRequirements;
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -231,7 +231,10 @@ class _SenderTextField extends StatelessWidget {
           decoration: InputDecoration(
               hintText: typeMessage,
               hintStyle: textTheme.bodySmall,
-              prefixIcon: _SendImageAndFileButton(chatFunctions: chatFunctions),
+              prefixIcon: _SendImageAndFileButton(
+                chatFunctions: chatFunctions,
+                roomIdRequirements: roomIdRequirements,
+              ),
               border: InputBorder.none),
         ),
       ),
@@ -241,14 +244,15 @@ class _SenderTextField extends StatelessWidget {
 
 // Chat image and file message sender part
 class _SendImageAndFileButton extends StatelessWidget {
-  const _SendImageAndFileButton({required this.chatFunctions});
+  const _SendImageAndFileButton(
+      {required this.chatFunctions, required this.roomIdRequirements});
   final ChatFunctions chatFunctions;
-
+  final RoomIdRequirements roomIdRequirements;
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
-
+    final ChatBloc chatBloc = context.read<ChatBloc>();
     return CupertinoButton(
       onPressed: () {
         showCupertinoDialog(
@@ -269,8 +273,12 @@ class _SendImageAndFileButton extends StatelessWidget {
                     textTheme: textTheme,
                     iconData: fileIcon,
                     label: fileMessage,
-                    onPressed: () {
+                    onPressed: () async {
                       // TODO send file message here
+                      await chatFunctions.startFileUploading(
+                        roomIdRequirements: roomIdRequirements,
+                        chatBloc: chatBloc,
+                      );
                     },
                   ),
                   // Image message sender button
