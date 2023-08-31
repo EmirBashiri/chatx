@@ -224,7 +224,7 @@ class MessagesFunctions {
         docId = doc.id;
       }
     }
-    
+
     await _firestore
         .collection(messagesCollectionKey)
         .doc(messagesDocKey)
@@ -236,24 +236,27 @@ class MessagesFunctions {
   }
 
   // Function to uplead file on server and send file message
-  Future<void> uploadFileMessage(
-      {required OtherMessagesBloc otherMessagesBloc,
-      required MessageEntity messageEntity,
-      required ChatFunctions chatFunctions}) async {
+  Future<void> uploadFileMessage({
+    required OtherMessagesBloc otherMessagesBloc,
+    required MessageEntity messageEntity,
+    required ChatFunctions chatFunctions,
+  }) async {
     final String fileName = basename(messageEntity.message);
     final File messageFile = File(messageEntity.message);
     final Reference reference =
         _firebaseStorage.ref("$fileMessagesBucket$fileName");
     final UploadTask uploadTask = reference.putFile(messageFile);
-    uploadTask.asStream().listen((event) {
-      otherMessagesBloc.add(
-        OtherMessagesOperationStatus(
-            downloadProgress: DownloadProgress(
-              downloaded: event.bytesTransferred,
-              total: event.totalBytes,
-            ),
-            messageEntity: messageEntity),
-      );
+    uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+      if (snapshot.state == TaskState.running) {
+        otherMessagesBloc.add(
+          OtherMessagesOperationStatus(
+              downloadProgress: DownloadProgress(
+                downloaded: snapshot.bytesTransferred,
+                total: snapshot.totalBytes,
+              ),
+              messageEntity: messageEntity),
+        );
+      }
     });
     uploadTask.whenComplete(() async {
       otherMessagesBloc.add(OtherMessagesLoading(messageEntity));
@@ -272,6 +275,7 @@ class MessagesFunctions {
         oldMessageEntity: messageEntity,
         chatFunctions: chatFunctions,
       );
+    
       otherMessagesBloc.add(OtherMessagesFileCompleted(messageEntity));
     });
   }
