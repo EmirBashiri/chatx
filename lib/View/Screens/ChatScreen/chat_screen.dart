@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/ChatBloc/chat_bloc.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessageScreen/image_message_screen.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/othet_messages_screen.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/TextMessageScreen/text_message_screen.dart';
@@ -55,38 +53,68 @@ class ChatScreen extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      body: BlocProvider(
-        create: (context) {
-          final blox = ChatBloc();
-          blox.add(
-            ChatStart(
-              RoomIdRequirements(
+      body:
+      // TODO
+          //  BlocProvider(
+          //   create: (context) {
+          //     final blox = ChatBloc();
+          //     blox.add(
+          //       ChatStart(
+          //         RoomIdRequirements(
+          //           senderUserId: senderUser.userUID,
+          //           receiverUserId: receiverUser.userUID,
+          //         ),
+          //       ),
+          //     );
+          //     return blox;
+          //   },
+          //   child: BlocBuilder<ChatBloc, ChatState>(
+          //     builder: (context, state) {
+          //       if (state is ChatLoadingScreen) {
+          //         return const CustomLoadingScreen();
+          //       } else if (state is ChatMainScreen) {
+          //         return _ChatMainWidget(
+          //           messagesList: state.messagesList,
+          //           messagesFunctions: messagesFunctions,
+          //           chatFunctions: chatFunctions,
+          //           senderController: senderController,
+          //           roomIdRequirements: RoomIdRequirements(
+          //             senderUserId: senderUser.userUID,
+          //             receiverUserId: receiverUser.userUID,
+          //           ),
+          //         );
+          //       }
+          //       return Container();
+          //     },
+          //   ),
+          // ),
+          StreamBuilder(
+        stream: chatFunctions.getMessage(
+          roomIdRequirements: RoomIdRequirements(
+              senderUserId: senderUser.userUID,
+              receiverUserId: receiverUser.userUID),
+        ),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CustomLoadingScreen();
+          } else if (snapshot.data != null) {
+            final List<MessageEntity> messagesList = snapshot.data!.docs
+                .map((e) => MessageEntity.fromJson(json: e.data()))
+                .toList();
+            return _ChatMainWidget(
+              messagesList: messagesList,
+              messagesFunctions: messagesFunctions,
+              chatFunctions: chatFunctions,
+              senderController: senderController,
+              roomIdRequirements: RoomIdRequirements(
                 senderUserId: senderUser.userUID,
                 receiverUserId: receiverUser.userUID,
               ),
-            ),
-          );
-          return blox;
-        },
-        child: BlocBuilder<ChatBloc, ChatState>(
-          builder: (context, state) {
-            if (state is ChatLoadingScreen) {
-              return const CustomLoadingScreen();
-            } else if (state is ChatMainScreen) {
-              return _ChatMainWidget(
-                messagesList: state.messagesList,
-                messagesFunctions: messagesFunctions,
-                chatFunctions: chatFunctions,
-                senderController: senderController,
-                roomIdRequirements: RoomIdRequirements(
-                  senderUserId: senderUser.userUID,
-                  receiverUserId: receiverUser.userUID,
-                ),
-              );
-            }
+            );
+          } else {
             return Container();
-          },
-        ),
+          }
+        },
       ),
     );
   }
@@ -252,7 +280,7 @@ class _SendImageAndFileButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final ChatBloc chatBloc = context.read<ChatBloc>();
+    // TODO final ChatBloc chatBloc = context.read<ChatBloc>();
     return CupertinoButton(
       onPressed: () {
         showCupertinoDialog(
@@ -276,9 +304,7 @@ class _SendImageAndFileButton extends StatelessWidget {
                     onPressed: () async {
                       // TODO send file message here
                       await chatFunctions.startFileUploading(
-                        roomIdRequirements: roomIdRequirements,
-                        chatBloc: chatBloc,
-                      );
+                          roomIdRequirements: roomIdRequirements);
                     },
                   ),
                   // Image message sender button

@@ -12,6 +12,7 @@ import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
+import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -275,8 +276,7 @@ class MessagesFunctions {
         oldMessageEntity: messageEntity,
         chatFunctions: chatFunctions,
       );
-    
-      otherMessagesBloc.add(OtherMessagesFileCompleted(messageEntity));
+    Get.appUpdate();
     });
   }
 }

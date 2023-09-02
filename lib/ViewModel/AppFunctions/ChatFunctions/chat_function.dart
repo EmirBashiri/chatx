@@ -45,25 +45,35 @@ class ChatFunctions {
         .collection(roomId)
         .add(MessageEntity.toJson(messageEntity: messageEntity));
   }
-
+// TODO
   // Function to receive message from DB
-  void getMessage(
-      {required RoomIdRequirements roomIdRequirements,
-      required ChatBloc chatBloc}) {
+  // void getMessage(
+  //     {required RoomIdRequirements roomIdRequirements,
+  //     required ChatBloc chatBloc}) {
+  //   final String roomId = buildRoomId(roomIdRequirements: roomIdRequirements);
+  //   final streamToDB = _firestore
+  //       .collection(messagesCollectionKey)
+  //       .doc(messagesDocKey)
+  //       .collection(roomId)
+  //       .orderBy(MessageEntity.timestampKey, descending: true)
+  //       .snapshots();
+  //   List<MessageEntity> messagesList = [];
+  //   streamToDB.listen((event) {
+  //     messagesList = event.docs
+  //         .map((jsonFromDB) => MessageEntity.fromJson(json: jsonFromDB.data()))
+  //         .toList();
+  //     chatBloc.add(ChatUpdate(messagesList));
+  //   });
+  // }
+  Stream<QuerySnapshot<Map<String, dynamic>>> getMessage(
+      {required RoomIdRequirements roomIdRequirements, ChatBloc? chatBloc}) {
     final String roomId = buildRoomId(roomIdRequirements: roomIdRequirements);
-    final streamToDB = _firestore
+    return _firestore
         .collection(messagesCollectionKey)
         .doc(messagesDocKey)
         .collection(roomId)
         .orderBy(MessageEntity.timestampKey, descending: true)
         .snapshots();
-    List<MessageEntity> messagesList = [];
-    streamToDB.listen((event) {
-      messagesList = event.docs
-          .map((jsonFromDB) => MessageEntity.fromJson(json: jsonFromDB.data()))
-          .toList();
-      chatBloc.add(ChatUpdate(messagesList));
-    });
   }
 
   // Fuction to fech chat screen title
@@ -121,7 +131,7 @@ class ChatFunctions {
   // Fuction to start file sending operation
   Future<void> startFileUploading(
       {required RoomIdRequirements roomIdRequirements,
-      required ChatBloc chatBloc}) async {
+      ChatBloc? chatBloc}) async {
     Get.back();
     final File? file = await _pickFile();
     if (file != null) {
@@ -138,7 +148,7 @@ class ChatFunctions {
           .doc(messagesDocKey)
           .collection(buildRoomId(roomIdRequirements: roomIdRequirements))
           .add(MessageEntity.toJson(messageEntity: messageEntity));
-      getMessage(roomIdRequirements: roomIdRequirements, chatBloc: chatBloc);
+      Get.appUpdate();
     }
   }
 }
