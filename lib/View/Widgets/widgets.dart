@@ -366,12 +366,12 @@ class LoadingWidget extends StatelessWidget {
 class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({
     super.key,
-    required this.downloadProgress,
+    required this.operationProgress,
     required this.messageEntity,
     required this.onCancelTapped,
     required this.messagesFunctions,
   });
-  final DownloadProgress downloadProgress;
+  final OperationProgress operationProgress;
   final MessageEntity messageEntity;
   final void Function() onCancelTapped;
   final MessagesFunctions messagesFunctions;
@@ -383,8 +383,8 @@ class CustomProgressIndicator extends StatelessWidget {
       progressColor: colorScheme.primary,
       radius: Get.width * 0.1,
       lineWidth: 5,
-      percent: messagesFunctions.fechDownloadProgress(
-        downloadProgressStatus: downloadProgress,
+      percent: messagesFunctions.fechOperationProgress(
+        operationProgress: operationProgress,
       ),
       center: IconButton(
         onPressed: onCancelTapped,

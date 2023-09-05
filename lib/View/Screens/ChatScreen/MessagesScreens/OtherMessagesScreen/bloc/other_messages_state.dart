@@ -27,11 +27,11 @@ class MessageFileLoadingScreen extends OtherMessagesState {
 class MessageFileOperationScreen extends OtherMessagesState {
   final MessageEntity messageEntity;
   final MessagesFunctions messagesFunctions;
-  final DownloadProgress downloadProgress;
+  final OperationProgress operationProgress;
   MessageFileOperationScreen(
       {required this.messageEntity,
       required this.messagesFunctions,
-      required this.downloadProgress});
+      required this.operationProgress});
 }
 
 // This state is launched whenever messages file downloading and an error detected

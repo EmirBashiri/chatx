@@ -98,8 +98,8 @@ class MessagesFunctions extends ChatFunctions {
           otherMessagesBloc.add(
             OtherMessagesOperationStatus(
               messageEntity: messageEntity,
-              downloadProgress:
-                  DownloadProgress(downloaded: count, total: total),
+              operationProgress:
+                  OperationProgress(transferred: count, total: total),
             ),
           );
         },
@@ -112,9 +112,9 @@ class MessagesFunctions extends ChatFunctions {
   }
 
   // Function to fech file dwonload progress
-  double fechDownloadProgress(
-      {required DownloadProgress downloadProgressStatus}) {
-    return downloadProgressStatus.downloaded / downloadProgressStatus.total;
+  double fechOperationProgress(
+      {required OperationProgress operationProgress}) {
+    return operationProgress.transferred / operationProgress.total;
   }
 
   // Function to cancel all downloads
@@ -251,9 +251,8 @@ class MessagesFunctions extends ChatFunctions {
       if (snapshot.state == TaskState.running) {
         otherMessagesBloc.add(
           OtherMessagesOperationStatus(
-              // TODO update here
-              downloadProgress: DownloadProgress(
-                downloaded: snapshot.bytesTransferred,
+              operationProgress: OperationProgress(
+                transferred: snapshot.bytesTransferred,
                 total: snapshot.totalBytes,
               ),
               messageEntity: messageEntity),

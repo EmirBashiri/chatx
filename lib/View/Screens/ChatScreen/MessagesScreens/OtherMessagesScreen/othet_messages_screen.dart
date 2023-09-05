@@ -37,7 +37,7 @@ class OthetMessagesScreen extends StatelessWidget {
                 messageEntity: state.messageEntity,
                 messagesFunctions: state.messagesFunctions,
                 statusWidget: CustomProgressIndicator(
-                  downloadProgress: state.downloadProgress,
+                  operationProgress: state.operationProgress,
                   messageEntity: messageEntity,
                   onCancelTapped: () => context
                       .read<OtherMessagesBloc>()

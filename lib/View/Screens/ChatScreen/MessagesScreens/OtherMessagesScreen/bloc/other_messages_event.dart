@@ -41,10 +41,10 @@ class OtherMessagesCancelDownloading extends OtherMessagesEvent {
 // This event is called whenever operation loading
 class OtherMessagesOperationStatus extends OtherMessagesEvent {
   final MessageEntity messageEntity;
-  final DownloadProgress downloadProgress;
+  final OperationProgress operationProgress;
 
   OtherMessagesOperationStatus({
-    required this.downloadProgress,
+    required this.operationProgress,
     required this.messageEntity,
   });
 }
