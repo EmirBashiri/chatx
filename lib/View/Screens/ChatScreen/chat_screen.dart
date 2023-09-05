@@ -53,54 +53,23 @@ class ChatScreen extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      body:
-      // TODO
-          //  BlocProvider(
-          //   create: (context) {
-          //     final blox = ChatBloc();
-          //     blox.add(
-          //       ChatStart(
-          //         RoomIdRequirements(
-          //           senderUserId: senderUser.userUID,
-          //           receiverUserId: receiverUser.userUID,
-          //         ),
-          //       ),
-          //     );
-          //     return blox;
-          //   },
-          //   child: BlocBuilder<ChatBloc, ChatState>(
-          //     builder: (context, state) {
-          //       if (state is ChatLoadingScreen) {
-          //         return const CustomLoadingScreen();
-          //       } else if (state is ChatMainScreen) {
-          //         return _ChatMainWidget(
-          //           messagesList: state.messagesList,
-          //           messagesFunctions: messagesFunctions,
-          //           chatFunctions: chatFunctions,
-          //           senderController: senderController,
-          //           roomIdRequirements: RoomIdRequirements(
-          //             senderUserId: senderUser.userUID,
-          //             receiverUserId: receiverUser.userUID,
-          //           ),
-          //         );
-          //       }
-          //       return Container();
-          //     },
-          //   ),
-          // ),
-          StreamBuilder(
+      body: StreamBuilder(
         stream: chatFunctions.getMessage(
           roomIdRequirements: RoomIdRequirements(
-              senderUserId: senderUser.userUID,
-              receiverUserId: receiverUser.userUID),
+            senderUserId: senderUser.userUID,
+            receiverUserId: receiverUser.userUID,
+          ),
         ),
         builder: (context, snapshot) {
+          // TODO manage all possible states here
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CustomLoadingScreen();
           } else if (snapshot.data != null) {
             final List<MessageEntity> messagesList = snapshot.data!.docs
-                .map((e) => MessageEntity.fromJson(json: e.data()))
+                .map((jsonFromDB) =>
+                    MessageEntity.fromJson(json: jsonFromDB.data()))
                 .toList();
+
             return _ChatMainWidget(
               messagesList: messagesList,
               messagesFunctions: messagesFunctions,
@@ -188,8 +157,7 @@ class _MainPart extends StatelessWidget {
                   messagesFunctions: messagesFunctions);
             case MessageType.other:
               return OthetMessagesScreen(
-                messageEntity: messageEntity,
-              );
+                  messageEntity: messageEntity, key: Key(messageEntity.id));
           }
         },
       ),
@@ -280,7 +248,6 @@ class _SendImageAndFileButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
-    // TODO final ChatBloc chatBloc = context.read<ChatBloc>();
     return CupertinoButton(
       onPressed: () {
         showCupertinoDialog(

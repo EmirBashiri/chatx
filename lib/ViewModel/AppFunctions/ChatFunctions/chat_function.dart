@@ -7,9 +7,10 @@ import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/ChatBloc/chat_bloc.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart';
+import 'package:uuid/uuid.dart';
 
 // Server keys
 const String messagesCollectionKey = "Messages";
@@ -22,6 +23,12 @@ class ChatFunctions {
   // Instance of message sender controller for use in whole class
   final MessageSenderController messageSenderController = Get.find();
 
+  // Function to build messages UUID
+  String buildUUID() {
+    const Uuid uuid = Uuid();
+    return uuid.v1();
+  }
+
   // Function to build room id
   String buildRoomId({required RoomIdRequirements roomIdRequirements}) {
     final List<String> userIdList = [
@@ -30,6 +37,11 @@ class ChatFunctions {
     ];
     userIdList.sort();
     return userIdList.join("_");
+  }
+
+  // Function to fech file name
+  String fechFileName({required String filePath}) {
+    return basename(filePath);
   }
 
   // Function to send message to DB
@@ -45,28 +57,10 @@ class ChatFunctions {
         .collection(roomId)
         .add(MessageEntity.toJson(messageEntity: messageEntity));
   }
-// TODO
+
   // Function to receive message from DB
-  // void getMessage(
-  //     {required RoomIdRequirements roomIdRequirements,
-  //     required ChatBloc chatBloc}) {
-  //   final String roomId = buildRoomId(roomIdRequirements: roomIdRequirements);
-  //   final streamToDB = _firestore
-  //       .collection(messagesCollectionKey)
-  //       .doc(messagesDocKey)
-  //       .collection(roomId)
-  //       .orderBy(MessageEntity.timestampKey, descending: true)
-  //       .snapshots();
-  //   List<MessageEntity> messagesList = [];
-  //   streamToDB.listen((event) {
-  //     messagesList = event.docs
-  //         .map((jsonFromDB) => MessageEntity.fromJson(json: jsonFromDB.data()))
-  //         .toList();
-  //     chatBloc.add(ChatUpdate(messagesList));
-  //   });
-  // }
   Stream<QuerySnapshot<Map<String, dynamic>>> getMessage(
-      {required RoomIdRequirements roomIdRequirements, ChatBloc? chatBloc}) {
+      {required RoomIdRequirements roomIdRequirements}) {
     final String roomId = buildRoomId(roomIdRequirements: roomIdRequirements);
     return _firestore
         .collection(messagesCollectionKey)
@@ -106,6 +100,7 @@ class ChatFunctions {
   Future<void> sendTextMessage(
       {required RoomIdRequirements roomIdRequirements}) async {
     final MessageEntity messageEntity = MessageEntity(
+      id: buildUUID(),
       senderUserId: roomIdRequirements.senderUserId,
       receiverUserID: roomIdRequirements.receiverUserId,
       message: messageSenderController.senderTextController.text,
@@ -130,25 +125,25 @@ class ChatFunctions {
 
   // Fuction to start file sending operation
   Future<void> startFileUploading(
-      {required RoomIdRequirements roomIdRequirements,
-      ChatBloc? chatBloc}) async {
+      {required RoomIdRequirements roomIdRequirements}) async {
     Get.back();
     final File? file = await _pickFile();
     if (file != null) {
       final MessageEntity messageEntity = MessageEntity(
+        id: buildUUID(),
         senderUserId: roomIdRequirements.senderUserId,
         receiverUserID: roomIdRequirements.receiverUserId,
         message: file.path,
         messageType: MessageType.other,
         timestamp: Timestamp.now(),
         isUploading: true,
+        messageName: fechFileName(filePath: file.path),
       );
       await _firestore
           .collection(messagesCollectionKey)
           .doc(messagesDocKey)
           .collection(buildRoomId(roomIdRequirements: roomIdRequirements))
           .add(MessageEntity.toJson(messageEntity: messageEntity));
-      Get.appUpdate();
     }
   }
 }

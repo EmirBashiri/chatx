@@ -12,12 +12,10 @@ import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
-import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
-import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-class MessagesFunctions {
+class MessagesFunctions extends ChatFunctions {
   // Insrance of firebase auth for use in whole file
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   // Insrance of firebase firestore DB for use in whole file
@@ -44,10 +42,12 @@ class MessagesFunctions {
   }
 
   // Function to buid message title
-  String fechFileMessageTitle({required String messageUrl}) {
-    // TODO check here
-    final fileName = basename(messageUrl);
-    return fileName;
+  String fechFileMessageTitle({required MessageEntity messageEntity}) {
+    if (messageEntity.messageName != null) {
+      return messageEntity.messageName!;
+    } else {
+      return fechFileName(filePath: messageEntity.message);
+    }
   }
 
   // Function to fech message file cached path
@@ -196,16 +196,17 @@ class MessagesFunctions {
   }) async {
     final Directory directory = await getApplicationCacheDirectory();
     final File newFile = File("${directory.path}/${newMessageEntity.message}");
-    newFile.createSync(recursive: true);
-    oldFile.copy(newFile.path);
-    oldFile.deleteSync(recursive: true);
+    if (!newFile.existsSync()) {
+      newFile.createSync(recursive: true);
+      oldFile.copy(newFile.path);
+      oldFile.deleteSync(recursive: true);
+    }
   }
 
   // Function to update message on DB
   Future<void> _updateMessageOnDB({
     required MessageEntity newMessageEntity,
     required MessageEntity oldMessageEntity,
-    required ChatFunctions chatFunctions,
   }) async {
     final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
       senderUserId: oldMessageEntity.senderUserId,
@@ -216,7 +217,7 @@ class MessagesFunctions {
         .collection(messagesCollectionKey)
         .doc(messagesDocKey)
         .collection(
-          chatFunctions.buildRoomId(roomIdRequirements: roomIdRequirements),
+          buildRoomId(roomIdRequirements: roomIdRequirements),
         )
         .get();
 
@@ -230,7 +231,7 @@ class MessagesFunctions {
         .collection(messagesCollectionKey)
         .doc(messagesDocKey)
         .collection(
-          chatFunctions.buildRoomId(roomIdRequirements: roomIdRequirements),
+          buildRoomId(roomIdRequirements: roomIdRequirements),
         )
         .doc(docId)
         .update(MessageEntity.toJson(messageEntity: newMessageEntity));
@@ -240,9 +241,8 @@ class MessagesFunctions {
   Future<void> uploadFileMessage({
     required OtherMessagesBloc otherMessagesBloc,
     required MessageEntity messageEntity,
-    required ChatFunctions chatFunctions,
   }) async {
-    final String fileName = basename(messageEntity.message);
+    final String fileName = fechFileName(filePath: messageEntity.message);
     final File messageFile = File(messageEntity.message);
     final Reference reference =
         _firebaseStorage.ref("$fileMessagesBucket$fileName");
@@ -251,6 +251,7 @@ class MessagesFunctions {
       if (snapshot.state == TaskState.running) {
         otherMessagesBloc.add(
           OtherMessagesOperationStatus(
+              // TODO update here
               downloadProgress: DownloadProgress(
                 downloaded: snapshot.bytesTransferred,
                 total: snapshot.totalBytes,
@@ -263,20 +264,21 @@ class MessagesFunctions {
       otherMessagesBloc.add(OtherMessagesLoading(messageEntity));
       final String downloadUrl = await reference.getDownloadURL();
       final MessageEntity newMessageEntity = MessageEntity(
+        id: messageEntity.id,
         senderUserId: messageEntity.senderUserId,
         receiverUserID: messageEntity.receiverUserID,
         message: downloadUrl,
         messageType: messageEntity.messageType,
         timestamp: messageEntity.timestamp,
         isUploading: false,
+        messageName: messageEntity.messageName,
       );
       await _copyFile(newMessageEntity: newMessageEntity, oldFile: messageFile);
       await _updateMessageOnDB(
         newMessageEntity: newMessageEntity,
         oldMessageEntity: messageEntity,
-        chatFunctions: chatFunctions,
       );
-    Get.appUpdate();
+      otherMessagesBloc.add(OtherMessagesFileCompleted(newMessageEntity));
     });
   }
 }

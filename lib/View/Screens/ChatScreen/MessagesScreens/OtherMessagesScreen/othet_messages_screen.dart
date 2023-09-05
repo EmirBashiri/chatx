@@ -91,8 +91,8 @@ class _FileTitle extends StatelessWidget {
 
   Text textWidget(
       {required TextTheme textTheme, required ColorScheme colorScheme}) {
-    final String messageFileTitle = messagesFunctions.fechFileMessageTitle(
-        messageUrl: messageEntity.message);
+    final String messageFileTitle =
+        messagesFunctions.fechFileMessageTitle(messageEntity: messageEntity);
     return messagesFunctions.senderIsCurrentUser(messageEntity: messageEntity)
         ? Text(
             messageFileTitle,

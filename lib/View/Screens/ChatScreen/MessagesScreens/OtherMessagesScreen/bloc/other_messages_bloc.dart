@@ -25,12 +25,8 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
         messageEntity: messageEntity,
         messagesFunctions: messagesFunctions,
       ));
-    
       await messagesFunctions.uploadFileMessage(
-          otherMessagesBloc: this,
-          messageEntity: messageEntity,
-          chatFunctions: chatFunctions);
- 
+          otherMessagesBloc: this, messageEntity: messageEntity);
     } else {
       final bool isFileDownloaded =
           await messagesFunctions.isMessageFileDownloaded(
@@ -58,7 +54,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   }
 
   // This function called whenever event is OtherMessagesFileCompleted
-  Future<void> otherMessagesFileCompleted(
+  void otherMessagesFileCompleted(
       {required MessageEntity messageEntity, required Emitter emit}) async {
     emit(MessageFileReadyScreen(
       messagesFunctions: messagesFunctions,
@@ -74,7 +70,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   }
 
   // This function called whenever event is OtherMessagesCancelDownloading
-  Future<void> otherMessagesCancelDownloading(
+  void otherMessagesCancelDownloading(
       {required MessageEntity messageEntity, required Emitter emit}) async {
     messagesFunctions.cancelDownload(messageEntity: messageEntity);
     emit(MessagesPervirewScreen(
@@ -135,7 +131,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
           emit: emit,
         );
       } else if (event is OtherMessagesFileCompleted) {
-        await otherMessagesFileCompleted(
+        otherMessagesFileCompleted(
           messageEntity: event.messageEntity,
           emit: emit,
         );
@@ -145,7 +141,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
           emit: emit,
         );
       } else if (event is OtherMessagesCancelDownloading) {
-        await otherMessagesCancelDownloading(
+        otherMessagesCancelDownloading(
           messageEntity: event.messageEntity,
           emit: emit,
         );
