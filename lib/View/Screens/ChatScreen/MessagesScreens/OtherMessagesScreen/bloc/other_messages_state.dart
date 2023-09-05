@@ -6,50 +6,25 @@ sealed class OtherMessagesState {}
 final class OtherMessagesInitial extends OtherMessagesState {}
 
 // This state is launched whenever other messages screen setting up
-class MessagesPervirewScreen extends OtherMessagesState {
-  final MessageEntity messageEntity;
-  final MessagesFunctions messagesFunctions;
-  MessagesPervirewScreen(
-      {required this.messageEntity, required this.messagesFunctions});
-}
+class MessagesPervirewScreen extends OtherMessagesState {}
 
 // This state is launched whenever messages file loading
-class MessageFileLoadingScreen extends OtherMessagesState {
-  final MessageEntity messageEntity;
-  final MessagesFunctions messagesFunctions;
-  MessageFileLoadingScreen({
-    required this.messageEntity,
-    required this.messagesFunctions,
-  });
+class MessageFileLoadingScreen extends OtherMessagesState {}
+
+// This state is launched whenever the file is being dowloaded to display progress
+class MessageFileDownloadingScreen extends OtherMessagesState {
+  final OperationProgress operationProgress;
+  MessageFileDownloadingScreen(this.operationProgress);
 }
 
-// This state is launched whenever opertaion loading and user need see progress
-class MessageFileOperationScreen extends OtherMessagesState {
-  final MessageEntity messageEntity;
-  final MessagesFunctions messagesFunctions;
+// This state is launched whenever the file is being uploaded to display progress
+class MessageFileUploadingStatusScreen extends OtherMessagesState {
   final OperationProgress operationProgress;
-  MessageFileOperationScreen(
-      {required this.messageEntity,
-      required this.messagesFunctions,
-      required this.operationProgress});
+  MessageFileUploadingStatusScreen(this.operationProgress);
 }
 
 // This state is launched whenever messages file downloading and an error detected
-class MessageFileErrorScreen extends OtherMessagesState {
-  final MessageEntity messageEntity;
-  final MessagesFunctions messagesFunctions;
-  MessageFileErrorScreen({
-    required this.messageEntity,
-    required this.messagesFunctions,
-  });
-}
+class MessageFileErrorScreen extends OtherMessagesState {}
 
-// This state is launched whenever messages file downloaded
-class MessageFileReadyScreen extends OtherMessagesState {
-  final MessageEntity messageEntity;
-  final MessagesFunctions messagesFunctions;
-  MessageFileReadyScreen({
-    required this.messageEntity,
-    required this.messagesFunctions,
-  });
-}
+// This state is launched whenever messages file is ready
+class MessageFileReadyScreen extends OtherMessagesState {}

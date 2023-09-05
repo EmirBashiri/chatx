@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
@@ -8,8 +9,11 @@ import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funt
 import 'package:get/get.dart';
 
 class OthetMessagesScreen extends StatelessWidget {
-  const OthetMessagesScreen({super.key, required this.messageEntity});
+  OthetMessagesScreen({super.key, required this.messageEntity});
   final MessageEntity messageEntity;
+  final MessagesFunctions messagesFunctions =
+      Get.find<DependencyController>().appFunctions.messagesFunctions;
+
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
@@ -23,32 +27,44 @@ class OthetMessagesScreen extends StatelessWidget {
           builder: (context, state) {
             if (state is MessagesPervirewScreen) {
               return _FilePerviewScreen(
-                messageEntity: state.messageEntity,
-                messagesFunctions: state.messagesFunctions,
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
               );
             } else if (state is MessageFileLoadingScreen) {
-              return _FileDownloadingStatusScreen(
-                messageEntity: state.messageEntity,
-                messagesFunctions: state.messagesFunctions,
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
                 statusWidget: LoadingWidget(widgetSize: Get.width * 0.1),
               );
-            } else if (state is MessageFileOperationScreen) {
-              return _FileDownloadingStatusScreen(
-                messageEntity: state.messageEntity,
-                messagesFunctions: state.messagesFunctions,
+            } else if (state is MessageFileDownloadingScreen) {
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
                 statusWidget: CustomProgressIndicator(
                   operationProgress: state.operationProgress,
                   messageEntity: messageEntity,
                   onCancelTapped: () => context
                       .read<OtherMessagesBloc>()
                       .add(OtherMessagesCancelDownloading(messageEntity)),
-                  messagesFunctions: state.messagesFunctions,
+                  messagesFunctions: messagesFunctions,
+                ),
+              );
+            } else if (state is MessageFileUploadingStatusScreen) {
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+                statusWidget: CustomProgressIndicator(
+                  operationProgress: state.operationProgress,
+                  messageEntity: messageEntity,
+                  onCancelTapped: () async => await messagesFunctions
+                      .cancelUpload(messageEntity: messageEntity),
+                  messagesFunctions: messagesFunctions,
                 ),
               );
             } else if (state is MessageFileErrorScreen) {
-              return _FileDownloadingStatusScreen(
-                messageEntity: state.messageEntity,
-                messagesFunctions: state.messagesFunctions,
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
                 statusWidget: IconButton.filled(
                   onPressed: () => context
                       .read<OtherMessagesBloc>()
@@ -58,8 +74,8 @@ class OthetMessagesScreen extends StatelessWidget {
               );
             } else if (state is MessageFileReadyScreen) {
               return _FileReadyScreen(
-                messageEntity: state.messageEntity,
-                messagesFunctions: state.messagesFunctions,
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
               );
             }
             return Container();
@@ -151,8 +167,8 @@ class _FilePerviewScreen extends StatelessWidget {
   }
 }
 
-class _FileDownloadingStatusScreen extends StatelessWidget {
-  const _FileDownloadingStatusScreen({
+class _FileOperationScreen extends StatelessWidget {
+  const _FileOperationScreen({
     required this.messageEntity,
     required this.messagesFunctions,
     required this.statusWidget,

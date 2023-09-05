@@ -18,13 +18,15 @@ import 'package:path_provider/path_provider.dart';
 class MessagesFunctions extends ChatFunctions {
   // Insrance of firebase auth for use in whole file
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  // Insrance of firebase firestore DB for use in whole file
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   // Insrance of firebase storage for use in whole file
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
   // Map of cansel tokens for cansel downloads
   Map<String, CancelToken> cancelTokens = {};
+
+  // Map of upload tasks for cancel uploads
+  Map<String, UploadTask> uploadTasks = {};
 
   // Function to check message sender is applications current user or not
   bool senderIsCurrentUser({required MessageEntity messageEntity}) {
@@ -96,29 +98,26 @@ class MessagesFunctions extends ChatFunctions {
         cancelToken: cancelToken,
         onReceiveProgress: (count, total) {
           otherMessagesBloc.add(
-            OtherMessagesOperationStatus(
-              messageEntity: messageEntity,
-              operationProgress:
-                  OperationProgress(transferred: count, total: total),
+            OtherMessagesDownloadingStatus(
+              OperationProgress(transferred: count, total: total),
             ),
           );
         },
       );
       _removeCancelToken(messageUrl: messageEntity.message);
-      otherMessagesBloc.add(OtherMessagesFileCompleted(messageEntity));
+      otherMessagesBloc.add(OtherMessagesFileCompleted());
     } catch (e) {
-      otherMessagesBloc.add(OtherMessagesDownloadError(messageEntity));
+      otherMessagesBloc.add(OtherMessagesDownloadError());
     }
   }
 
   // Function to fech file dwonload progress
-  double fechOperationProgress(
-      {required OperationProgress operationProgress}) {
+  double fechOperationProgress({required OperationProgress operationProgress}) {
     return operationProgress.transferred / operationProgress.total;
   }
 
   // Function to cancel all downloads
-  void cancelAllDownloads() async {
+  void cancelAllDownloads() {
     cancelTokens.forEach((key, value) {
       value.cancel();
     });
@@ -130,6 +129,14 @@ class MessagesFunctions extends ChatFunctions {
     CancelToken? cancelToken = cancelTokens[messageEntity.message];
     cancelTokens.remove(messageEntity.message);
     cancelToken?.cancel();
+  }
+
+  // Function to _cancel uploading
+  Future<void> cancelUpload({required MessageEntity messageEntity}) async {
+    final UploadTask? uploadTask = uploadTasks[messageEntity.id];
+    uploadTasks.remove(messageEntity.message);
+    await uploadTask!.cancel();
+    await _deleteMessageOnDB(messageEntity: messageEntity);
   }
 
   // Function to get message file from cache
@@ -213,28 +220,47 @@ class MessagesFunctions extends ChatFunctions {
       receiverUserId: oldMessageEntity.receiverUserID,
     );
     String docId = "";
-    final QuerySnapshot querySnapshot = await _firestore
-        .collection(messagesCollectionKey)
-        .doc(messagesDocKey)
-        .collection(
-          buildRoomId(roomIdRequirements: roomIdRequirements),
-        )
-        .get();
+    final List<QueryDocumentSnapshot<Object?>> docs =
+        await _messagesDocs(messageEntity: oldMessageEntity);
 
-    for (var doc in querySnapshot.docs) {
+    for (var doc in docs) {
       if (doc.get(MessageEntity.messageKey) == oldMessageEntity.message) {
         docId = doc.id;
       }
     }
 
-    await _firestore
-        .collection(messagesCollectionKey)
-        .doc(messagesDocKey)
-        .collection(
-          buildRoomId(roomIdRequirements: roomIdRequirements),
-        )
+    await messagesCollection(roomIdRequirements: roomIdRequirements)
         .doc(docId)
         .update(MessageEntity.toJson(messageEntity: newMessageEntity));
+  }
+
+  // Function to get messages docs from firebase firestroe DB
+  Future<List<QueryDocumentSnapshot<Object?>>> _messagesDocs({
+    required MessageEntity messageEntity,
+  }) async {
+    final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
+      senderUserId: messageEntity.senderUserId,
+      receiverUserId: messageEntity.receiverUserID,
+    );
+
+    final QuerySnapshot querySnapshot =
+        await messagesCollection(roomIdRequirements: roomIdRequirements).get();
+
+    return querySnapshot.docs;
+  }
+
+  // Function to get messages docs from firebase firestroe DB
+  Future<void> _deleteMessageOnDB({
+    required MessageEntity messageEntity,
+  }) async {
+    final List<QueryDocumentSnapshot<Object?>> docs =
+        await _messagesDocs(messageEntity: messageEntity);
+
+    for (var doc in docs) {
+      if (doc.get(MessageEntity.messageKey) == messageEntity.message) {
+        await doc.reference.delete();
+      }
+    }
   }
 
   // Function to uplead file on server and send file message
@@ -246,38 +272,44 @@ class MessagesFunctions extends ChatFunctions {
     final File messageFile = File(messageEntity.message);
     final Reference reference =
         _firebaseStorage.ref("$fileMessagesBucket$fileName");
-    final UploadTask uploadTask = reference.putFile(messageFile);
-    uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-      if (snapshot.state == TaskState.running) {
-        otherMessagesBloc.add(
-          OtherMessagesOperationStatus(
-              operationProgress: OperationProgress(
+    try {
+      final UploadTask uploadTask = reference.putFile(messageFile);
+      uploadTasks.addAll({messageEntity.id: uploadTask});
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        if (snapshot.state == TaskState.running) {
+          otherMessagesBloc.add(
+            OtherMessagesUploadingStatus(
+              OperationProgress(
                 transferred: snapshot.bytesTransferred,
                 total: snapshot.totalBytes,
               ),
-              messageEntity: messageEntity),
+            ),
+          );
+        }
+      });
+      uploadTask.whenComplete(() async {
+        otherMessagesBloc.add(OtherMessagesLoading());
+        final String downloadUrl = await reference.getDownloadURL();
+        final MessageEntity newMessageEntity = MessageEntity(
+          id: messageEntity.id,
+          senderUserId: messageEntity.senderUserId,
+          receiverUserID: messageEntity.receiverUserID,
+          message: downloadUrl,
+          messageType: messageEntity.messageType,
+          timestamp: messageEntity.timestamp,
+          isUploading: false,
+          messageName: messageEntity.messageName,
         );
-      }
-    });
-    uploadTask.whenComplete(() async {
-      otherMessagesBloc.add(OtherMessagesLoading(messageEntity));
-      final String downloadUrl = await reference.getDownloadURL();
-      final MessageEntity newMessageEntity = MessageEntity(
-        id: messageEntity.id,
-        senderUserId: messageEntity.senderUserId,
-        receiverUserID: messageEntity.receiverUserID,
-        message: downloadUrl,
-        messageType: messageEntity.messageType,
-        timestamp: messageEntity.timestamp,
-        isUploading: false,
-        messageName: messageEntity.messageName,
-      );
-      await _copyFile(newMessageEntity: newMessageEntity, oldFile: messageFile);
-      await _updateMessageOnDB(
-        newMessageEntity: newMessageEntity,
-        oldMessageEntity: messageEntity,
-      );
-      otherMessagesBloc.add(OtherMessagesFileCompleted(newMessageEntity));
-    });
+        await _copyFile(
+            newMessageEntity: newMessageEntity, oldFile: messageFile);
+        await _updateMessageOnDB(
+          newMessageEntity: newMessageEntity,
+          oldMessageEntity: messageEntity,
+        );
+        otherMessagesBloc.add(OtherMessagesFileCompleted());
+      });
+    } catch (e) {
+      otherMessagesBloc.add(OtherMessagesUploadError());
+    }
   }
 }

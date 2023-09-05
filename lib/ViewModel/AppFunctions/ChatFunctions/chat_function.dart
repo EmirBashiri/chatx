@@ -39,6 +39,17 @@ class ChatFunctions {
     return userIdList.join("_");
   }
 
+  // Function to fech messages collection from firebase firestore DB
+  CollectionReference<Map<String, dynamic>> messagesCollection(
+      {required RoomIdRequirements roomIdRequirements}) {
+    return _firestore
+        .collection(messagesCollectionKey)
+        .doc(messagesDocKey)
+        .collection(
+          buildRoomId(roomIdRequirements: roomIdRequirements),
+        );
+  }
+
   // Function to fech file name
   String fechFileName({required String filePath}) {
     return basename(filePath);
@@ -46,27 +57,19 @@ class ChatFunctions {
 
   // Function to send message to DB
   Future<void> _sendMessage({required MessageEntity messageEntity}) async {
-    final String roomId = buildRoomId(
-      roomIdRequirements: RoomIdRequirements(
-          senderUserId: messageEntity.senderUserId,
-          receiverUserId: messageEntity.receiverUserID),
-    );
-    await _firestore
-        .collection(messagesCollectionKey)
-        .doc(messagesDocKey)
-        .collection(roomId)
+    final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
+        senderUserId: messageEntity.senderUserId,
+        receiverUserId: messageEntity.receiverUserID);
+
+    await messagesCollection(roomIdRequirements: roomIdRequirements)
         .add(MessageEntity.toJson(messageEntity: messageEntity));
   }
 
   // Function to receive message from DB
   Stream<QuerySnapshot<Map<String, dynamic>>> getMessage(
       {required RoomIdRequirements roomIdRequirements}) {
-    final String roomId = buildRoomId(roomIdRequirements: roomIdRequirements);
-    return _firestore
-        .collection(messagesCollectionKey)
-        .doc(messagesDocKey)
-        .collection(roomId)
-        .orderBy(MessageEntity.timestampKey, descending: true)
+    return messagesCollection(roomIdRequirements: roomIdRequirements)
+        .orderBy(MessageEntity.timestampKey,descending: true)
         .snapshots();
   }
 
@@ -139,10 +142,7 @@ class ChatFunctions {
         isUploading: true,
         messageName: fechFileName(filePath: file.path),
       );
-      await _firestore
-          .collection(messagesCollectionKey)
-          .doc(messagesDocKey)
-          .collection(buildRoomId(roomIdRequirements: roomIdRequirements))
+      await messagesCollection(roomIdRequirements: roomIdRequirements)
           .add(MessageEntity.toJson(messageEntity: messageEntity));
     }
   }
