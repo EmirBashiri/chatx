@@ -148,29 +148,16 @@ class _FilePerviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
     return GestureDetector(
       onTap: () => context
           .read<OtherMessagesBloc>()
           .add(OtherMessagesDownloadFile(messageEntity)),
       child: MessageBox(
         messageEntity: messageEntity,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            CircleAvatar(
-              backgroundColor: colorScheme.primary,
-              child: Icon(
-                downloadIcon,
-                color: colorScheme.background,
-              ),
-            ),
-            _FileTitle(
-              messagesFunctions: messagesFunctions,
-              messageEntity: messageEntity,
-            )
-          ],
+        child: _duplocateFrame(
+          icon: const _DuplicateIcon(iconData: downloadIcon),
+          messageEntity: messageEntity,
+          messagesFunctions: messagesFunctions,
         ),
       ),
     );
@@ -190,15 +177,10 @@ class _FileOperationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MessageBox(
       messageEntity: messageEntity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          statusWidget,
-          _FileTitle(
-            messagesFunctions: messagesFunctions,
-            messageEntity: messageEntity,
-          )
-        ],
+      child: _duplocateFrame(
+        icon: statusWidget,
+        messageEntity: messageEntity,
+        messagesFunctions: messagesFunctions,
       ),
     );
   }
@@ -215,30 +197,52 @@ class _FileReadyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
     return GestureDetector(
       onTap: () => context
           .read<OtherMessagesBloc>()
           .add(OtherMessagesOpenFile(messageEntity)),
       child: MessageBox(
         messageEntity: messageEntity,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            CircleAvatar(
-              backgroundColor: colorScheme.primary,
-              child: Icon(
-                fileIcon,
-                color: colorScheme.background,
-              ),
-            ),
-            _FileTitle(
-              messagesFunctions: messagesFunctions,
-              messageEntity: messageEntity,
-            )
-          ],
+        child: _duplocateFrame(
+          icon: const _DuplicateIcon(iconData: fileIcon),
+          messageEntity: messageEntity,
+          messagesFunctions: messagesFunctions,
         ),
+      ),
+    );
+  }
+}
+
+Row _duplocateFrame({
+  required Widget icon,
+  required MessageEntity messageEntity,
+  required MessagesFunctions messagesFunctions,
+}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      Padding(padding: const EdgeInsets.only(right: 10), child: icon),
+      _FileTitle(
+        messagesFunctions: messagesFunctions,
+        messageEntity: messageEntity,
+      ),
+    ],
+  );
+}
+
+class _DuplicateIcon extends StatelessWidget {
+  const _DuplicateIcon({
+    required this.iconData,
+  });
+  final IconData iconData;
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return CircleAvatar(
+      backgroundColor: colorScheme.primary,
+      child: Icon(
+        iconData,
+        color: colorScheme.background,
       ),
     );
   }

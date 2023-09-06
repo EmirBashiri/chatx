@@ -12,6 +12,8 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 import '../../Model/Entities/duplicate_entities.dart';
 
+// Application custom button
+
 class CustomButton extends StatelessWidget {
   const CustomButton(
       {super.key,
@@ -52,6 +54,7 @@ class CustomButton extends StatelessWidget {
   }
 }
 
+// Function to show application custom snake bar
 void showSnakeBar({
   required String title,
   required String message,
@@ -66,6 +69,7 @@ void showSnakeBar({
   );
 }
 
+// Application custom loading screen
 class CustomLoadingScreen extends StatelessWidget {
   const CustomLoadingScreen({super.key});
   @override
@@ -80,6 +84,7 @@ class CustomLoadingScreen extends StatelessWidget {
   }
 }
 
+// Application custom error screen
 class CustomErrorScreen extends StatelessWidget {
   const CustomErrorScreen({
     super.key,
@@ -155,6 +160,7 @@ class CustomErrorScreen extends StatelessWidget {
   }
 }
 
+// Application custom image widget
 class CustomImageWidget extends StatelessWidget {
   const CustomImageWidget({
     super.key,
@@ -180,11 +186,95 @@ class CustomImageWidget extends StatelessWidget {
   }
 }
 
+// Application custom network image provider
 ExtendedNetworkImageProvider networkImageProvider({required String imageUr}) {
   return ExtendedNetworkImageProvider(imageUr, cache: true);
 }
 
-// This widgest are blong to chat screen
+// Application custom loading widget
+class LoadingWidget extends StatelessWidget {
+  const LoadingWidget({super.key, this.widgetColor, this.widgetSize});
+  final Color? widgetColor;
+  final double? widgetSize;
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return SpinKitPianoWave(
+      color: widgetColor ?? colorScheme.primary,
+      size: widgetSize ?? 50,
+    );
+  }
+}
+
+// Application custom progress indicator
+class CustomProgressIndicator extends StatelessWidget {
+  const CustomProgressIndicator({
+    super.key,
+    required this.operationProgress,
+    required this.messageEntity,
+    required this.onCancelTapped,
+    required this.messagesFunctions,
+  });
+  final OperationProgress operationProgress;
+  final MessageEntity messageEntity;
+  final void Function() onCancelTapped;
+  final MessagesFunctions messagesFunctions;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return CircularPercentIndicator(
+      progressColor: colorScheme.primary,
+      radius: Get.width * 0.1,
+      lineWidth: 5,
+      percent: messagesFunctions.fechOperationProgress(
+        operationProgress: operationProgress,
+      ),
+      center: IconButton(
+        onPressed: onCancelTapped,
+        icon: Icon(
+          cancelIcon,
+          color: colorScheme.primary,
+        ),
+      ),
+    );
+  }
+}
+
+// Chat screen alert dialog
+class ChatScreenDialog extends StatelessWidget {
+  const ChatScreenDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return CupertinoAlertDialog(
+      title: Text(
+        appName,
+        style: textTheme.bodyLarge
+            ?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold),
+      ),
+      content: Text(
+        uploadAlert,
+        style: textTheme.bodyMedium
+            ?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w700),
+      ),
+      actions: [
+        CupertinoButton(
+          child: Text(
+            ok,
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
+          ),
+          onPressed: () => Get.back(),
+        )
+      ],
+    );
+  }
+}
+
+// Main message box that displays in chat screen
 class MessageBox extends StatelessWidget {
   MessageBox({super.key, required this.messageEntity, required this.child});
   final MessageEntity messageEntity;
@@ -210,6 +300,7 @@ class MessageBox extends StatelessWidget {
   }
 }
 
+// Message box for sender user
 class _SenderIsCurrentUserBox extends StatelessWidget {
   const _SenderIsCurrentUserBox({
     required this.messagesFunctions,
@@ -223,7 +314,7 @@ class _SenderIsCurrentUserBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return _AlignedWidgets(
+    return _AlignedBox(
       messagesFunctions: messagesFunctions,
       messageEntity: messageEntity,
       boxRadius: const BorderRadiusDirectional.only(
@@ -240,6 +331,7 @@ class _SenderIsCurrentUserBox extends StatelessWidget {
   }
 }
 
+// Message box for receiver user
 class _ReceiverIsCurrentUserBox extends StatelessWidget {
   const _ReceiverIsCurrentUserBox(
       {required this.messagesFunctions,
@@ -253,7 +345,7 @@ class _ReceiverIsCurrentUserBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return _AlignedWidgets(
+    return _AlignedBox(
       messagesFunctions: messagesFunctions,
       messageEntity: messageEntity,
       boxRadius: const BorderRadiusDirectional.only(
@@ -270,8 +362,9 @@ class _ReceiverIsCurrentUserBox extends StatelessWidget {
   }
 }
 
-class _AlignedWidgets extends StatelessWidget {
-  const _AlignedWidgets({
+// Message box that get necessary parameteres from parent widget to show aligned box
+class _AlignedBox extends StatelessWidget {
+  const _AlignedBox({
     required this.child,
     required this.messagesFunctions,
     required this.messageEntity,
@@ -326,6 +419,7 @@ class _AlignedWidgets extends StatelessWidget {
   }
 }
 
+// Message time stamp widget
 class _TimeStampWidget extends StatelessWidget {
   const _TimeStampWidget({
     required this.messagesFunctions,
@@ -345,86 +439,6 @@ class _TimeStampWidget extends StatelessWidget {
       style: textTheme.labelSmall!.copyWith(
         color: textColor,
       ),
-    );
-  }
-}
-
-class LoadingWidget extends StatelessWidget {
-  const LoadingWidget({super.key, this.widgetColor, this.widgetSize});
-  final Color? widgetColor;
-  final double? widgetSize;
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-    return SpinKitPianoWave(
-      color: widgetColor ?? colorScheme.primary,
-      size: widgetSize ?? 50,
-    );
-  }
-}
-
-class CustomProgressIndicator extends StatelessWidget {
-  const CustomProgressIndicator({
-    super.key,
-    required this.operationProgress,
-    required this.messageEntity,
-    required this.onCancelTapped,
-    required this.messagesFunctions,
-  });
-  final OperationProgress operationProgress;
-  final MessageEntity messageEntity;
-  final void Function() onCancelTapped;
-  final MessagesFunctions messagesFunctions;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return CircularPercentIndicator(
-      progressColor: colorScheme.primary,
-      radius: Get.width * 0.1,
-      lineWidth: 5,
-      percent: messagesFunctions.fechOperationProgress(
-        operationProgress: operationProgress,
-      ),
-      center: IconButton(
-        onPressed: onCancelTapped,
-        icon: Icon(
-          cancelIcon,
-          color: colorScheme.primary,
-        ),
-      ),
-    );
-  }
-}
-
-class ChatScreenDialog extends StatelessWidget {
-  const ChatScreenDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final TextTheme textTheme = Theme.of(context).textTheme;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return CupertinoAlertDialog(
-      title: Text(
-        appName,
-        style: textTheme.bodyLarge
-            ?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold),
-      ),
-      content: Text(
-        uploadAlert,
-        style: textTheme.bodyMedium
-            ?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w700),
-      ),
-      actions: [
-        CupertinoButton(
-          child: Text(
-            ok,
-            style: textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
-          ),
-          onPressed: () => Get.back(),
-        )
-      ],
     );
   }
 }
