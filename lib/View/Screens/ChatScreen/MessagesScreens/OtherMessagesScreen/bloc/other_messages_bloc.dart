@@ -22,12 +22,12 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
       {required MessageEntity messageEntity, required Emitter emit}) async {
     if (messageEntity.isUploading) {
       emit(MessageFileLoadingScreen());
-     try {
+      try {
         await messagesFunctions.uploadFileMessage(
-          otherMessagesBloc: this, messageEntity: messageEntity);
-     } catch (e) {
-       emit(MessageFileUploadErrorScreen());
-     }
+            otherMessagesBloc: this, messageEntity: messageEntity);
+      } catch (e) {
+        emit(MessageFileUploadErrorScreen());
+      }
     } else {
       final bool isFileDownloaded =
           await messagesFunctions.isMessageFileDownloaded(

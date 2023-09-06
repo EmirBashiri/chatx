@@ -13,7 +13,7 @@ import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
 
-// Application chat screen
+// Application's chat screen
 class ChatScreen extends StatelessWidget {
   ChatScreen({super.key, required this.senderUser, required this.receiverUser});
 
@@ -32,11 +32,11 @@ class ChatScreen extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return WillPopScope(
-      onWillPop: () => chatFunctions.chatScreenPopScope(),
+      onWillPop: ()async =>await chatFunctions.chatScreenPopScope(),
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            onPressed: () => chatFunctions.closeChatScreen(),
+            onPressed: () async=>await chatFunctions.closeChatScreen(),
             icon: Icon(backIcon, color: colorScheme.primary),
           ),
           forceMaterialTransparency: true,
@@ -90,7 +90,7 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-// Chat screen main widget
+// Chat screen's main widget
 class _ChatMainWidget extends StatelessWidget {
   const _ChatMainWidget({
     required this.messagesList,
@@ -128,7 +128,7 @@ class _ChatMainWidget extends StatelessWidget {
   }
 }
 
-// Chat screen main part
+// Chat screen's main part
 class _MainPart extends StatelessWidget {
   const _MainPart({
     required this.messagesList,
@@ -166,7 +166,7 @@ class _MainPart extends StatelessWidget {
   }
 }
 
-// Chat screen bottom part (Message sender part)
+// Chat screen's bottom part (Message sender part)
 class _BottomPart extends StatelessWidget {
   const _BottomPart({
     required this.senderController,
@@ -195,7 +195,7 @@ class _BottomPart extends StatelessWidget {
   }
 }
 
-// Chat message sender text field
+// Chat's message sender text field
 class _SenderTextField extends StatelessWidget {
   _SenderTextField({required this.roomIdRequirements});
 
@@ -239,7 +239,7 @@ class _SenderTextField extends StatelessWidget {
   }
 }
 
-// Chat image and file message sender part
+// Chat's image and file message sender part
 class _SendImageAndFileButton extends StatelessWidget {
   const _SendImageAndFileButton(
       {required this.chatFunctions, required this.roomIdRequirements});
@@ -312,7 +312,7 @@ class _SendImageAndFileButton extends StatelessWidget {
   }
 }
 
-// Chat bottom sender part right part
+// Chat screen's bottom  right part
 class _SenderRightAction extends StatelessWidget {
   const _SenderRightAction({
     required this.senderController,

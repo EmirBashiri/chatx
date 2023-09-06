@@ -22,6 +22,12 @@ class MessagesFunctions extends ChatFunctions {
   // Insrance of firebase storage for use in whole file
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
+  // Map of cansel tokens for cansel downloads
+  static Map<String, CancelToken> cancelTokens = {};
+
+  // Map of upload tasks for cancel uploads
+  static Map<String, UploadTask> uploadTasks = {};
+
   // Function to check message sender is applications current user or not
   bool senderIsCurrentUser({required MessageEntity messageEntity}) {
     if (messageEntity.senderUserId == _firebaseAuth.currentUser!.uid) {
@@ -64,15 +70,15 @@ class MessagesFunctions extends ChatFunctions {
   }
 
   // Function to build cansel token and add to tokens maps
-  CancelToken _buildCancelToken({required String messageUrl}) {
+  CancelToken _buildCancelToken({required MessageEntity messageEntity}) {
     final CancelToken cancelToken = CancelToken();
-    cancelTokens.addAll({messageUrl: cancelToken});
+    cancelTokens.addAll({messageEntity.id: cancelToken});
     return cancelToken;
   }
 
   // Function to remove cancel token from cancel tokens map
-  void _removeCancelToken({required String messageUrl}) {
-    cancelTokens.remove(messageUrl);
+  void _removeCancelToken({required MessageEntity messageEntity}) {
+    cancelTokens.remove(messageEntity.id);
   }
 
   // Funtion to downlodad file from storage server
@@ -84,7 +90,7 @@ class MessagesFunctions extends ChatFunctions {
       messageUrl: messageEntity.message,
     );
     final CancelToken cancelToken =
-        _buildCancelToken(messageUrl: messageEntity.message);
+        _buildCancelToken(messageEntity: messageEntity);
     try {
       await Dio().download(
         messageEntity.message,
@@ -98,37 +104,25 @@ class MessagesFunctions extends ChatFunctions {
           );
         },
       );
-      _removeCancelToken(messageUrl: messageEntity.message);
+      _removeCancelToken(messageEntity: messageEntity);
       otherMessagesBloc.add(OtherMessagesFileCompleted());
     } catch (e) {
       otherMessagesBloc.add(OtherMessagesDownloadError());
     }
   }
 
-  // Function to fech file dwonload progress
-  double fechOperationProgress({required OperationProgress operationProgress}) {
-    return operationProgress.transferred / operationProgress.total;
-  }
-
   // Function to _cancel downloading
-  void cancelDownload({required MessageEntity messageEntity}) {
-    CancelToken? cancelToken = cancelTokens[messageEntity.message];
-    cancelTokens.remove(messageEntity.message);
+  void cancelDownload({
+    required MessageEntity messageEntity,
+  }) {
+    CancelToken? cancelToken = cancelTokens[messageEntity.id];
+    cancelTokens.remove(messageEntity.id);
     cancelToken?.cancel();
   }
 
-  // Function to cancel uploading
-  Future<void> cancelUpload({required MessageEntity messageEntity}) async {
-    final UploadTask? uploadTask = uploadTasks[messageEntity.id];
-    uploadTasks.remove(messageEntity.message);
-    await uploadTask!.cancel();
-    await _deleteMessageOnDB(messageEntity: messageEntity);
-  }
-
-  // Function to delete message that gave an error
-  Future<void> deleteErroredMessage(
-      {required MessageEntity messageEntity}) async {
-    await _deleteMessageOnDB(messageEntity: messageEntity);
+  // Function to fech file dwonload progress
+  double fechOperationProgress({required OperationProgress operationProgress}) {
+    return operationProgress.transferred / operationProgress.total;
   }
 
   // Function to get message file from cache
@@ -277,6 +271,7 @@ class MessagesFunctions extends ChatFunctions {
           ),
         );
       } else if (snapshot.state == TaskState.success) {
+        uploadTasks.remove(messageEntity.id);
         otherMessagesBloc.add(OtherMessagesLoading());
         final String downloadUrl = await reference.getDownloadURL();
         final MessageEntity newMessageEntity = MessageEntity(
@@ -300,5 +295,19 @@ class MessagesFunctions extends ChatFunctions {
         otherMessagesBloc.add(OtherMessagesUploadError());
       }
     });
+  }
+
+  // Function to cancel uploading
+  Future<void> cancelUpload({required MessageEntity messageEntity}) async {
+    final UploadTask? uploadTask = uploadTasks[messageEntity.id];
+    uploadTasks.remove(messageEntity.id);
+    await uploadTask!.cancel();
+    await _deleteMessageOnDB(messageEntity: messageEntity);
+  }
+
+  // Function to delete message that gave an error
+  Future<void> deleteErroredMessage(
+      {required MessageEntity messageEntity}) async {
+    await _deleteMessageOnDB(messageEntity: messageEntity);
   }
 }
