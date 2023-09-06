@@ -22,12 +22,6 @@ class MessagesFunctions extends ChatFunctions {
   // Insrance of firebase storage for use in whole file
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
-  // Map of cansel tokens for cansel downloads
-  Map<String, CancelToken> cancelTokens = {};
-
-  // Map of upload tasks for cancel uploads
-  Map<String, UploadTask> uploadTasks = {};
-
   // Function to check message sender is applications current user or not
   bool senderIsCurrentUser({required MessageEntity messageEntity}) {
     if (messageEntity.senderUserId == _firebaseAuth.currentUser!.uid) {
@@ -116,14 +110,6 @@ class MessagesFunctions extends ChatFunctions {
     return operationProgress.transferred / operationProgress.total;
   }
 
-  // Function to cancel all downloads
-  void cancelAllDownloads() {
-    cancelTokens.forEach((key, value) {
-      value.cancel();
-    });
-    cancelTokens.clear();
-  }
-
   // Function to _cancel downloading
   void cancelDownload({required MessageEntity messageEntity}) {
     CancelToken? cancelToken = cancelTokens[messageEntity.message];
@@ -131,11 +117,17 @@ class MessagesFunctions extends ChatFunctions {
     cancelToken?.cancel();
   }
 
-  // Function to _cancel uploading
+  // Function to cancel uploading
   Future<void> cancelUpload({required MessageEntity messageEntity}) async {
     final UploadTask? uploadTask = uploadTasks[messageEntity.id];
     uploadTasks.remove(messageEntity.message);
     await uploadTask!.cancel();
+    await _deleteMessageOnDB(messageEntity: messageEntity);
+  }
+
+  // Function to delete message that gave an error
+  Future<void> deleteErroredMessage(
+      {required MessageEntity messageEntity}) async {
     await _deleteMessageOnDB(messageEntity: messageEntity);
   }
 
@@ -272,22 +264,19 @@ class MessagesFunctions extends ChatFunctions {
     final File messageFile = File(messageEntity.message);
     final Reference reference =
         _firebaseStorage.ref("$fileMessagesBucket$fileName");
-    try {
-      final UploadTask uploadTask = reference.putFile(messageFile);
-      uploadTasks.addAll({messageEntity.id: uploadTask});
-      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-        if (snapshot.state == TaskState.running) {
-          otherMessagesBloc.add(
-            OtherMessagesUploadingStatus(
-              OperationProgress(
-                transferred: snapshot.bytesTransferred,
-                total: snapshot.totalBytes,
-              ),
+    final UploadTask uploadTask = reference.putFile(messageFile);
+    uploadTasks.addAll({messageEntity.id: uploadTask});
+    uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {
+      if (snapshot.state == TaskState.running) {
+        otherMessagesBloc.add(
+          OtherMessagesUploadingStatus(
+            OperationProgress(
+              transferred: snapshot.bytesTransferred,
+              total: snapshot.totalBytes,
             ),
-          );
-        }
-      });
-      uploadTask.whenComplete(() async {
+          ),
+        );
+      } else if (snapshot.state == TaskState.success) {
         otherMessagesBloc.add(OtherMessagesLoading());
         final String downloadUrl = await reference.getDownloadURL();
         final MessageEntity newMessageEntity = MessageEntity(
@@ -307,9 +296,9 @@ class MessagesFunctions extends ChatFunctions {
           oldMessageEntity: messageEntity,
         );
         otherMessagesBloc.add(OtherMessagesFileCompleted());
-      });
-    } catch (e) {
-      otherMessagesBloc.add(OtherMessagesUploadError());
-    }
+      } else if (snapshot.state == TaskState.error) {
+        otherMessagesBloc.add(OtherMessagesUploadError());
+      }
+    });
   }
 }

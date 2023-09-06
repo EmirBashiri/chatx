@@ -31,59 +31,60 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () async => await chatFunctions.closeChatScreen(
-            messagesFunctions: messagesFunctions,
+    return WillPopScope(
+      onWillPop: () => chatFunctions.chatScreenPopScope(),
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => chatFunctions.closeChatScreen(),
+            icon: Icon(backIcon, color: colorScheme.primary),
           ),
-          icon: Icon(backIcon, color: colorScheme.primary),
-        ),
-        forceMaterialTransparency: true,
-        centerTitle: true,
-        title: Text(
-          chatFunctions.fechChatScreenTitle(
-            senderUser: senderUser,
-            receiverUser: receiverUser,
-          ),
-          style: textTheme.bodyLarge!.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colorScheme.primary,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      body: StreamBuilder(
-        stream: chatFunctions.getMessage(
-          roomIdRequirements: RoomIdRequirements(
-            senderUserId: senderUser.userUID,
-            receiverUserId: receiverUser.userUID,
+          forceMaterialTransparency: true,
+          centerTitle: true,
+          title: Text(
+            chatFunctions.fechChatScreenTitle(
+              senderUser: senderUser,
+              receiverUser: receiverUser,
+            ),
+            style: textTheme.bodyLarge!.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colorScheme.primary,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        builder: (context, snapshot) {
-          // TODO manage all possible states here
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CustomLoadingScreen();
-          } else if (snapshot.data != null) {
-            final List<MessageEntity> messagesList = snapshot.data!.docs
-                .map((jsonFromDB) =>
-                    MessageEntity.fromJson(json: jsonFromDB.data()))
-                .toList();
-
-            return _ChatMainWidget(
-              messagesList: messagesList,
-              messagesFunctions: messagesFunctions,
-              chatFunctions: chatFunctions,
-              senderController: senderController,
-              roomIdRequirements: RoomIdRequirements(
-                senderUserId: senderUser.userUID,
-                receiverUserId: receiverUser.userUID,
-              ),
-            );
-          } else {
-            return Container();
-          }
-        },
+        body: StreamBuilder(
+          stream: chatFunctions.getMessage(
+            roomIdRequirements: RoomIdRequirements(
+              senderUserId: senderUser.userUID,
+              receiverUserId: receiverUser.userUID,
+            ),
+          ),
+          builder: (context, snapshot) {
+            // TODO manage all possible states here
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CustomLoadingScreen();
+            } else if (snapshot.data != null) {
+              final List<MessageEntity> messagesList = snapshot.data!.docs
+                  .map((jsonFromDB) =>
+                      MessageEntity.fromJson(json: jsonFromDB.data()))
+                  .toList();
+              senderController.messageList = messagesList;
+              return _ChatMainWidget(
+                messagesList: messagesList,
+                messagesFunctions: messagesFunctions,
+                chatFunctions: chatFunctions,
+                senderController: senderController,
+                roomIdRequirements: RoomIdRequirements(
+                  senderUserId: senderUser.userUID,
+                  receiverUserId: receiverUser.userUID,
+                ),
+              );
+            } else {
+              return Container();
+            }
+          },
+        ),
       ),
     );
   }
@@ -268,11 +269,8 @@ class _SendImageAndFileButton extends StatelessWidget {
                     textTheme: textTheme,
                     iconData: fileIcon,
                     label: fileMessage,
-                    onPressed: () async {
-                      // TODO send file message here
-                      await chatFunctions.startFileUploading(
-                          roomIdRequirements: roomIdRequirements);
-                    },
+                    onPressed: () async => await chatFunctions.startFileSending(
+                        roomIdRequirements: roomIdRequirements),
                   ),
                   // Image message sender button
                   senderButton(

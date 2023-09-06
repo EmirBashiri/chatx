@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
+import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
@@ -22,6 +24,12 @@ class ChatFunctions {
 
   // Instance of message sender controller for use in whole class
   final MessageSenderController messageSenderController = Get.find();
+
+  // Map of cansel tokens for cansel downloads
+  Map<String, CancelToken> cancelTokens = {};
+
+  // Map of upload tasks for cancel uploads
+  Map<String, UploadTask> uploadTasks = {};
 
   // Function to build messages UUID
   String buildUUID() {
@@ -69,7 +77,7 @@ class ChatFunctions {
   Stream<QuerySnapshot<Map<String, dynamic>>> getMessage(
       {required RoomIdRequirements roomIdRequirements}) {
     return messagesCollection(roomIdRequirements: roomIdRequirements)
-        .orderBy(MessageEntity.timestampKey,descending: true)
+        .orderBy(MessageEntity.timestampKey, descending: true)
         .snapshots();
   }
 
@@ -84,10 +92,38 @@ class ChatFunctions {
   }
 
   // Fuction to close chat screen
-  Future<void> closeChatScreen(
-      {required MessagesFunctions messagesFunctions}) async {
-    messagesFunctions.cancelAllDownloads();
-    Get.back();
+  void closeChatScreen() {
+    final bool isUploadingFile = messageSenderController.messageList
+        .map((e) => e.isUploading == true)
+        .first;
+    if (isUploadingFile) {
+      Get.dialog(const ChatScreenDialog());
+    } else {
+      cancelAllDownloads();
+      Get.back();
+    }
+  }
+
+  // Fuction to controll chat screen pop scope
+  Future<bool> chatScreenPopScope() async {
+    final bool isUploadingFile = messageSenderController.messageList
+        .map((e) => e.isUploading == true)
+        .first;
+    if (isUploadingFile) {
+      Get.dialog(const ChatScreenDialog());
+      return false;
+    } else {
+      cancelAllDownloads();
+      return true;
+    }
+  }
+
+  // Function to cancel all downloads
+  void cancelAllDownloads() {
+    cancelTokens.forEach((key, value) {
+      value.cancel();
+    });
+    cancelTokens.clear();
   }
 
   // Fuction to fech can send message status
@@ -127,7 +163,7 @@ class ChatFunctions {
   }
 
   // Fuction to start file sending operation
-  Future<void> startFileUploading(
+  Future<void> startFileSending(
       {required RoomIdRequirements roomIdRequirements}) async {
     Get.back();
     final File? file = await _pickFile();

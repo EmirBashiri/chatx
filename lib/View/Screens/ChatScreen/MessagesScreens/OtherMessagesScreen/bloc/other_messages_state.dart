@@ -23,8 +23,11 @@ class MessageFileUploadingStatusScreen extends OtherMessagesState {
   MessageFileUploadingStatusScreen(this.operationProgress);
 }
 
-// This state is launched whenever messages file downloading and an error detected
-class MessageFileErrorScreen extends OtherMessagesState {}
+// This state is launched whenever messages file being downloaded and an error detected
+class MessageFileDownloadErrorScreen extends OtherMessagesState {}
+
+// This state is launched whenever messages file being uploaded and an error detected
+class MessageFileUploadErrorScreen extends OtherMessagesState {}
 
 // This state is launched whenever messages file is ready
 class MessageFileReadyScreen extends OtherMessagesState {}

@@ -61,7 +61,7 @@ class OthetMessagesScreen extends StatelessWidget {
                   messagesFunctions: messagesFunctions,
                 ),
               );
-            } else if (state is MessageFileErrorScreen) {
+            } else if (state is MessageFileDownloadErrorScreen) {
               return _FileOperationScreen(
                 messageEntity: messageEntity,
                 messagesFunctions: messagesFunctions,
@@ -69,6 +69,16 @@ class OthetMessagesScreen extends StatelessWidget {
                   onPressed: () => context
                       .read<OtherMessagesBloc>()
                       .add(OtherMessagesStart(messageEntity)),
+                  icon: const Icon(errorIcon),
+                ),
+              );
+            } else if (state is MessageFileUploadErrorScreen) {
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+                statusWidget: IconButton.filled(
+                  onPressed: () async => await messagesFunctions
+                      .deleteErroredMessage(messageEntity: messageEntity),
                   icon: const Icon(errorIcon),
                 ),
               );
