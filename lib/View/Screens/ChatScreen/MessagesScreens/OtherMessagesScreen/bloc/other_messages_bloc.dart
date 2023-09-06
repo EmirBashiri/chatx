@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
 
@@ -13,39 +14,44 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   final DependencyController dependencyController = Get.find();
   late final MessagesFunctions messagesFunctions =
       dependencyController.appFunctions.messagesFunctions;
+  late final ChatFunctions chatFunctions =
+      dependencyController.appFunctions.chatFunctions;
 
   // This function called whenever event is OtherMessagesStart
   Future<void> otherMessagesStart(
       {required MessageEntity messageEntity, required Emitter emit}) async {
-    final bool isFileDownloaded =
-        await messagesFunctions.isMessageFileDownloaded(
-      messageUrl: messageEntity.message,
-    );
-    if (isFileDownloaded) {
-      emit(MessageFileReadyScreen(
-          messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+    if (messageEntity.isUploading) {
+      emit(MessageFileLoadingScreen());
+     try {
+        await messagesFunctions.uploadFileMessage(
+          otherMessagesBloc: this, messageEntity: messageEntity);
+     } catch (e) {
+       emit(MessageFileUploadErrorScreen());
+     }
     } else {
-      emit(MessagesPervirewScreen(
-          messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+      final bool isFileDownloaded =
+          await messagesFunctions.isMessageFileDownloaded(
+        messageUrl: messageEntity.message,
+      );
+      if (isFileDownloaded) {
+        emit(MessageFileReadyScreen());
+      } else {
+        emit(MessagesPervirewScreen());
+      }
     }
   }
 
   // This function called whenever event is OtherMessagesDownloadFile
   Future<void> otherMessagesDownloadFile(
       {required MessageEntity messageEntity, required Emitter emit}) async {
-    emit(MessageFileLoadingScreen(
-        messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+    emit(MessageFileLoadingScreen());
     await messagesFunctions.downloadFile(
         messageEntity: messageEntity, otherMessagesBloc: this);
   }
 
   // This function called whenever event is OtherMessagesFileCompleted
-  Future<void> otherMessagesFileCompleted(
-      {required MessageEntity messageEntity, required Emitter emit}) async {
-    emit(MessageFileReadyScreen(
-      messagesFunctions: messagesFunctions,
-      messageEntity: messageEntity,
-    ));
+  void otherMessagesFileCompleted(Emitter emit) {
+    emit(MessageFileReadyScreen());
   }
 
   // This function called whenever event is OtherMessagesOpenFile
@@ -56,32 +62,37 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   }
 
   // This function called whenever event is OtherMessagesCancelDownloading
-  Future<void> otherMessagesCancelDownloading(
-      {required MessageEntity messageEntity, required Emitter emit}) async {
+  void otherMessagesCancelDownloading(
+      {required MessageEntity messageEntity, required Emitter emit}) {
     messagesFunctions.cancelDownload(messageEntity: messageEntity);
-    emit(MessagesPervirewScreen(
-        messageEntity: messageEntity, messagesFunctions: messagesFunctions));
+    emit(MessagesPervirewScreen());
   }
 
-  // This function called whenever event is OtherMessagesDownloadStatus
-  void otherMessagesDownloadStatus(
-      {required MessageEntity messageEntity,
-      required Emitter emit,
-      required DownloadProgress downloadProgress}) {
-    emit(MessageFileDownloadingScreen(
-      messageEntity: messageEntity,
-      messagesFunctions: messagesFunctions,
-      downloadProgress: downloadProgress,
-    ));
+  // This function called whenever event is OtherMessagesDownloadingStatus
+  void otherMessagesDownloadingStatus(
+      {required Emitter emit, required OperationProgress operationProgress}) {
+    emit(MessageFileDownloadingScreen(operationProgress));
+  }
+
+  // This function called whenever event is OtherMessagesUploadingStatus
+  void otherMessagesUploadingStatus(
+      {required Emitter emit, required OperationProgress operationProgress}) {
+    emit(MessageFileUploadingStatusScreen(operationProgress));
   }
 
   // This function called whenever event is OtherMessagesDownloadError
-  void otherMessagesDownloadError(
-      {required MessageEntity messageEntity, required Emitter emit}) {
-    emit(MessageFileErrorScreen(
-      messageEntity: messageEntity,
-      messagesFunctions: messagesFunctions,
-    ));
+  void otherMessagesDownloadError(Emitter emit) {
+    emit(MessageFileDownloadErrorScreen());
+  }
+
+  // This function called whenever event is OtherMessagesUploadError
+  void otherMessagesUploadError(Emitter emit) {
+    emit(MessageFileUploadErrorScreen());
+  }
+
+  // This function called whenever event is OtherMessagesLoading
+  void otherMessagesLoading(Emitter emit) {
+    emit(MessageFileLoadingScreen());
   }
 
   OtherMessagesBloc() : super(OtherMessagesInitial()) {
@@ -96,32 +107,34 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
           messageEntity: event.messageEntity,
           emit: emit,
         );
-      } else if (event is OtherMessagesDownloadStatus) {
-        otherMessagesDownloadStatus(
-          messageEntity: event.messageEntity,
+      } else if (event is OtherMessagesDownloadingStatus) {
+        otherMessagesDownloadingStatus(
           emit: emit,
-          downloadProgress: event.downloadProgress,
+          operationProgress: event.operationProgress,
+        );
+      } else if (event is OtherMessagesUploadingStatus) {
+        otherMessagesUploadingStatus(
+          emit: emit,
+          operationProgress: event.operationProgress,
         );
       } else if (event is OtherMessagesDownloadError) {
-        otherMessagesDownloadError(
-          messageEntity: event.messageEntity,
-          emit: emit,
-        );
+        otherMessagesDownloadError(emit);
+      } else if (event is OtherMessagesUploadError) {
+        otherMessagesUploadError(emit);
       } else if (event is OtherMessagesFileCompleted) {
-        await otherMessagesFileCompleted(
-          messageEntity: event.messageEntity,
-          emit: emit,
-        );
+        otherMessagesFileCompleted(emit);
       } else if (event is OtherMessagesOpenFile) {
         await otherMessagesOpenFile(
           messageEntity: event.messageEntity,
           emit: emit,
         );
       } else if (event is OtherMessagesCancelDownloading) {
-        await otherMessagesCancelDownloading(
+        otherMessagesCancelDownloading(
           messageEntity: event.messageEntity,
           emit: emit,
         );
+      } else if (event is OtherMessagesLoading) {
+        otherMessagesLoading(emit);
       }
     });
   }

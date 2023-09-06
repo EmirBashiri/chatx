@@ -1,4 +1,5 @@
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
@@ -366,12 +367,12 @@ class LoadingWidget extends StatelessWidget {
 class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({
     super.key,
-    required this.downloadProgress,
+    required this.operationProgress,
     required this.messageEntity,
     required this.onCancelTapped,
     required this.messagesFunctions,
   });
-  final DownloadProgress downloadProgress;
+  final OperationProgress operationProgress;
   final MessageEntity messageEntity;
   final void Function() onCancelTapped;
   final MessagesFunctions messagesFunctions;
@@ -383,8 +384,8 @@ class CustomProgressIndicator extends StatelessWidget {
       progressColor: colorScheme.primary,
       radius: Get.width * 0.1,
       lineWidth: 5,
-      percent: messagesFunctions.fechDownloadProgress(
-        downloadProgressStatus: downloadProgress,
+      percent: messagesFunctions.fechOperationProgress(
+        operationProgress: operationProgress,
       ),
       center: IconButton(
         onPressed: onCancelTapped,
@@ -393,6 +394,37 @@ class CustomProgressIndicator extends StatelessWidget {
           color: colorScheme.primary,
         ),
       ),
+    );
+  }
+}
+
+class ChatScreenDialog extends StatelessWidget {
+  const ChatScreenDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return CupertinoAlertDialog(
+      title: Text(
+        appName,
+        style: textTheme.bodyLarge
+            ?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold),
+      ),
+      content: Text(
+        uploadAlert,
+        style: textTheme.bodyMedium
+            ?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w700),
+      ),
+      actions: [
+        CupertinoButton(
+          child: Text(
+            ok,
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
+          ),
+          onPressed: () => Get.back(),
+        )
+      ],
     );
   }
 }

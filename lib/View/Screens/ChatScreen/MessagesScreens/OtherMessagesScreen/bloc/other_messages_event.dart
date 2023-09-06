@@ -18,11 +18,7 @@ class OtherMessagesDownloadFile extends OtherMessagesEvent {
 }
 
 // This event is called whenever file download completed
-class OtherMessagesFileCompleted extends OtherMessagesEvent {
-  final MessageEntity messageEntity;
-
-  OtherMessagesFileCompleted(this.messageEntity);
-}
+class OtherMessagesFileCompleted extends OtherMessagesEvent {}
 
 // This event is called whenever file downloaded and user tap to open it
 class OtherMessagesOpenFile extends OtherMessagesEvent {
@@ -36,22 +32,27 @@ class OtherMessagesCancelDownloading extends OtherMessagesEvent {
   final MessageEntity messageEntity;
 
   OtherMessagesCancelDownloading(this.messageEntity);
+}    
+
+// This event is called whenever file is downloading to fech operation progress
+class OtherMessagesDownloadingStatus extends OtherMessagesEvent {
+  final OperationProgress operationProgress;
+
+  OtherMessagesDownloadingStatus(this.operationProgress);
 }
 
-// This event is called whenever file was downloading
-class OtherMessagesDownloadStatus extends OtherMessagesEvent {
-  final MessageEntity messageEntity;
-  final DownloadProgress downloadProgress;
+// This event is called whenever file is uploading to fech operation progress
+class OtherMessagesUploadingStatus extends OtherMessagesEvent {
+  final OperationProgress operationProgress;
 
-  OtherMessagesDownloadStatus({
-    required this.downloadProgress,
-    required this.messageEntity,
-  });
+  OtherMessagesUploadingStatus(this.operationProgress);
 }
 
 // This event is called whenever file was downloading and an error detected
-class OtherMessagesDownloadError extends OtherMessagesEvent {
-  final MessageEntity messageEntity;
+class OtherMessagesDownloadError extends OtherMessagesEvent {}
 
-  OtherMessagesDownloadError(this.messageEntity);
-}
+// This event is called whenever operation needs loading
+class OtherMessagesLoading extends OtherMessagesEvent {}
+
+// This event is called whenever file was uploading and an error detected
+class OtherMessagesUploadError extends OtherMessagesEvent {}

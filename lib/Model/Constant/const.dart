@@ -50,6 +50,9 @@ const String typeMessage = "Type a message";
 const String fileMessage = "File";
 const String imageMessage = "Image";
 const String selectMessageType = "Select";
+const String uploadAlert =
+    "Please wait until the upload is complete or cancel the upload.";
+const String ok = "Ok";
 // ///////////////////////////////////////////////////////////////////////
 
 // Home Screen //////////////////////////////////////////

@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/ChatBloc/chat_bloc.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessageScreen/image_message_screen.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/othet_messages_screen.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/TextMessageScreen/text_message_screen.dart';
@@ -33,48 +31,47 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () async => await chatFunctions.closeChatScreen(
-            messagesFunctions: messagesFunctions,
+    return WillPopScope(
+      onWillPop: () => chatFunctions.chatScreenPopScope(),
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => chatFunctions.closeChatScreen(),
+            icon: Icon(backIcon, color: colorScheme.primary),
           ),
-          icon: Icon(backIcon, color: colorScheme.primary),
-        ),
-        forceMaterialTransparency: true,
-        centerTitle: true,
-        title: Text(
-          chatFunctions.fechChatScreenTitle(
-            senderUser: senderUser,
-            receiverUser: receiverUser,
-          ),
-          style: textTheme.bodyLarge!.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colorScheme.primary,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      body: BlocProvider(
-        create: (context) {
-          final blox = ChatBloc();
-          blox.add(
-            ChatStart(
-              RoomIdRequirements(
-                senderUserId: senderUser.userUID,
-                receiverUserId: receiverUser.userUID,
-              ),
+          forceMaterialTransparency: true,
+          centerTitle: true,
+          title: Text(
+            chatFunctions.fechChatScreenTitle(
+              senderUser: senderUser,
+              receiverUser: receiverUser,
             ),
-          );
-          return blox;
-        },
-        child: BlocBuilder<ChatBloc, ChatState>(
-          builder: (context, state) {
-            if (state is ChatLoadingScreen) {
+            style: textTheme.bodyLarge!.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colorScheme.primary,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        body: StreamBuilder(
+          stream: chatFunctions.getMessage(
+            roomIdRequirements: RoomIdRequirements(
+              senderUserId: senderUser.userUID,
+              receiverUserId: receiverUser.userUID,
+            ),
+          ),
+          builder: (context, snapshot) {
+            // TODO manage all possible states here
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const CustomLoadingScreen();
-            } else if (state is ChatMainScreen) {
+            } else if (snapshot.data != null) {
+              final List<MessageEntity> messagesList = snapshot.data!.docs
+                  .map((jsonFromDB) =>
+                      MessageEntity.fromJson(json: jsonFromDB.data()))
+                  .toList();
+              senderController.messageList = messagesList;
               return _ChatMainWidget(
-                messagesList: state.messagesList,
+                messagesList: messagesList,
                 messagesFunctions: messagesFunctions,
                 chatFunctions: chatFunctions,
                 senderController: senderController,
@@ -83,8 +80,9 @@ class ChatScreen extends StatelessWidget {
                   receiverUserId: receiverUser.userUID,
                 ),
               );
+            } else {
+              return Container();
             }
-            return Container();
           },
         ),
       ),
@@ -160,8 +158,7 @@ class _MainPart extends StatelessWidget {
                   messagesFunctions: messagesFunctions);
             case MessageType.other:
               return OthetMessagesScreen(
-                messageEntity: messageEntity,
-              );
+                  messageEntity: messageEntity, key: Key(messageEntity.id));
           }
         },
       ),
@@ -186,7 +183,7 @@ class _BottomPart extends StatelessWidget {
       margin: const EdgeInsets.only(left: 15, right: 15),
       child: Row(
         children: [
-          _SenderTextField(),
+          _SenderTextField(roomIdRequirements: roomIdRequirements),
           _SenderRightAction(
             senderController: senderController,
             chatFunctions: chatFunctions,
@@ -200,13 +197,13 @@ class _BottomPart extends StatelessWidget {
 
 // Chat message sender text field
 class _SenderTextField extends StatelessWidget {
-  _SenderTextField();
+  _SenderTextField({required this.roomIdRequirements});
 
   final DependencyController dependencyController = Get.find();
   final MessageSenderController senderController = Get.find();
   late final ChatFunctions chatFunctions =
       dependencyController.appFunctions.chatFunctions;
-
+  final RoomIdRequirements roomIdRequirements;
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -231,7 +228,10 @@ class _SenderTextField extends StatelessWidget {
           decoration: InputDecoration(
               hintText: typeMessage,
               hintStyle: textTheme.bodySmall,
-              prefixIcon: _SendImageAndFileButton(chatFunctions: chatFunctions),
+              prefixIcon: _SendImageAndFileButton(
+                chatFunctions: chatFunctions,
+                roomIdRequirements: roomIdRequirements,
+              ),
               border: InputBorder.none),
         ),
       ),
@@ -241,14 +241,14 @@ class _SenderTextField extends StatelessWidget {
 
 // Chat image and file message sender part
 class _SendImageAndFileButton extends StatelessWidget {
-  const _SendImageAndFileButton({required this.chatFunctions});
+  const _SendImageAndFileButton(
+      {required this.chatFunctions, required this.roomIdRequirements});
   final ChatFunctions chatFunctions;
-
+  final RoomIdRequirements roomIdRequirements;
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
-
     return CupertinoButton(
       onPressed: () {
         showCupertinoDialog(
@@ -269,9 +269,8 @@ class _SendImageAndFileButton extends StatelessWidget {
                     textTheme: textTheme,
                     iconData: fileIcon,
                     label: fileMessage,
-                    onPressed: () {
-                      // TODO send file message here
-                    },
+                    onPressed: () async => await chatFunctions.startFileSending(
+                        roomIdRequirements: roomIdRequirements),
                   ),
                   // Image message sender button
                   senderButton(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
@@ -8,61 +9,88 @@ import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funt
 import 'package:get/get.dart';
 
 class OthetMessagesScreen extends StatelessWidget {
-  const OthetMessagesScreen({super.key, required this.messageEntity});
+  OthetMessagesScreen({super.key, required this.messageEntity});
   final MessageEntity messageEntity;
+  final MessagesFunctions messagesFunctions =
+      Get.find<DependencyController>().appFunctions.messagesFunctions;
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = OtherMessagesBloc();
-        bloc.add(OtherMessagesStart(messageEntity));
-        return bloc;
-      },
-      child: BlocBuilder<OtherMessagesBloc, OtherMessagesState>(
-        builder: (context, state) {
-          if (state is MessagesPervirewScreen) {
-            return _FilePerviewScreen(
-              messageEntity: state.messageEntity,
-              messagesFunctions: state.messagesFunctions,
-            );
-          } else if (state is MessageFileLoadingScreen) {
-            return _FileDownloadingStatusScreen(
-              messageEntity: state.messageEntity,
-              messagesFunctions: state.messagesFunctions,
-              statusWidget: LoadingWidget(widgetSize: Get.width * 0.1),
-            );
-          } else if (state is MessageFileDownloadingScreen) {
-            return _FileDownloadingStatusScreen(
-              messageEntity: state.messageEntity,
-              messagesFunctions: state.messagesFunctions,
-              statusWidget: CustomProgressIndicator(
-                downloadProgress: state.downloadProgress,
-                messageEntity: messageEntity,
-                onCancelTapped: () => context
-                    .read<OtherMessagesBloc>()
-                    .add(OtherMessagesCancelDownloading(messageEntity)),
-                messagesFunctions: state.messagesFunctions,
-              ),
-            );
-          } else if (state is MessageFileErrorScreen) {
-            return _FileDownloadingStatusScreen(
-              messageEntity: state.messageEntity,
-              messagesFunctions: state.messagesFunctions,
-              statusWidget: IconButton.filled(
-                onPressed: () => context
-                    .read<OtherMessagesBloc>()
-                    .add(OtherMessagesStart(messageEntity)),
-                icon: const Icon(errorIcon),
-              ),
-            );
-          } else if (state is MessageFileReadyScreen) {
-            return _FileReadyScreen(
-              messageEntity: state.messageEntity,
-              messagesFunctions: state.messagesFunctions,
-            );
-          }
-          return Container();
+    return RepaintBoundary(
+      child: BlocProvider(
+        create: (context) {
+          final bloc = OtherMessagesBloc();
+          bloc.add(OtherMessagesStart(messageEntity));
+          return bloc;
         },
+        child: BlocBuilder<OtherMessagesBloc, OtherMessagesState>(
+          builder: (context, state) {
+            if (state is MessagesPervirewScreen) {
+              return _FilePerviewScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+              );
+            } else if (state is MessageFileLoadingScreen) {
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+                statusWidget: LoadingWidget(widgetSize: Get.width * 0.1),
+              );
+            } else if (state is MessageFileDownloadingScreen) {
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+                statusWidget: CustomProgressIndicator(
+                  operationProgress: state.operationProgress,
+                  messageEntity: messageEntity,
+                  onCancelTapped: () => context
+                      .read<OtherMessagesBloc>()
+                      .add(OtherMessagesCancelDownloading(messageEntity)),
+                  messagesFunctions: messagesFunctions,
+                ),
+              );
+            } else if (state is MessageFileUploadingStatusScreen) {
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+                statusWidget: CustomProgressIndicator(
+                  operationProgress: state.operationProgress,
+                  messageEntity: messageEntity,
+                  onCancelTapped: () async => await messagesFunctions
+                      .cancelUpload(messageEntity: messageEntity),
+                  messagesFunctions: messagesFunctions,
+                ),
+              );
+            } else if (state is MessageFileDownloadErrorScreen) {
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+                statusWidget: IconButton.filled(
+                  onPressed: () => context
+                      .read<OtherMessagesBloc>()
+                      .add(OtherMessagesStart(messageEntity)),
+                  icon: const Icon(errorIcon),
+                ),
+              );
+            } else if (state is MessageFileUploadErrorScreen) {
+              return _FileOperationScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+                statusWidget: IconButton.filled(
+                  onPressed: () async => await messagesFunctions
+                      .deleteErroredMessage(messageEntity: messageEntity),
+                  icon: const Icon(errorIcon),
+                ),
+              );
+            } else if (state is MessageFileReadyScreen) {
+              return _FileReadyScreen(
+                messageEntity: messageEntity,
+                messagesFunctions: messagesFunctions,
+              );
+            }
+            return Container();
+          },
+        ),
       ),
     );
   }
@@ -89,8 +117,8 @@ class _FileTitle extends StatelessWidget {
 
   Text textWidget(
       {required TextTheme textTheme, required ColorScheme colorScheme}) {
-    final String messageFileTitle = messagesFunctions.fechFileMessageTitle(
-        messageUrl: messageEntity.message);
+    final String messageFileTitle =
+        messagesFunctions.fechFileMessageTitle(messageEntity: messageEntity);
     return messagesFunctions.senderIsCurrentUser(messageEntity: messageEntity)
         ? Text(
             messageFileTitle,
@@ -149,8 +177,8 @@ class _FilePerviewScreen extends StatelessWidget {
   }
 }
 
-class _FileDownloadingStatusScreen extends StatelessWidget {
-  const _FileDownloadingStatusScreen({
+class _FileOperationScreen extends StatelessWidget {
+  const _FileOperationScreen({
     required this.messageEntity,
     required this.messagesFunctions,
     required this.statusWidget,
