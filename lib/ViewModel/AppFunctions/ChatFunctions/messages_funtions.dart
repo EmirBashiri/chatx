@@ -84,7 +84,7 @@ class MessagesFunctions extends ChatFunctions {
   // Funtion to downlodad file from storage server
   Future<void> downloadFile({
     required MessageEntity messageEntity,
-    required OtherMessagesBloc otherMessagesBloc,
+    required OtherMessagesBloc? otherMessagesBloc,
   }) async {
     final String filePath = await _fechMesssageFileCachePath(
       messageUrl: messageEntity.message,
@@ -97,7 +97,7 @@ class MessagesFunctions extends ChatFunctions {
         filePath,
         cancelToken: cancelToken,
         onReceiveProgress: (count, total) {
-          otherMessagesBloc.add(
+          otherMessagesBloc?.add(
             OtherMessagesDownloadingStatus(
               OperationProgress(transferred: count, total: total),
             ),
@@ -105,9 +105,10 @@ class MessagesFunctions extends ChatFunctions {
         },
       );
       _removeCancelToken(messageEntity: messageEntity);
-      otherMessagesBloc.add(OtherMessagesFileCompleted());
+      otherMessagesBloc!.add(OtherMessagesFileCompleted());
     } catch (e) {
-      otherMessagesBloc.add(OtherMessagesDownloadError());
+      otherMessagesBloc!.add(OtherMessagesDownloadError());
+      otherMessagesBloc = null;
     }
   }
 
