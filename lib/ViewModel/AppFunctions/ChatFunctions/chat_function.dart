@@ -30,6 +30,12 @@ class ChatFunctions {
     return uuid.v1();
   }
 
+  // Function to build messages UUID
+  File fileRenamer({required File oldFile, required String fileId}) {
+    final String  parentPath="${oldFile.path.split("cache").first}/cache";
+    return oldFile.renameSync("$parentPath/$fileId");
+  }
+
   // Function to build room id
   String buildRoomId({required RoomIdRequirements roomIdRequirements}) {
     final List<String> userIdList = [
@@ -156,16 +162,19 @@ class ChatFunctions {
       {required RoomIdRequirements roomIdRequirements}) async {
     Get.back();
     final File? file = await _pickFile();
+
     if (file != null) {
+      final String id = buildUUID();
+      final File renamedFile = fileRenamer(oldFile: file, fileId: id);
       final MessageEntity messageEntity = MessageEntity(
-        id: buildUUID(),
+        id: id,
         senderUserId: roomIdRequirements.senderUserId,
         receiverUserId: roomIdRequirements.receiverUserId,
-        message: file.path,
+        message: renamedFile.path,
         messageType: MessageType.other,
         timestamp: Timestamp.now(),
         isUploading: true,
-        messageName: fechFileName(filePath: file.path),
+        messageName: fechFileName(filePath: renamedFile.path),
       );
       await _sendMessage(messageEntity: messageEntity);
     }
@@ -188,15 +197,17 @@ class ChatFunctions {
     Get.back();
     final File? imageFile = await _pickImage();
     if (imageFile != null) {
+      final String id = buildUUID();
+      final File renamedImageFile = fileRenamer(oldFile: imageFile, fileId: id);
       final MessageEntity messageEntity = MessageEntity(
-        id: buildUUID(),
+        id: id,
         senderUserId: roomIdRequirements.senderUserId,
         receiverUserId: roomIdRequirements.receiverUserId,
-        message: imageFile.path,
+        message: renamedImageFile.path,
         messageType: MessageType.image,
         timestamp: Timestamp.now(),
         isUploading: true,
-        messageName: fechFileName(filePath: imageFile.path),
+        messageName: fechFileName(filePath: renamedImageFile.path),
       );
       await _sendMessage(messageEntity: messageEntity);
     }

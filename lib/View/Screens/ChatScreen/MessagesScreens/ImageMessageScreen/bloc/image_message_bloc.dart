@@ -30,12 +30,12 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
       }
     } else {
       final bool isFileDownloaded = await messagesFunctions.isFileDownloaded(
-        messageUrl: messageEntity.message,
+        messageId: messageEntity.id,
       );
 
       if (isFileDownloaded) {
         final imageFile = await messagesFunctions.getFileFromCache(
-            messageUrl: messageEntity.message);
+            messageId: messageEntity.id);
         emit(ImageMessageReadyScreen(imageFile!));
       } else {
         emit(ImageMessagePerviewScreen());

@@ -53,15 +53,14 @@ class MessagesFunctions extends ChatFunctions {
   }
 
   // Function to fech message file cached path
-  Future<String> _fechMesssageFileCachePath(
-      {required String messageUrl}) async {
+  Future<String> _fechMesssageFileCachePath({required String messageId}) async {
     final Directory cacheDirectory = await getApplicationCacheDirectory();
-    return "${cacheDirectory.path}/$messageUrl";
+    return "${cacheDirectory.path}/$messageId";
   }
 
   // Function to check file availabelity
-  Future<bool> isFileDownloaded({required String messageUrl}) async {
-    final filePath = await _fechMesssageFileCachePath(messageUrl: messageUrl);
+  Future<bool> isFileDownloaded({required String messageId}) async {
+    final filePath = await _fechMesssageFileCachePath(messageId: messageId);
     final File file = File(filePath);
     if (file.existsSync()) {
       return true;
@@ -87,7 +86,7 @@ class MessagesFunctions extends ChatFunctions {
     required OtherMessagesBloc? otherMessagesBloc,
   }) async {
     final String filePath = await _fechMesssageFileCachePath(
-      messageUrl: messageEntity.message,
+      messageId: messageEntity.id,
     );
     final CancelToken cancelToken =
         _buildCancelToken(messageEntity: messageEntity);
@@ -127,9 +126,9 @@ class MessagesFunctions extends ChatFunctions {
   }
 
   // Function to get message file from cache
-  Future<File?> getFileFromCache({required String messageUrl}) async {
+  Future<File?> getFileFromCache({required String messageId}) async {
     final String filePath =
-        await _fechMesssageFileCachePath(messageUrl: messageUrl);
+        await _fechMesssageFileCachePath(messageId: messageId);
     final File file = File(filePath);
     if (file.existsSync()) {
       return file;
@@ -151,8 +150,7 @@ class MessagesFunctions extends ChatFunctions {
 
   // Function to open image
   Future<void> openImage({required MessageEntity messageEntity}) async {
-    final File? file =
-        await getFileFromCache(messageUrl: messageEntity.message);
+    final File? file = await getFileFromCache(messageId: messageEntity.id);
     if (file != null) {
       await _openFile(file: file);
     } else {
@@ -164,28 +162,12 @@ class MessagesFunctions extends ChatFunctions {
   Future<void> openFileMessage(
       {required MessageEntity messageEntity,
       required OtherMessagesBloc otherMessagesBloc}) async {
-    final File? file =
-        await getFileFromCache(messageUrl: messageEntity.message);
+    final File? file = await getFileFromCache(messageId: messageEntity.id);
     if (file != null) {
       await _openFile(file: file);
     } else {
       otherMessagesBloc.add(OtherMessagesStart(messageEntity));
     }
-  }
-
-  // Function to copy file to new file
-  Future<File> _copyFile({
-    required MessageEntity newMessageEntity,
-    required File oldFile,
-  }) async {
-    final Directory directory = await getApplicationCacheDirectory();
-    final File newFile = File("${directory.path}/${newMessageEntity.message}");
-    if (!newFile.existsSync()) {
-      newFile.createSync(recursive: true);
-      oldFile.copy(newFile.path);
-      oldFile.deleteSync(recursive: true);
-    }
-    return newFile;
   }
 
   // Function to update message on DB
@@ -246,8 +228,6 @@ class MessagesFunctions extends ChatFunctions {
           isUploading: false,
           messageName: messageEntity.messageName,
         );
-        await _copyFile(
-            newMessageEntity: newMessageEntity, oldFile: messageFile);
         await _updateMessageOnDB(newMessageEntity: newMessageEntity);
         otherMessagesBloc.add(OtherMessagesFileCompleted());
       } else if (snapshot.state == TaskState.error) {
@@ -292,12 +272,14 @@ class MessagesFunctions extends ChatFunctions {
           isUploading: false,
           messageName: messageEntity.messageName,
         );
-        final File newImageFile = await _copyFile(
-            newMessageEntity: newMessageEntity, oldFile: imageFile);
         await _updateMessageOnDB(newMessageEntity: newMessageEntity);
-        imageMessageBloc.add(ImageMessageOperationComplete(newImageFile));
+        final File? imageFile =
+            await getFileFromCache(messageId: newMessageEntity.id);
+        imageMessageBloc.add(ImageMessageOperationComplete(imageFile!));
       } else if (snapshot.state == TaskState.error) {
-        imageMessageBloc.add(ImageMessageUploadError());
+        final File? imageFile =
+            await getFileFromCache(messageId: messageEntity.id);
+        imageMessageBloc.add(ImageMessageUploadError(imageFile: imageFile));
       }
     });
   }

@@ -31,7 +31,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
     } else {
       final bool isFileDownloaded =
           await messagesFunctions.isFileDownloaded(
-        messageUrl: messageEntity.message,
+        messageId: messageEntity.id,
       );
       if (isFileDownloaded) {
         emit(MessageFileReadyScreen());
