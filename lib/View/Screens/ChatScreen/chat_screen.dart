@@ -32,11 +32,11 @@ class ChatScreen extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return WillPopScope(
-      onWillPop: ()async =>await chatFunctions.chatScreenPopScope(),
+      onWillPop: () async => await chatFunctions.chatScreenPopScope(),
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            onPressed: () async=>await chatFunctions.closeChatScreen(),
+            onPressed: () async => await chatFunctions.closeChatScreen(),
             icon: Icon(backIcon, color: colorScheme.primary),
           ),
           forceMaterialTransparency: true,
@@ -154,6 +154,7 @@ class _MainPart extends StatelessWidget {
               );
             case MessageType.image:
               return ImageMessageScreen(
+                  key: Key(messageEntity.id),
                   messageEntity: messageEntity,
                   messagesFunctions: messagesFunctions);
             case MessageType.other:
@@ -278,8 +279,9 @@ class _SendImageAndFileButton extends StatelessWidget {
                     textTheme: textTheme,
                     iconData: imageIcon,
                     label: imageMessage,
-                    onPressed: () {
-                      // TODO send image message here
+                    onPressed: () async {
+                      await chatFunctions.startImageSending(
+                          roomIdRequirements: roomIdRequirements);
                     },
                   ),
                 ],

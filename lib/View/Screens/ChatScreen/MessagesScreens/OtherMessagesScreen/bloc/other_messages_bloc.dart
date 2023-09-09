@@ -30,7 +30,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
       }
     } else {
       final bool isFileDownloaded =
-          await messagesFunctions.isMessageFileDownloaded(
+          await messagesFunctions.isFileDownloaded(
         messageUrl: messageEntity.message,
       );
       if (isFileDownloaded) {

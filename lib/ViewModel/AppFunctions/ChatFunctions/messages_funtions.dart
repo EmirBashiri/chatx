@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
+import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessageScreen/bloc/image_message_bloc.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
@@ -60,7 +60,7 @@ class MessagesFunctions extends ChatFunctions {
   }
 
   // Function to check file availabelity
-  Future<bool> isMessageFileDownloaded({required String messageUrl}) async {
+  Future<bool> isFileDownloaded({required String messageUrl}) async {
     final filePath = await _fechMesssageFileCachePath(messageUrl: messageUrl);
     final File file = File(filePath);
     if (file.existsSync()) {
@@ -127,21 +127,11 @@ class MessagesFunctions extends ChatFunctions {
   }
 
   // Function to get message file from cache
-  Future<File?> _getFileFromCache({required String messageUrl}) async {
+  Future<File?> getFileFromCache({required String messageUrl}) async {
     final String filePath =
         await _fechMesssageFileCachePath(messageUrl: messageUrl);
     final File file = File(filePath);
     if (file.existsSync()) {
-      return file;
-    } else {
-      return null;
-    }
-  }
-
-  // Function to get image file from cache
-  Future<File?> _getImageFromCache({required String imageUrl}) async {
-    final File? file = await getCachedImageFile(imageUrl);
-    if (file != null) {
       return file;
     } else {
       return null;
@@ -162,7 +152,7 @@ class MessagesFunctions extends ChatFunctions {
   // Function to open image
   Future<void> openImage({required MessageEntity messageEntity}) async {
     final File? file =
-        await _getImageFromCache(imageUrl: messageEntity.message);
+        await getFileFromCache(messageUrl: messageEntity.message);
     if (file != null) {
       await _openFile(file: file);
     } else {
@@ -175,7 +165,7 @@ class MessagesFunctions extends ChatFunctions {
       {required MessageEntity messageEntity,
       required OtherMessagesBloc otherMessagesBloc}) async {
     final File? file =
-        await _getFileFromCache(messageUrl: messageEntity.message);
+        await getFileFromCache(messageUrl: messageEntity.message);
     if (file != null) {
       await _openFile(file: file);
     } else {
@@ -184,7 +174,7 @@ class MessagesFunctions extends ChatFunctions {
   }
 
   // Function to copy file to new file
-  Future<void> _copyFile({
+  Future<File> _copyFile({
     required MessageEntity newMessageEntity,
     required File oldFile,
   }) async {
@@ -195,59 +185,30 @@ class MessagesFunctions extends ChatFunctions {
       oldFile.copy(newFile.path);
       oldFile.deleteSync(recursive: true);
     }
+    return newFile;
   }
 
   // Function to update message on DB
-  Future<void> _updateMessageOnDB({
-    required MessageEntity newMessageEntity,
-    required MessageEntity oldMessageEntity,
-  }) async {
+  Future<void> _updateMessageOnDB(
+      {required MessageEntity newMessageEntity}) async {
     final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
-      senderUserId: oldMessageEntity.senderUserId,
-      receiverUserId: oldMessageEntity.receiverUserID,
+      senderUserId: newMessageEntity.senderUserId,
+      receiverUserId: newMessageEntity.receiverUserId,
     );
-    String docId = "";
-    final List<QueryDocumentSnapshot<Object?>> docs =
-        await _messagesDocs(messageEntity: oldMessageEntity);
-
-    for (var doc in docs) {
-      if (doc.get(MessageEntity.messageKey) == oldMessageEntity.message) {
-        docId = doc.id;
-      }
-    }
-
     await messagesCollection(roomIdRequirements: roomIdRequirements)
-        .doc(docId)
+        .doc(newMessageEntity.id)
         .update(MessageEntity.toJson(messageEntity: newMessageEntity));
   }
 
   // Function to get messages docs from firebase firestroe DB
-  Future<List<QueryDocumentSnapshot<Object?>>> _messagesDocs({
-    required MessageEntity messageEntity,
-  }) async {
+  Future<void> _deleteMessageOnDB(
+      {required MessageEntity messageEntity}) async {
     final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
-      senderUserId: messageEntity.senderUserId,
-      receiverUserId: messageEntity.receiverUserID,
-    );
-
-    final QuerySnapshot querySnapshot =
-        await messagesCollection(roomIdRequirements: roomIdRequirements).get();
-
-    return querySnapshot.docs;
-  }
-
-  // Function to get messages docs from firebase firestroe DB
-  Future<void> _deleteMessageOnDB({
-    required MessageEntity messageEntity,
-  }) async {
-    final List<QueryDocumentSnapshot<Object?>> docs =
-        await _messagesDocs(messageEntity: messageEntity);
-
-    for (var doc in docs) {
-      if (doc.get(MessageEntity.messageKey) == messageEntity.message) {
-        await doc.reference.delete();
-      }
-    }
+        senderUserId: messageEntity.senderUserId,
+        receiverUserId: messageEntity.receiverUserId);
+    await messagesCollection(roomIdRequirements: roomIdRequirements)
+        .doc(messageEntity.id)
+        .delete();
   }
 
   // Function to uplead file on server and send file message
@@ -278,7 +239,7 @@ class MessagesFunctions extends ChatFunctions {
         final MessageEntity newMessageEntity = MessageEntity(
           id: messageEntity.id,
           senderUserId: messageEntity.senderUserId,
-          receiverUserID: messageEntity.receiverUserID,
+          receiverUserId: messageEntity.receiverUserId,
           message: downloadUrl,
           messageType: messageEntity.messageType,
           timestamp: messageEntity.timestamp,
@@ -287,13 +248,56 @@ class MessagesFunctions extends ChatFunctions {
         );
         await _copyFile(
             newMessageEntity: newMessageEntity, oldFile: messageFile);
-        await _updateMessageOnDB(
-          newMessageEntity: newMessageEntity,
-          oldMessageEntity: messageEntity,
-        );
+        await _updateMessageOnDB(newMessageEntity: newMessageEntity);
         otherMessagesBloc.add(OtherMessagesFileCompleted());
       } else if (snapshot.state == TaskState.error) {
         otherMessagesBloc.add(OtherMessagesUploadError());
+      }
+    });
+  }
+
+  // Function to uplead file on server and send file message
+  Future<void> uploadImageMessage({
+    required ImageMessageBloc imageMessageBloc,
+    required MessageEntity messageEntity,
+  }) async {
+    final String fileName = fechFileName(filePath: messageEntity.message);
+    final File imageFile = File(messageEntity.message);
+    final Reference reference =
+        _firebaseStorage.ref("$imageMessagesBucket$fileName");
+    final UploadTask uploadTask = reference.putFile(imageFile);
+    uploadTasks.addAll({messageEntity.id: uploadTask});
+    uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {
+      if (snapshot.state == TaskState.running) {
+        imageMessageBloc.add(
+          ImageMessageUploadProgress(
+            operationProgress: OperationProgress(
+              transferred: snapshot.bytesTransferred,
+              total: snapshot.totalBytes,
+            ),
+            imageFile: imageFile,
+          ),
+        );
+      } else if (snapshot.state == TaskState.success) {
+        uploadTasks.remove(messageEntity.id);
+        imageMessageBloc.add(ImageMessageLoading());
+        final String downloadUrl = await reference.getDownloadURL();
+        final MessageEntity newMessageEntity = MessageEntity(
+          id: messageEntity.id,
+          senderUserId: messageEntity.senderUserId,
+          receiverUserId: messageEntity.receiverUserId,
+          message: downloadUrl,
+          messageType: messageEntity.messageType,
+          timestamp: messageEntity.timestamp,
+          isUploading: false,
+          messageName: messageEntity.messageName,
+        );
+        final File newImageFile = await _copyFile(
+            newMessageEntity: newMessageEntity, oldFile: imageFile);
+        await _updateMessageOnDB(newMessageEntity: newMessageEntity);
+        imageMessageBloc.add(ImageMessageOperationComplete(newImageFile));
+      } else if (snapshot.state == TaskState.error) {
+        imageMessageBloc.add(ImageMessageUploadError());
       }
     });
   }

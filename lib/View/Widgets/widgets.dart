@@ -159,32 +159,6 @@ class CustomErrorScreen extends StatelessWidget {
   }
 }
 
-// Application custom image widget
-class CustomImageWidget extends StatelessWidget {
-  const CustomImageWidget({
-    super.key,
-    required this.imageUrl,
-  });
-
-  final String imageUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    return ExtendedImage.network(
-      imageUrl,
-      loadStateChanged: (state) {
-        switch (state.extendedImageLoadState) {
-          case LoadState.loading:
-            return const LoadingWidget();
-
-          default:
-            return state.completedWidget;
-        }
-      },
-    );
-  }
-}
-
 // Application custom network image provider
 ExtendedNetworkImageProvider networkImageProvider({required String imageUr}) {
   return ExtendedNetworkImageProvider(imageUr, cache: true);
@@ -405,6 +379,26 @@ class _TimeStampWidget extends StatelessWidget {
       messagesFunctions.messageTimeStamp(timestamp: messageEntity.timestamp),
       style: textTheme.labelSmall!.copyWith(
         color: textColor,
+      ),
+    );
+  }
+}
+
+// Application custom icon widget
+class CustomIcon extends StatelessWidget {
+  const CustomIcon({
+    super.key,
+    required this.iconData,
+  });
+  final IconData iconData;
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return CircleAvatar(
+      backgroundColor: colorScheme.primary,
+      child: Icon(
+        iconData,
+        color: colorScheme.background,
       ),
     );
   }

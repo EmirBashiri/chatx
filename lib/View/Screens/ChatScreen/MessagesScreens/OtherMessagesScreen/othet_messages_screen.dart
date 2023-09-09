@@ -155,7 +155,7 @@ class _FilePerviewScreen extends StatelessWidget {
       child: MessageBox(
         messageEntity: messageEntity,
         child: _duplocateFrame(
-          icon: const _DuplicateIcon(iconData: downloadIcon),
+          icon: const CustomIcon(iconData: downloadIcon),
           messageEntity: messageEntity,
           messagesFunctions: messagesFunctions,
         ),
@@ -204,7 +204,7 @@ class _FileReadyScreen extends StatelessWidget {
       child: MessageBox(
         messageEntity: messageEntity,
         child: _duplocateFrame(
-          icon: const _DuplicateIcon(iconData: fileIcon),
+          icon: const CustomIcon(iconData: fileIcon),
           messageEntity: messageEntity,
           messagesFunctions: messagesFunctions,
         ),
@@ -230,20 +230,3 @@ Row _duplocateFrame({
   );
 }
 
-class _DuplicateIcon extends StatelessWidget {
-  const _DuplicateIcon({
-    required this.iconData,
-  });
-  final IconData iconData;
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return CircleAvatar(
-      backgroundColor: colorScheme.primary,
-      child: Icon(
-        iconData,
-        color: colorScheme.background,
-      ),
-    );
-  }
-}

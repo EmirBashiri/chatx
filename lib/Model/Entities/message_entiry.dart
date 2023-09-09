@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MessageEntity {
   final String id;
   final String senderUserId;
-  final String receiverUserID;
+  final String receiverUserId;
   final dynamic message;
   final MessageType messageType;
   final Timestamp timestamp;
@@ -23,7 +23,7 @@ class MessageEntity {
   MessageEntity({
     required this.id,
     required this.senderUserId,
-    required this.receiverUserID,
+    required this.receiverUserId,
     required this.message,
     required this.messageType,
     required this.timestamp,
@@ -36,7 +36,7 @@ class MessageEntity {
     return {
       idKey: messageEntity.id,
       senderUserKey: messageEntity.senderUserId,
-      receiverUserKey: messageEntity.receiverUserID,
+      receiverUserKey: messageEntity.receiverUserId,
       messageKey: messageEntity.message,
       messageTypeKey: messageEntity.messageType.name,
       timestampKey: messageEntity.timestamp,
@@ -50,7 +50,7 @@ class MessageEntity {
     return MessageEntity(
       id: json[idKey],
       senderUserId: json[senderUserKey],
-      receiverUserID: json[receiverUserKey],
+      receiverUserId: json[receiverUserKey],
       message: json[messageKey],
       messageType: MessageType.values
           .firstWhere((type) => type.name == json[messageTypeKey]),

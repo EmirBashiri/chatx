@@ -9,6 +9,7 @@ import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
 
@@ -59,10 +60,11 @@ class ChatFunctions {
   Future<void> _sendMessage({required MessageEntity messageEntity}) async {
     final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
         senderUserId: messageEntity.senderUserId,
-        receiverUserId: messageEntity.receiverUserID);
+        receiverUserId: messageEntity.receiverUserId);
 
     await messagesCollection(roomIdRequirements: roomIdRequirements)
-        .add(MessageEntity.toJson(messageEntity: messageEntity));
+        .doc(messageEntity.id)
+        .set(MessageEntity.toJson(messageEntity: messageEntity));
   }
 
   // Function to receive message from DB
@@ -128,7 +130,7 @@ class ChatFunctions {
     final MessageEntity messageEntity = MessageEntity(
       id: buildUUID(),
       senderUserId: roomIdRequirements.senderUserId,
-      receiverUserID: roomIdRequirements.receiverUserId,
+      receiverUserId: roomIdRequirements.receiverUserId,
       message: messageSenderController.senderTextController.text,
       messageType: MessageType.txt,
       timestamp: Timestamp.now(),
@@ -158,15 +160,45 @@ class ChatFunctions {
       final MessageEntity messageEntity = MessageEntity(
         id: buildUUID(),
         senderUserId: roomIdRequirements.senderUserId,
-        receiverUserID: roomIdRequirements.receiverUserId,
+        receiverUserId: roomIdRequirements.receiverUserId,
         message: file.path,
         messageType: MessageType.other,
         timestamp: Timestamp.now(),
         isUploading: true,
         messageName: fechFileName(filePath: file.path),
       );
-      await messagesCollection(roomIdRequirements: roomIdRequirements)
-          .add(MessageEntity.toJson(messageEntity: messageEntity));
+      await _sendMessage(messageEntity: messageEntity);
+    }
+  }
+
+  // Fuction to pick file from user storage
+  Future<File?> _pickImage() async {
+    final XFile? xFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (xFile != null) {
+      final File file = File(xFile.path);
+      return file;
+    }
+    return null;
+  }
+
+  // Fuction to start image sending operation
+  Future<void> startImageSending(
+      {required RoomIdRequirements roomIdRequirements}) async {
+    Get.back();
+    final File? imageFile = await _pickImage();
+    if (imageFile != null) {
+      final MessageEntity messageEntity = MessageEntity(
+        id: buildUUID(),
+        senderUserId: roomIdRequirements.senderUserId,
+        receiverUserId: roomIdRequirements.receiverUserId,
+        message: imageFile.path,
+        messageType: MessageType.image,
+        timestamp: Timestamp.now(),
+        isUploading: true,
+        messageName: fechFileName(filePath: imageFile.path),
+      );
+      await _sendMessage(messageEntity: messageEntity);
     }
   }
 }
