@@ -17,6 +17,27 @@ class ImageMessageStartDownload extends ImageMessageEvent {
   ImageMessageStartDownload(this.messageEntity);
 }
 
+// This event called whenever user want cancel downloading
+class ImageMessageCancelDownload extends ImageMessageEvent {
+  final MessageEntity messageEntity;
+
+  ImageMessageCancelDownload(this.messageEntity);
+}
+
+// This event called whenever user want cancel uploading
+class ImageMessageCancelUpload extends ImageMessageEvent {
+  final MessageEntity messageEntity;
+
+  ImageMessageCancelUpload(this.messageEntity);
+}
+
+// This event called whenever user want cancel uploading
+class ImageMessageDeleteErroredImage extends ImageMessageEvent {
+  final MessageEntity messageEntity;
+
+  ImageMessageDeleteErroredImage(this.messageEntity);
+}
+
 // This event called whenever the image being uploaded and sended to show operation progess
 class ImageMessageDownloadProgress extends ImageMessageEvent {
   final OperationProgress operationProgress;

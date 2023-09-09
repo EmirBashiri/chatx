@@ -48,7 +48,33 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
     required MessageEntity messageEntity,
     required Emitter emit,
   }) async {
-    //  TODO implement call image download functionality here
+    emit(ImageMessageLoadingScreen());
+    await messagesFunctions.downloadImageFile(
+        messageEntity: messageEntity, imageMessageBloc: this);
+  }
+
+  // This function called whenever event is ImageMessageCancelDownload
+  void imageMessageCancelDownload({
+    required MessageEntity messageEntity,
+    required Emitter emit,
+  }) {
+    messagesFunctions.cancelDownload(messageEntity: messageEntity);
+  }
+
+  // This function called whenever event is ImageMessageCancelUpload
+  void imageMessageCancelUpload({
+    required MessageEntity messageEntity,
+    required Emitter emit,
+  }) {
+    messagesFunctions.cancelUpload(messageEntity: messageEntity);
+  }
+
+  // This function called whenever event is ImageMessageDeleteErroredImage
+  void imageMessageDeleteErroredImage({
+    required MessageEntity messageEntity,
+    required Emitter emit,
+  }) {
+    messagesFunctions.deleteErroredMessage(messageEntity: messageEntity);
   }
 
   // This function called whenever event is ImageMessageUploadProgress
@@ -94,6 +120,15 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
         await imageMessageStart(messageEntity: event.messageEntity, emit: emit);
       } else if (event is ImageMessageStartDownload) {
         imageMessageStartDownload(
+            messageEntity: event.messageEntity, emit: emit);
+      } else if (event is ImageMessageCancelDownload) {
+        imageMessageCancelDownload(
+            messageEntity: event.messageEntity, emit: emit);
+      } else if (event is ImageMessageCancelUpload) {
+        imageMessageCancelUpload(
+            messageEntity: event.messageEntity, emit: emit);
+      } else if (event is ImageMessageDeleteErroredImage) {
+        imageMessageDeleteErroredImage(
             messageEntity: event.messageEntity, emit: emit);
       } else if (event is ImageMessageUploadProgress) {
         imageMessageUploadProgress(

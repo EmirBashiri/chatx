@@ -10,7 +10,7 @@ import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 
-const double duplicateHeight = 100;
+const double duplicateHeight = 120;
 
 class ImageMessageScreen extends StatelessWidget {
   const ImageMessageScreen({
@@ -81,9 +81,9 @@ class _ImagePerviewScreen extends StatelessWidget {
       messageEntity: messageEntity,
       height: duplicateHeight,
       child: IconButton(
-        onPressed: () {
-          // TODO implement image download here
-        },
+        onPressed: () => context
+            .read<ImageMessageBloc>()
+            .add(ImageMessageStartDownload(messageEntity)),
         icon: const CustomIcon(iconData: downloadIcon),
       ),
     );
@@ -125,8 +125,9 @@ class _ImageMessageUploadProgressScreen extends StatelessWidget {
         child: CustomProgressIndicator(
           operationProgress: operationProgress,
           messageEntity: messageEntity,
-          onCancelTapped: () async => await messagesFunctions.cancelUpload(
-              messageEntity: messageEntity),
+          onCancelTapped: () => context
+              .read<ImageMessageBloc>()
+              .add(ImageMessageCancelUpload(messageEntity)),
           messagesFunctions: messagesFunctions,
         ),
       ),
@@ -143,18 +144,21 @@ class _ImageMessageDownloadProgressScreen extends StatelessWidget {
   final MessageEntity messageEntity;
   final OperationProgress operationProgress;
   final MessagesFunctions messagesFunctions;
+
   @override
   Widget build(BuildContext context) {
     return _DuplicateFrame(
       messageEntity: messageEntity,
       height: duplicateHeight,
-      child: CustomProgressIndicator(
-          operationProgress: operationProgress,
-          messageEntity: messageEntity,
-          onCancelTapped: () {
-            // TODO implement cancel downloding here
-          },
-          messagesFunctions: messagesFunctions),
+      child: _CustomPlaceholder(
+        child: CustomProgressIndicator(
+            operationProgress: operationProgress,
+            messageEntity: messageEntity,
+            onCancelTapped: () => context
+                .read<ImageMessageBloc>()
+                .add(ImageMessageCancelDownload(messageEntity)),
+            messagesFunctions: messagesFunctions),
+      ),
     );
   }
 }
@@ -196,9 +200,9 @@ class _ImageMessageUploadErrorScreen extends StatelessWidget {
         child: _BuildImageWithChild(
           imageFile: imageFile,
           child: IconButton(
-            onPressed: () {
-              // TODO implement delete image message
-            },
+            onPressed: () => context
+                .read<ImageMessageBloc>()
+                .add(ImageMessageDeleteErroredImage(messageEntity)),
             icon: const CustomIcon(iconData: errorIcon),
           ),
         ));
@@ -214,10 +218,11 @@ class _ImageMessageDownloadErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return _DuplicateFrame(
       messageEntity: messageEntity,
+      height: duplicateHeight,
       child: IconButton(
-        onPressed: () {
-          // TODO implement restart image bloc here
-        },
+        onPressed: () => context
+            .read<ImageMessageBloc>()
+            .add(ImageMessageStart(messageEntity)),
         icon: const CustomIcon(iconData: errorIcon),
       ),
     );
@@ -238,14 +243,26 @@ class _BuildImageWithChild extends StatelessWidget {
         ? ExtendedImage.file(imageFile!).blurred(
             blurColor: colorScheme.secondary,
             colorOpacity: 0.25,
-            overlay: Container(
-              decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer, shape: BoxShape.circle),
-              child: child,
-            ),
+            overlay: _CustomPlaceholder(child: child),
           )
         // if image file is null single child will return
         : child;
+  }
+}
+
+class _CustomPlaceholder extends StatelessWidget {
+  const _CustomPlaceholder({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+          color: colorScheme.primaryContainer, shape: BoxShape.circle),
+      child: child,
+    );
   }
 }
 

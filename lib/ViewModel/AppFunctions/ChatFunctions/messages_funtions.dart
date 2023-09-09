@@ -58,6 +58,23 @@ class MessagesFunctions extends ChatFunctions {
     return "${cacheDirectory.path}/$messageId";
   }
 
+  // Function to download file from internet
+  Future<void> _customDownloader(
+      {required MessageEntity messageEntity,
+      required CancelToken cancelToken,
+      required void Function(int, int)? onReceiveProgress}) async {
+    final String filePath = await _fechMesssageFileCachePath(
+      messageId: messageEntity.id,
+    );
+
+    await Dio().download(
+      messageEntity.message,
+      filePath,
+      cancelToken: cancelToken,
+      onReceiveProgress: onReceiveProgress,
+    );
+  }
+
   // Function to check file availabelity
   Future<bool> isFileDownloaded({required String messageId}) async {
     final filePath = await _fechMesssageFileCachePath(messageId: messageId);
@@ -80,20 +97,16 @@ class MessagesFunctions extends ChatFunctions {
     cancelTokens.remove(messageEntity.id);
   }
 
-  // Funtion to downlodad file from storage server
+  // Funtion to download file from storage server
   Future<void> downloadFile({
     required MessageEntity messageEntity,
     required OtherMessagesBloc? otherMessagesBloc,
   }) async {
-    final String filePath = await _fechMesssageFileCachePath(
-      messageId: messageEntity.id,
-    );
     final CancelToken cancelToken =
         _buildCancelToken(messageEntity: messageEntity);
     try {
-      await Dio().download(
-        messageEntity.message,
-        filePath,
+      await _customDownloader(
+        messageEntity: messageEntity,
         cancelToken: cancelToken,
         onReceiveProgress: (count, total) {
           otherMessagesBloc?.add(
@@ -108,6 +121,34 @@ class MessagesFunctions extends ChatFunctions {
     } catch (e) {
       otherMessagesBloc!.add(OtherMessagesDownloadError());
       otherMessagesBloc = null;
+    }
+  }
+
+  // Funtion to download image from storage server
+  Future<void> downloadImageFile({
+    required MessageEntity messageEntity,
+    required ImageMessageBloc? imageMessageBloc,
+  }) async {
+    final CancelToken cancelToken =
+        _buildCancelToken(messageEntity: messageEntity);
+    try {
+      await _customDownloader(
+        messageEntity: messageEntity,
+        cancelToken: cancelToken,
+        onReceiveProgress: (count, total) {
+          imageMessageBloc?.add(
+            ImageMessageDownloadProgress(
+                OperationProgress(transferred: count, total: total)),
+          );
+        },
+      );
+      _removeCancelToken(messageEntity: messageEntity);
+      final File? imageFile =
+          await getFileFromCache(messageId: messageEntity.id);
+      imageMessageBloc!.add(ImageMessageOperationComplete(imageFile!));
+    } catch (e) {
+      imageMessageBloc!.add(ImageMessageDownloadError());
+      imageMessageBloc = null;
     }
   }
 
@@ -236,7 +277,7 @@ class MessagesFunctions extends ChatFunctions {
     });
   }
 
-  // Function to uplead file on server and send file message
+  // Function to uplead image on server and send file message
   Future<void> uploadImageMessage({
     required ImageMessageBloc imageMessageBloc,
     required MessageEntity messageEntity,
