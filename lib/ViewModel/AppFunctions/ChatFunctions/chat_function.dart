@@ -32,7 +32,7 @@ class ChatFunctions {
 
   // Function to build messages UUID
   File fileRenamer({required File oldFile, required String fileId}) {
-    final String  parentPath="${oldFile.path.split("cache").first}/cache";
+    final String parentPath = "${oldFile.path.split("cache").first}/cache";
     return oldFile.renameSync("$parentPath/$fileId");
   }
 
@@ -137,10 +137,10 @@ class ChatFunctions {
       id: buildUUID(),
       senderUserId: roomIdRequirements.senderUserId,
       receiverUserId: roomIdRequirements.receiverUserId,
-      message: messageSenderController.senderTextController.text,
+      messageContent: messageSenderController.senderTextController.text,
       messageType: MessageType.txt,
       timestamp: Timestamp.now(),
-      isUploading: false,
+      needUpload: false,
     );
     messageSenderController.senderTextController.clear();
     messageSenderController.canSendText.value = false;
@@ -170,11 +170,11 @@ class ChatFunctions {
         id: id,
         senderUserId: roomIdRequirements.senderUserId,
         receiverUserId: roomIdRequirements.receiverUserId,
-        message: renamedFile.path,
+        messageContent: renamedFile.path,
         messageType: MessageType.other,
         timestamp: Timestamp.now(),
-        isUploading: true,
-        messageName: fechFileName(filePath: renamedFile.path),
+        needUpload: true,
+        messageLabel: fechFileName(filePath: file.path),
       );
       await _sendMessage(messageEntity: messageEntity);
     }
@@ -203,11 +203,11 @@ class ChatFunctions {
         id: id,
         senderUserId: roomIdRequirements.senderUserId,
         receiverUserId: roomIdRequirements.receiverUserId,
-        message: renamedImageFile.path,
+        messageContent: renamedImageFile.path,
         messageType: MessageType.image,
         timestamp: Timestamp.now(),
-        isUploading: true,
-        messageName: fechFileName(filePath: renamedImageFile.path),
+        needUpload: true,
+        messageLabel: fechFileName(filePath: imageFile.path),
       );
       await _sendMessage(messageEntity: messageEntity);
     }

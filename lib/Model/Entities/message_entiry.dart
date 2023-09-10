@@ -4,31 +4,31 @@ class MessageEntity {
   final String id;
   final String senderUserId;
   final String receiverUserId;
-  final dynamic message;
+  final String messageContent;
   final MessageType messageType;
   final Timestamp timestamp;
-  final bool isUploading;
-  final String? messageName;
+  final bool needUpload;
+  final String? messageLabel;
 
 // Server keys
   static const String idKey = "Id";
   static const String senderUserKey = "Sender User Id";
   static const String receiverUserKey = "Receiver User Id";
-  static const String messageKey = "Message";
+  static const String messageKey = "Message Content";
   static const String messageTypeKey = "Message Type";
   static const String timestampKey = "Time Stamp";
-  static const String isUploadingKey = "Is Uploading";
-  static const String messageNameKey = "Message Name";
+  static const String isUploadingKey = "Need Upload";
+  static const String messageNameKey = "Message Label";
 
   MessageEntity({
     required this.id,
     required this.senderUserId,
     required this.receiverUserId,
-    required this.message,
+    required this.messageContent,
     required this.messageType,
     required this.timestamp,
-    required this.isUploading,
-    this.messageName,
+    required this.needUpload,
+    this.messageLabel,
   });
 
   // Function to send message map to DB
@@ -37,11 +37,11 @@ class MessageEntity {
       idKey: messageEntity.id,
       senderUserKey: messageEntity.senderUserId,
       receiverUserKey: messageEntity.receiverUserId,
-      messageKey: messageEntity.message,
+      messageKey: messageEntity.messageContent,
       messageTypeKey: messageEntity.messageType.name,
       timestampKey: messageEntity.timestamp,
-      isUploadingKey: messageEntity.isUploading,
-      messageNameKey: messageEntity.messageName
+      isUploadingKey: messageEntity.needUpload,
+      messageNameKey: messageEntity.messageLabel
     };
   }
 
@@ -51,12 +51,12 @@ class MessageEntity {
       id: json[idKey],
       senderUserId: json[senderUserKey],
       receiverUserId: json[receiverUserKey],
-      message: json[messageKey],
+      messageContent: json[messageKey],
       messageType: MessageType.values
           .firstWhere((type) => type.name == json[messageTypeKey]),
       timestamp: json[timestampKey],
-      isUploading: json[isUploadingKey],
-      messageName: json[messageNameKey],
+      needUpload: json[isUploadingKey],
+      messageLabel: json[messageNameKey],
     );
   }
 }

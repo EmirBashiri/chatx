@@ -21,7 +21,7 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
     required Emitter emit,
   }) async {
     emit(ImageMessageLoadingScreen());
-    if (messageEntity.isUploading) {
+    if (messageEntity.needUpload) {
       try {
         await messagesFunctions.uploadImageMessage(
             imageMessageBloc: this, messageEntity: messageEntity);

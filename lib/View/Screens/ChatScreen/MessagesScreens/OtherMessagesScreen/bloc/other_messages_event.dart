@@ -27,32 +27,46 @@ class OtherMessagesOpenFile extends OtherMessagesEvent {
   OtherMessagesOpenFile(this.messageEntity);
 }
 
-// This event is called whenever file was downloading and user tap to cancel it
+// This event is called whenever user want cancel file downloading
 class OtherMessagesCancelDownloading extends OtherMessagesEvent {
   final MessageEntity messageEntity;
 
   OtherMessagesCancelDownloading(this.messageEntity);
-}    
+}
 
-// This event is called whenever file is downloading to fech operation progress
+// This event called whenever user want cancel file  uploading
+class OtherMessagesCancelUploading extends OtherMessagesEvent {
+  final MessageEntity messageEntity;
+
+  OtherMessagesCancelUploading(this.messageEntity);
+}
+
+// This event called whenever user want delete errored message
+class OtherMessagesDeleteErroredFile extends OtherMessagesEvent {
+  final MessageEntity messageEntity;
+
+  OtherMessagesDeleteErroredFile(this.messageEntity);
+}
+
+// This event is called whenever the file being downloaded to show operation progress
 class OtherMessagesDownloadingStatus extends OtherMessagesEvent {
   final OperationProgress operationProgress;
 
   OtherMessagesDownloadingStatus(this.operationProgress);
 }
 
-// This event is called whenever file is uploading to fech operation progress
+// This event is called whenever the file being uploaded to show operation progress
 class OtherMessagesUploadingStatus extends OtherMessagesEvent {
   final OperationProgress operationProgress;
 
   OtherMessagesUploadingStatus(this.operationProgress);
 }
 
-// This event is called whenever file was downloading and an error detected
+// This event is called whenever an error detected in downloading operation
 class OtherMessagesDownloadError extends OtherMessagesEvent {}
 
 // This event is called whenever operation needs loading
 class OtherMessagesLoading extends OtherMessagesEvent {}
 
-// This event is called whenever file was uploading and an error detected
+// This event is called whenever an error detected in uploading operation
 class OtherMessagesUploadError extends OtherMessagesEvent {}

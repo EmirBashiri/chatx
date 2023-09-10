@@ -56,8 +56,9 @@ class OthetMessagesScreen extends StatelessWidget {
                 statusWidget: CustomProgressIndicator(
                   operationProgress: state.operationProgress,
                   messageEntity: messageEntity,
-                  onCancelTapped: () async => await messagesFunctions
-                      .cancelUpload(messageEntity: messageEntity),
+                  onCancelTapped: () => context
+                      .read<OtherMessagesBloc>()
+                      .add(OtherMessagesCancelUploading(messageEntity)),
                   messagesFunctions: messagesFunctions,
                 ),
               );
@@ -77,8 +78,9 @@ class OthetMessagesScreen extends StatelessWidget {
                 messageEntity: messageEntity,
                 messagesFunctions: messagesFunctions,
                 statusWidget: IconButton.filled(
-                  onPressed: () async => await messagesFunctions
-                      .deleteErroredMessage(messageEntity: messageEntity),
+                  onPressed: () => context
+                      .read<OtherMessagesBloc>()
+                      .add(OtherMessagesDeleteErroredFile(messageEntity)),
                   icon: const Icon(errorIcon),
                 ),
               );
@@ -229,4 +231,3 @@ Row _duplocateFrame({
     ],
   );
 }
-

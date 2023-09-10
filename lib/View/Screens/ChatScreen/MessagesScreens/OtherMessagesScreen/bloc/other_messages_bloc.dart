@@ -20,7 +20,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   // This function called whenever event is OtherMessagesStart
   Future<void> otherMessagesStart(
       {required MessageEntity messageEntity, required Emitter emit}) async {
-    if (messageEntity.isUploading) {
+    if (messageEntity.needUpload) {
       emit(MessageFileLoadingScreen());
       try {
         await messagesFunctions.uploadFileMessage(
@@ -29,8 +29,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
         emit(MessageFileUploadErrorScreen());
       }
     } else {
-      final bool isFileDownloaded =
-          await messagesFunctions.isFileDownloaded(
+      final bool isFileDownloaded = await messagesFunctions.isFileDownloaded(
         messageId: messageEntity.id,
       );
       if (isFileDownloaded) {
@@ -66,6 +65,18 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
       {required MessageEntity messageEntity, required Emitter emit}) {
     messagesFunctions.cancelDownload(messageEntity: messageEntity);
     emit(MessagesPervirewScreen());
+  }
+
+  // This function called whenever event is OtherMessagesCancelUploading
+  void otherMessagesCancelUploading(
+      {required MessageEntity messageEntity, required Emitter emit}) {
+    messagesFunctions.cancelUpload(messageEntity: messageEntity);
+  }
+
+  // This function called whenever event is OtherMessagesDeleteErroredFile
+  void otherMessagesDeleteErroredFile(
+      {required MessageEntity messageEntity, required Emitter emit}) {
+    messagesFunctions.deleteErroredMessage(messageEntity: messageEntity);
   }
 
   // This function called whenever event is OtherMessagesDownloadingStatus
@@ -130,6 +141,16 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
         );
       } else if (event is OtherMessagesCancelDownloading) {
         otherMessagesCancelDownloading(
+          messageEntity: event.messageEntity,
+          emit: emit,
+        );
+      } else if (event is OtherMessagesCancelUploading) {
+        otherMessagesCancelUploading(
+          messageEntity: event.messageEntity,
+          emit: emit,
+        );
+      } else if (event is OtherMessagesDeleteErroredFile) {
+        otherMessagesDeleteErroredFile(
           messageEntity: event.messageEntity,
           emit: emit,
         );

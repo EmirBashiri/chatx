@@ -28,14 +28,14 @@ class TexetMessageScreen extends StatelessWidget {
       {required TextTheme textTheme, required ColorScheme colorScheme}) {
     return messagesFunctions.senderIsCurrentUser(messageEntity: messageEntity)
         ? Text(
-            messageEntity.message,
+            messageEntity.messageContent,
             style: textTheme.bodyMedium!.copyWith(
               fontWeight: FontWeight.w600,
               color: colorScheme.secondary,
             ),
           )
         : Text(
-            messageEntity.message,
+            messageEntity.messageContent,
             style: textTheme.bodyMedium!.copyWith(
               fontWeight: FontWeight.w600,
               color: colorScheme.background,

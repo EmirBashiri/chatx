@@ -11,7 +11,7 @@ class ImageMessagePerviewScreen extends ImageMessageState {}
 // This state launched whenever image operation need loading
 class ImageMessageLoadingScreen extends ImageMessageState {}
 
-// This state launched whenever the image being uploaded and sended to show operation progess
+// This state launched whenever the image being downloaded and sended to show operation progess
 class ImageMessageDownloadProgressScreen extends ImageMessageState {
   final OperationProgress operationProgress;
   ImageMessageDownloadProgressScreen(this.operationProgress);
@@ -32,12 +32,12 @@ class ImageMessageReadyScreen extends ImageMessageState {
   ImageMessageReadyScreen(this.imageFile);
 }
 
-// This state launched whenever an errer detected in image opration
+// This state launched whenever an errer detected in image uploading time
 class ImageMessageUploadErrorScreen extends ImageMessageState {
   final File? imageFile;
 
   ImageMessageUploadErrorScreen({this.imageFile});
 }
 
-// This state launched whenever an errer detected in image opration
+// This state launched whenever an errer detected in image downloaded time
 class ImageMessageDownloadErrorScreen extends ImageMessageState {}

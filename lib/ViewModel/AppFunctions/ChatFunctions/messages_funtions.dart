@@ -45,10 +45,10 @@ class MessagesFunctions extends ChatFunctions {
 
   // Function to buid message title
   String fechFileMessageTitle({required MessageEntity messageEntity}) {
-    if (messageEntity.messageName != null) {
-      return messageEntity.messageName!;
+    if (messageEntity.messageLabel != null) {
+      return messageEntity.messageLabel!;
     } else {
-      return fechFileName(filePath: messageEntity.message);
+      return fechFileName(filePath: messageEntity.messageContent);
     }
   }
 
@@ -68,7 +68,7 @@ class MessagesFunctions extends ChatFunctions {
     );
 
     await Dio().download(
-      messageEntity.message,
+      messageEntity.messageContent,
       filePath,
       cancelToken: cancelToken,
       onReceiveProgress: onReceiveProgress,
@@ -239,8 +239,9 @@ class MessagesFunctions extends ChatFunctions {
     required OtherMessagesBloc otherMessagesBloc,
     required MessageEntity messageEntity,
   }) async {
-    final String fileName = fechFileName(filePath: messageEntity.message);
-    final File messageFile = File(messageEntity.message);
+    final String fileName =
+        fechFileName(filePath: messageEntity.messageContent);
+    final File messageFile = File(messageEntity.messageContent);
     final Reference reference =
         _firebaseStorage.ref("$fileMessagesBucket$fileName");
     final UploadTask uploadTask = reference.putFile(messageFile);
@@ -263,11 +264,11 @@ class MessagesFunctions extends ChatFunctions {
           id: messageEntity.id,
           senderUserId: messageEntity.senderUserId,
           receiverUserId: messageEntity.receiverUserId,
-          message: downloadUrl,
+          messageContent: downloadUrl,
           messageType: messageEntity.messageType,
           timestamp: messageEntity.timestamp,
-          isUploading: false,
-          messageName: messageEntity.messageName,
+          needUpload: false,
+          messageLabel: messageEntity.messageLabel,
         );
         await _updateMessageOnDB(newMessageEntity: newMessageEntity);
         otherMessagesBloc.add(OtherMessagesFileCompleted());
@@ -282,8 +283,9 @@ class MessagesFunctions extends ChatFunctions {
     required ImageMessageBloc imageMessageBloc,
     required MessageEntity messageEntity,
   }) async {
-    final String fileName = fechFileName(filePath: messageEntity.message);
-    final File imageFile = File(messageEntity.message);
+    final String fileName =
+        fechFileName(filePath: messageEntity.messageContent);
+    final File imageFile = File(messageEntity.messageContent);
     final Reference reference =
         _firebaseStorage.ref("$imageMessagesBucket$fileName");
     final UploadTask uploadTask = reference.putFile(imageFile);
@@ -307,11 +309,11 @@ class MessagesFunctions extends ChatFunctions {
           id: messageEntity.id,
           senderUserId: messageEntity.senderUserId,
           receiverUserId: messageEntity.receiverUserId,
-          message: downloadUrl,
+          messageContent: downloadUrl,
           messageType: messageEntity.messageType,
           timestamp: messageEntity.timestamp,
-          isUploading: false,
-          messageName: messageEntity.messageName,
+          needUpload: false,
+          messageLabel: messageEntity.messageLabel,
         );
         await _updateMessageOnDB(newMessageEntity: newMessageEntity);
         final File? imageFile =
