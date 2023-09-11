@@ -8,6 +8,7 @@ import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.d
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
@@ -180,6 +181,36 @@ class ChatFunctions {
     }
   }
 
+  // Function to compress image
+  Future<File> _imageCompressor({required File imageFile}) async {
+    File compressedImageFile;
+    Future<File> compressImage({required int quality}) async {
+      final String targetPath =
+          "${imageFile.path}-compressed-${extension(imageFile.path)}";
+      final XFile? compressor = await FlutterImageCompress.compressAndGetFile(
+          imageFile.path, targetPath,
+          quality: quality);
+      imageFile.deleteSync(recursive: true);
+      return File(compressor!.path);
+    }
+
+    // Convert bit to megabit
+    final double imageSize = imageFile.lengthSync() / 1000000;
+    if (imageSize < 1) {
+      compressedImageFile = await compressImage(quality: 90);
+      return compressedImageFile;
+    } else if (imageSize < 3) {
+      compressedImageFile = await compressImage(quality: 80);
+      return compressedImageFile;
+    } else if (imageSize < 6) {
+      compressedImageFile = await compressImage(quality: 65);
+      return compressedImageFile;
+    } else {
+      compressedImageFile = await compressImage(quality: 50);
+      return compressedImageFile;
+    }
+  }
+
   // Fuction to pick file from user storage
   Future<File?> _pickImage() async {
     final XFile? xFile =
@@ -198,7 +229,11 @@ class ChatFunctions {
     final File? imageFile = await _pickImage();
     if (imageFile != null) {
       final String id = buildUUID();
-      final File renamedImageFile = fileRenamer(oldFile: imageFile, fileId: id);
+      // Compressing image for decrease image size and make it easy to render
+      final File compressedImageFile =
+          await _imageCompressor(imageFile: imageFile);
+      final File renamedImageFile =
+          fileRenamer(oldFile: compressedImageFile, fileId: id);
       final MessageEntity messageEntity = MessageEntity(
         id: id,
         senderUserId: roomIdRequirements.senderUserId,
