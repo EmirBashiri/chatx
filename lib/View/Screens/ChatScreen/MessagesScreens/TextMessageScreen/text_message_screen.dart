@@ -3,7 +3,7 @@ import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 
-class TexetMessageScreen extends StatelessWidget {
+class TexetMessageScreen extends StatefulWidget {
   const TexetMessageScreen(
       {super.key,
       required this.messageEntity,
@@ -12,11 +12,18 @@ class TexetMessageScreen extends StatelessWidget {
   final MessagesFunctions messagesFunctions;
 
   @override
+  State<TexetMessageScreen> createState() => _TexetMessageScreenState();
+}
+
+class _TexetMessageScreenState extends State<TexetMessageScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return MessageBox(
-      messageEntity: messageEntity,
+      messageEntity: widget.messageEntity,
       child: textWidget(
         textTheme: textTheme,
         colorScheme: colorScheme,
@@ -26,20 +33,24 @@ class TexetMessageScreen extends StatelessWidget {
 
   Text textWidget(
       {required TextTheme textTheme, required ColorScheme colorScheme}) {
-    return messagesFunctions.senderIsCurrentUser(messageEntity: messageEntity)
+    return widget.messagesFunctions
+            .senderIsCurrentUser(messageEntity: widget.messageEntity)
         ? Text(
-            messageEntity.messageContent,
+            widget.messageEntity.messageContent,
             style: textTheme.bodyMedium!.copyWith(
               fontWeight: FontWeight.w600,
               color: colorScheme.secondary,
             ),
           )
         : Text(
-            messageEntity.messageContent,
+            widget.messageEntity.messageContent,
             style: textTheme.bodyMedium!.copyWith(
               fontWeight: FontWeight.w600,
               color: colorScheme.background,
             ),
           );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

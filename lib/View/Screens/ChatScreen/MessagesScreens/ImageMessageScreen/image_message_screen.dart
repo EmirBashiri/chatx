@@ -12,7 +12,7 @@ import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funt
 
 const double duplicateHeight = 120;
 
-class ImageMessageScreen extends StatelessWidget {
+class ImageMessageScreen extends StatefulWidget {
   const ImageMessageScreen({
     super.key,
     required this.messageEntity,
@@ -21,51 +21,63 @@ class ImageMessageScreen extends StatelessWidget {
 
   final MessageEntity messageEntity;
   final MessagesFunctions messagesFunctions;
+
+  @override
+  State<ImageMessageScreen> createState() => _ImageMessageScreenState();
+}
+
+class _ImageMessageScreenState extends State<ImageMessageScreen>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocProvider(
       create: (context) {
         final bloc = ImageMessageBloc();
-        bloc.add(ImageMessageStart(messageEntity));
+        bloc.add(ImageMessageStart(widget.messageEntity));
         return bloc;
       },
       child: BlocBuilder<ImageMessageBloc, ImageMessageState>(
         builder: (context, state) {
           if (state is ImageMessagePerviewScreen) {
-            return _ImagePerviewScreen(messageEntity: messageEntity);
+            return _ImagePerviewScreen(messageEntity: widget.messageEntity);
           } else if (state is ImageMessageLoadingScreen) {
-            return _ImageLoadingScreen(messageEntity: messageEntity);
+            return _ImageLoadingScreen(messageEntity: widget.messageEntity);
           } else if (state is ImageMessageUoloadProgressScreen) {
             return _ImageMessageUploadProgressScreen(
-              messageEntity: messageEntity,
+              messageEntity: widget.messageEntity,
               operationProgress: state.operationProgress,
               imageFile: state.imageFile,
-              messagesFunctions: messagesFunctions,
+              messagesFunctions: widget.messagesFunctions,
             );
           } else if (state is ImageMessageDownloadProgressScreen) {
             return _ImageMessageDownloadProgressScreen(
-              messageEntity: messageEntity,
+              messageEntity: widget.messageEntity,
               operationProgress: state.operationProgress,
-              messagesFunctions: messagesFunctions,
+              messagesFunctions: widget.messagesFunctions,
             );
           } else if (state is ImageMessageReadyScreen) {
             return _ImageMessageReadyScreen(
-              messageEntity: messageEntity,
+              messageEntity: widget.messageEntity,
               imageFile: state.imageFile,
-              messagesFunctions: messagesFunctions,
+              messagesFunctions: widget.messagesFunctions,
             );
           } else if (state is ImageMessageUploadErrorScreen) {
             return _ImageMessageUploadErrorScreen(
-                messageEntity: messageEntity, imageFile: state.imageFile);
+                messageEntity: widget.messageEntity,
+                imageFile: state.imageFile);
           } else if (state is ImageMessageDownloadErrorScreen) {
             return _ImageMessageDownloadErrorScreen(
-                messageEntity: messageEntity);
+                messageEntity: widget.messageEntity);
           }
           return Container();
         },
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _ImagePerviewScreen extends StatelessWidget {
