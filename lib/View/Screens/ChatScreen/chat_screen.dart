@@ -141,6 +141,7 @@ class _MainPart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flexible(
+      // TODO implement message deleteing feature here
       child: ListView.builder(
         reverse: true,
         itemCount: messagesList.length,
@@ -314,7 +315,7 @@ class _SendImageAndFileButton extends StatelessWidget {
   }
 }
 
-// Chat screen's bottom  right part
+// Chat screen's voice & text message sender part
 class _SenderRightAction extends StatelessWidget {
   const _SenderRightAction({
     required this.senderController,
@@ -343,11 +344,74 @@ class _SenderRightAction extends StatelessWidget {
             // Voice message sender button
             : IconButton.filled(
                 onPressed: () {
-                  //TODO Implement voice sending feature here
+                  showModalBottomSheet(
+                    shape: const BeveledRectangleBorder(),
+                    context: context,
+                    backgroundColor: colorScheme.scrim,
+                    builder: (context) {
+                      return const _VoiceSenderSheet();
+                    },
+                  ).whenComplete(() {
+                    // TODO cancel items that need cancel when bottom sheet is being closed
+                  });
                 },
                 icon: Icon(microphoneIcon, color: colorScheme.background),
               );
       },
     );
+  }
+}
+
+// Chat screen's voice sender sheet 
+class _VoiceSenderSheet extends StatelessWidget {
+  const _VoiceSenderSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Delete button part
+          IconButton.filled(
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.background,
+            ),
+            onPressed: () {
+              // TODO delte recorded voice here and close bottom sheet
+            },
+            icon: Icon(deleteIcon, color: colorScheme.primary),
+          ),
+
+          // Timer and voice sender part
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const _VoiceTimerWidget(),
+              IconButton(
+                icon: Icon(upwardArrowIcon, color: colorScheme.background),
+                onPressed: () {
+                  //  TODO implement sent voice here
+                },
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+// Voice sender sheet's audio recording timer widget 
+class _VoiceTimerWidget extends StatelessWidget {
+  const _VoiceTimerWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO implement real voice timer here
+    return const Text("00:06", style: TextStyle(color: Colors.white));
   }
 }

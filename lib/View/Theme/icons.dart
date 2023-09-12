@@ -17,3 +17,5 @@ const IconData microphoneIcon = FontAwesomeIcons.microphone;
 const IconData paperClipIcon = FontAwesomeIcons.paperclip;
 const IconData paperPlaneIcon = FontAwesomeIcons.paperPlane;
 const IconData imageIcon = FontAwesomeIcons.image;
+const IconData deleteIcon=Icons.delete;
+const IconData upwardArrowIcon=Icons.arrow_upward;
