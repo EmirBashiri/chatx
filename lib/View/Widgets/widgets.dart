@@ -8,8 +8,10 @@ import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funt
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 import '../../Model/Entities/duplicate_entities.dart';
+import '../../ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 
 // Application custom button
 
@@ -400,6 +402,78 @@ class CustomIcon extends StatelessWidget {
         iconData,
         color: colorScheme.background,
       ),
+    );
+  }
+}
+
+// Chat screen's voice sender sheet
+class VoiceSenderSheet extends StatelessWidget {
+  const VoiceSenderSheet(
+      {super.key,
+      required this.stopWatchTimer,
+      required this.chatFunctions,
+      required this.roomIdRequirements});
+  final ChatFunctions chatFunctions;
+  final StopWatchTimer stopWatchTimer;
+  final RoomIdRequirements roomIdRequirements;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Delete button part
+          IconButton.filled(
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.background,
+            ),
+            onPressed: () async =>
+                await chatFunctions.cancelRecording(getBack: true),
+            icon: Icon(deleteIcon, color: colorScheme.primary),
+          ),
+
+          // Timer and voice sender part
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              VoiceTimerWidget(stopWatchTimer: stopWatchTimer),
+              IconButton(
+                icon: Icon(upwardArrowIcon, color: colorScheme.background),
+                onPressed: () async => await chatFunctions.sendVoiceMessage(
+                    roomIdRequirements: roomIdRequirements),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+// Voice sender sheet's audio recording timer widget
+class VoiceTimerWidget extends StatelessWidget {
+  const VoiceTimerWidget({super.key, required this.stopWatchTimer});
+  final StopWatchTimer stopWatchTimer;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return StreamBuilder(
+      stream: stopWatchTimer.rawTime,
+      builder: (context, snapshot) {
+        final String time = StopWatchTimer.getDisplayTime(snapshot.data ?? 0,
+            milliSecond: false, hours: false);
+        return Text(
+          time,
+          style: textTheme.bodyMedium?.copyWith(color: colorScheme.background),
+        );
+      },
     );
   }
 }

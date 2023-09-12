@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
@@ -12,7 +13,12 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../../View/Widgets/widgets.dart';
 
 // Server keys
 const String messagesCollectionKey = "Messages";
@@ -24,6 +30,11 @@ class ChatFunctions {
 
   // Instance of message sender controller for use in whole class
   final MessageSenderController messageSenderController = Get.find();
+
+  // Insrance of stop watch timer
+  late StopWatchTimer stopWatchTimer;
+  // Insrance of record for recording process
+  final Record record = Record();
 
   // Function to build messages UUID
   String buildUUID() {
@@ -58,9 +69,35 @@ class ChatFunctions {
         );
   }
 
+  // Function to fech message file cached path
+  Future<String> fechMesssageFileCachePath({required String messageId}) async {
+    final Directory cacheDirectory = await getApplicationCacheDirectory();
+    return "${cacheDirectory.path}/$messageId";
+  }
+
   // Function to fech file name
   String fechFileName({required String filePath}) {
     return basename(filePath);
+  }
+
+  // Function to fech message that need upload
+  MessageEntity _fechUploadNeededMessage(
+      {required RoomIdRequirements roomIdRequirements,
+      required MessageType messageType,
+      required File oldFile,
+      String? messageLabel}) {
+    final String id = buildUUID();
+    final File renamedFile = fileRenamer(oldFile: oldFile, fileId: id);
+    return MessageEntity(
+      id: id,
+      senderUserId: roomIdRequirements.senderUserId,
+      receiverUserId: roomIdRequirements.receiverUserId,
+      messageContent: renamedFile.path,
+      messageType: messageType,
+      timestamp: Timestamp.now(),
+      needUpload: true,
+      messageLabel: messageLabel,
+    );
   }
 
   // Function to send message to DB
@@ -165,16 +202,10 @@ class ChatFunctions {
     final File? file = await _pickFile();
 
     if (file != null) {
-      final String id = buildUUID();
-      final File renamedFile = fileRenamer(oldFile: file, fileId: id);
-      final MessageEntity messageEntity = MessageEntity(
-        id: id,
-        senderUserId: roomIdRequirements.senderUserId,
-        receiverUserId: roomIdRequirements.receiverUserId,
-        messageContent: renamedFile.path,
+      final MessageEntity messageEntity = _fechUploadNeededMessage(
+        roomIdRequirements: roomIdRequirements,
         messageType: MessageType.other,
-        timestamp: Timestamp.now(),
-        needUpload: true,
+        oldFile: file,
         messageLabel: fechFileName(filePath: file.path),
       );
       await _sendMessage(messageEntity: messageEntity);
@@ -228,23 +259,75 @@ class ChatFunctions {
     Get.back();
     final File? imageFile = await _pickImage();
     if (imageFile != null) {
-      final String id = buildUUID();
       // Compressing image for decrease image size and make it easy to render
       final File compressedImageFile =
           await _imageCompressor(imageFile: imageFile);
-      final File renamedImageFile =
-          fileRenamer(oldFile: compressedImageFile, fileId: id);
-      final MessageEntity messageEntity = MessageEntity(
-        id: id,
-        senderUserId: roomIdRequirements.senderUserId,
-        receiverUserId: roomIdRequirements.receiverUserId,
-        messageContent: renamedImageFile.path,
+      final MessageEntity messageEntity = _fechUploadNeededMessage(
+        roomIdRequirements: roomIdRequirements,
         messageType: MessageType.image,
-        timestamp: Timestamp.now(),
-        needUpload: true,
+        oldFile: compressedImageFile,
         messageLabel: fechFileName(filePath: imageFile.path),
       );
       await _sendMessage(messageEntity: messageEntity);
     }
+  }
+
+  // Fuction to start recording
+  Future<void> startRecording({
+    required RoomIdRequirements roomIdRequirements,
+    required ColorScheme colorScheme,
+  }) async {
+    stopWatchTimer = StopWatchTimer();
+    if (await record.hasPermission()) {
+      await record.start();
+      stopWatchTimer.onStartTimer();
+      showModalBottomSheet(
+        shape: const BeveledRectangleBorder(),
+        context: Get.context!,
+        backgroundColor: colorScheme.scrim,
+        builder: (context) {
+          return VoiceSenderSheet(
+            stopWatchTimer: stopWatchTimer,
+            chatFunctions: this,
+            roomIdRequirements: roomIdRequirements,
+          );
+        },
+      ).whenComplete(() async => await cancelRecording());
+    }
+  }
+
+  // Fuction to send voice message
+  Future<void> sendVoiceMessage(
+      {required RoomIdRequirements roomIdRequirements}) async {
+    Get.back();
+    final String? audioFilePath = await _disposeRecordingTools();
+    if (audioFilePath != null) {
+      final MessageEntity messageEntity = _fechUploadNeededMessage(
+          roomIdRequirements: roomIdRequirements,
+          messageType: MessageType.other,
+          oldFile: File(audioFilePath),
+          messageLabel: fechFileName(filePath: audioFilePath));
+      await _sendMessage(messageEntity: messageEntity);
+    }
+  }
+
+  // Fuction to cancel recording
+  Future<void> cancelRecording({bool? getBack}) async {
+    await _disposeRecordingTools();
+    if (getBack != null && getBack) {
+      Get.back();
+    }
+  }
+
+  // Fuction to dispose all recording tools
+  Future<String?> _disposeRecordingTools() async {
+    String? audioFilePath;
+    if (stopWatchTimer.isRunning) {
+      stopWatchTimer.onStopTimer();
+      await stopWatchTimer.dispose();
+    }
+    audioFilePath = await record.stop();
+    await record.dispose();
+    return audioFilePath;
   }
 }

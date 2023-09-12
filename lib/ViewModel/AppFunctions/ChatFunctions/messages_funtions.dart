@@ -13,7 +13,6 @@ import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessa
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
 
 class MessagesFunctions extends ChatFunctions {
   // Insrance of firebase auth for use in whole file
@@ -52,18 +51,12 @@ class MessagesFunctions extends ChatFunctions {
     }
   }
 
-  // Function to fech message file cached path
-  Future<String> _fechMesssageFileCachePath({required String messageId}) async {
-    final Directory cacheDirectory = await getApplicationCacheDirectory();
-    return "${cacheDirectory.path}/$messageId";
-  }
-
   // Function to download file from internet
   Future<void> _customDownloader(
       {required MessageEntity messageEntity,
       required CancelToken cancelToken,
       required void Function(int, int)? onReceiveProgress}) async {
-    final String filePath = await _fechMesssageFileCachePath(
+    final String filePath = await fechMesssageFileCachePath(
       messageId: messageEntity.id,
     );
 
@@ -77,7 +70,7 @@ class MessagesFunctions extends ChatFunctions {
 
   // Function to check file availabelity
   Future<bool> isFileDownloaded({required String messageId}) async {
-    final filePath = await _fechMesssageFileCachePath(messageId: messageId);
+    final filePath = await fechMesssageFileCachePath(messageId: messageId);
     final File file = File(filePath);
     if (file.existsSync()) {
       return true;
@@ -169,7 +162,7 @@ class MessagesFunctions extends ChatFunctions {
   // Function to get message file from cache
   Future<File?> getFileFromCache({required String messageId}) async {
     final String filePath =
-        await _fechMesssageFileCachePath(messageId: messageId);
+        await fechMesssageFileCachePath(messageId: messageId);
     final File file = File(filePath);
     if (file.existsSync()) {
       return file;

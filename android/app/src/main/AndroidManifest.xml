@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--  Permission for record voice -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Permission for access to network -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="ChatX"
         android:name="${applicationName}"
