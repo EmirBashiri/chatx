@@ -12,6 +12,7 @@ class CustomTheme {
       background: Color(0xffFFFFFF),
       tertiaryContainer: Color(0xffDD1B49),
       scrim: Colors.blue,
+      error: Colors.red,
     ),
     textTheme: GoogleFonts.aBeeZeeTextTheme(),
     useMaterial3: true,

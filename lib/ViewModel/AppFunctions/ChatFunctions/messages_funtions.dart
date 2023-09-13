@@ -22,12 +22,6 @@ class MessagesFunctions extends ChatFunctions {
   // Insrance of firebase storage for use in whole file
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
-  // Map of cansel tokens for cansel downloads
-  static Map<String, CancelToken> cancelTokens = {};
-
-  // Map of upload tasks for cancel uploads
-  static Map<String, UploadTask> uploadTasks = {};
-
   // Function to check message sender is applications current user or not
   bool senderIsCurrentUser({required MessageEntity messageEntity}) {
     if (messageEntity.senderUserId == _firebaseAuth.currentUser!.uid) {
@@ -89,13 +83,13 @@ class MessagesFunctions extends ChatFunctions {
   // Function to build cansel token and add to tokens maps
   CancelToken _buildCancelToken({required MessageEntity messageEntity}) {
     final CancelToken cancelToken = CancelToken();
-    cancelTokens.addAll({messageEntity.id: cancelToken});
+    ChatFunctions.cancelTokens.addAll({messageEntity.id: cancelToken});
     return cancelToken;
   }
 
   // Function to remove cancel token from cancel tokens map
   void _removeCancelToken({required MessageEntity messageEntity}) {
-    cancelTokens.remove(messageEntity.id);
+    ChatFunctions.cancelTokens.remove(messageEntity.id);
   }
 
   // Funtion to download file from storage server
@@ -167,15 +161,6 @@ class MessagesFunctions extends ChatFunctions {
     }
   }
 
-  // Function to _cancel downloading
-  void cancelDownload({
-    required MessageEntity messageEntity,
-  }) {
-    CancelToken? cancelToken = cancelTokens[messageEntity.id];
-    cancelTokens.remove(messageEntity.id);
-    cancelToken?.cancel();
-  }
-
   // Function to fech file dwonload progress
   double fechOperationProgress({required OperationProgress operationProgress}) {
     return operationProgress.transferred / operationProgress.total;
@@ -239,17 +224,6 @@ class MessagesFunctions extends ChatFunctions {
         .update(MessageEntity.toJson(messageEntity: newMessageEntity));
   }
 
-  // Function to get messages docs from firebase firestroe DB
-  Future<void> _deleteMessageOnDB(
-      {required MessageEntity messageEntity}) async {
-    final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
-        senderUserId: messageEntity.senderUserId,
-        receiverUserId: messageEntity.receiverUserId);
-    await messagesCollection(roomIdRequirements: roomIdRequirements)
-        .doc(messageEntity.id)
-        .delete();
-  }
-
   // Function to uplead file on server and send file message
   Future<void> uploadFileMessage({
     required OtherMessagesBloc otherMessagesBloc,
@@ -261,7 +235,7 @@ class MessagesFunctions extends ChatFunctions {
     final Reference reference =
         _firebaseStorage.ref("$fileMessagesBucket$fileName");
     final UploadTask uploadTask = reference.putFile(messageFile);
-    uploadTasks.addAll({messageEntity.id: uploadTask});
+    ChatFunctions.uploadTasks.addAll({messageEntity.id: uploadTask});
     uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {
       if (snapshot.state == TaskState.running) {
         _addEventToBloc(
@@ -274,7 +248,7 @@ class MessagesFunctions extends ChatFunctions {
           ),
         );
       } else if (snapshot.state == TaskState.success) {
-        uploadTasks.remove(messageEntity.id);
+        ChatFunctions.uploadTasks.remove(messageEntity.id);
         _addEventToBloc(bloc: otherMessagesBloc, event: OtherMessagesLoading());
         final String downloadUrl = await reference.getDownloadURL();
         final MessageEntity newMessageEntity = MessageEntity(
@@ -308,7 +282,7 @@ class MessagesFunctions extends ChatFunctions {
     final Reference reference =
         _firebaseStorage.ref("$imageMessagesBucket$fileName");
     final UploadTask uploadTask = reference.putFile(imageFile);
-    uploadTasks.addAll({messageEntity.id: uploadTask});
+    ChatFunctions.uploadTasks.addAll({messageEntity.id: uploadTask});
     uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {
       if (snapshot.state == TaskState.running) {
         _addEventToBloc(
@@ -322,7 +296,7 @@ class MessagesFunctions extends ChatFunctions {
           ),
         );
       } else if (snapshot.state == TaskState.success) {
-        uploadTasks.remove(messageEntity.id);
+        ChatFunctions.uploadTasks.remove(messageEntity.id);
         _addEventToBloc(bloc: imageMessageBloc, event: ImageMessageLoading());
         final String downloadUrl = await reference.getDownloadURL();
         final MessageEntity newMessageEntity = MessageEntity(
@@ -351,17 +325,9 @@ class MessagesFunctions extends ChatFunctions {
     });
   }
 
-  // Function to cancel uploading
-  Future<void> cancelUpload({required MessageEntity messageEntity}) async {
-    final UploadTask? uploadTask = uploadTasks[messageEntity.id];
-    uploadTasks.remove(messageEntity.id);
-    await uploadTask!.cancel();
-    await _deleteMessageOnDB(messageEntity: messageEntity);
-  }
-
   // Function to delete message that gave an error
   Future<void> deleteErroredMessage(
       {required MessageEntity messageEntity}) async {
-    await _deleteMessageOnDB(messageEntity: messageEntity);
+    await deleteMessageOnDB(messageEntity: messageEntity);
   }
 }

@@ -477,3 +477,70 @@ class VoiceTimerWidget extends StatelessWidget {
     );
   }
 }
+
+// Chat screen's message deletion dialog
+class MessageDeleteDialog extends StatelessWidget {
+  const MessageDeleteDialog(
+      {super.key, required this.chatFunctions, required this.messageEntity});
+  final ChatFunctions chatFunctions;
+  final MessageEntity messageEntity;
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return AlertDialog(
+      backgroundColor: colorScheme.primary,
+      title: buildText(
+        content: deleteMessageDialog,
+        textStyle: textTheme.bodyLarge,
+        textColor: colorScheme.background,
+      ),
+      content: buildText(
+        content: sureToDeleteDialog,
+        textStyle: textTheme.bodyMedium,
+        textColor: colorScheme.background,
+      ),
+      actions: [
+        buildActionButton(
+          backgroundColor: colorScheme.background,
+          title: cancelDialog,
+          textStyle: textTheme.bodyMedium,
+          textColor: colorScheme.secondary,
+          onPressed: () => Get.back(),
+        ),
+        buildActionButton(
+          backgroundColor: colorScheme.background,
+          title: deleteDialog,
+          textStyle: textTheme.bodyMedium,
+          textColor: colorScheme.error,
+          onPressed: () async =>
+              chatFunctions.deleteChatMessage(messageEntity: messageEntity),
+        ),
+      ],
+    );
+  }
+
+  ElevatedButton buildActionButton(
+      {required Color backgroundColor,
+      required String title,
+      required TextStyle? textStyle,
+      required textColor,
+      required void Function()? onPressed}) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(backgroundColor: backgroundColor),
+      onPressed: onPressed,
+      child: buildText(
+        content: title,
+        textStyle: textStyle,
+        textColor: textColor,
+      ),
+    );
+  }
+
+  Text buildText(
+          {required String content,
+          required TextStyle? textStyle,
+          required Color textColor}) =>
+      Text(content, style: textStyle?.copyWith(color: textColor));
+}

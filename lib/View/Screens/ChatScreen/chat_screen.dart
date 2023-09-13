@@ -114,6 +114,7 @@ class _ChatMainWidget extends StatelessWidget {
           // Chat messages part
           _MainPart(
             messagesList: messagesList,
+            chatFunctions: chatFunctions,
             messagesFunctions: messagesFunctions,
           ),
           // Chat message sender part
@@ -133,35 +134,45 @@ class _MainPart extends StatelessWidget {
   const _MainPart({
     required this.messagesList,
     required this.messagesFunctions,
+    required this.chatFunctions,
   });
 
   final List<MessageEntity> messagesList;
+  final ChatFunctions chatFunctions;
   final MessagesFunctions messagesFunctions;
 
   @override
   Widget build(BuildContext context) {
     return Flexible(
-      // TODO implement message deleteing feature here
       child: ListView.builder(
         reverse: true,
         itemCount: messagesList.length,
         itemBuilder: (context, index) {
           final MessageEntity messageEntity = messagesList[index];
-          switch (messageEntity.messageType) {
-            case MessageType.txt:
-              return TexetMessageScreen(
-                messageEntity: messageEntity,
-                messagesFunctions: messagesFunctions,
-              );
-            case MessageType.image:
-              return ImageMessageScreen(
-                  key: Key(messageEntity.id),
-                  messageEntity: messageEntity,
-                  messagesFunctions: messagesFunctions);
-            case MessageType.other:
-              return OthetMessagesScreen(
-                  messageEntity: messageEntity, key: Key(messageEntity.id));
-          }
+          return GestureDetector(
+            onLongPress: () async => chatFunctions.deleteChatMessageDialog(
+                messageEntity: messageEntity),
+            child: Builder(
+              builder: (context) {
+                switch (messageEntity.messageType) {
+                  case MessageType.txt:
+                    return TexetMessageScreen(
+                      messageEntity: messageEntity,
+                      messagesFunctions: messagesFunctions,
+                    );
+                  case MessageType.image:
+                    return ImageMessageScreen(
+                        key: Key(messageEntity.id),
+                        messageEntity: messageEntity,
+                        messagesFunctions: messagesFunctions);
+                  case MessageType.other:
+                    return OthetMessagesScreen(
+                        messageEntity: messageEntity,
+                        key: Key(messageEntity.id));
+                }
+              },
+            ),
+          );
         },
       ),
     );

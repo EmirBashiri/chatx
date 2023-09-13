@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,6 +31,12 @@ class ChatFunctions {
 
   // Instance of message sender controller for use in whole class
   final MessageSenderController messageSenderController = Get.find();
+
+  // Map of cansel tokens for cansel downloads
+  static Map<String, CancelToken> cancelTokens = {};
+
+  // Map of upload tasks for cancel uploads
+  static Map<String, UploadTask> uploadTasks = {};
 
   // Insrance of stop watch timer
   late StopWatchTimer stopWatchTimer;
@@ -111,6 +118,41 @@ class ChatFunctions {
         .set(MessageEntity.toJson(messageEntity: messageEntity));
   }
 
+  // Function to get messages docs from firebase firestroe DB
+  Future<void> deleteMessageOnDB({required MessageEntity messageEntity}) async {
+    final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
+        senderUserId: messageEntity.senderUserId,
+        receiverUserId: messageEntity.receiverUserId);
+    await messagesCollection(roomIdRequirements: roomIdRequirements)
+        .doc(messageEntity.id)
+        .delete();
+  }
+
+  // Function to show delete dialog
+  Future<void> deleteChatMessageDialog(
+      {required MessageEntity messageEntity}) async {
+    // check if the message is uploading don't show the dialog until the upload is finished.
+    if (!messageEntity.needUpload) {
+      // calling this function to cancel possibe download process
+      cancelDownload(messageEntity: messageEntity);
+      showDialog(
+        context: Get.context!,
+        builder: (context) {
+          return MessageDeleteDialog(
+            chatFunctions: this,
+            messageEntity: messageEntity,
+          );
+        },
+      );
+    }
+  }
+
+  // Function to delete chat message
+  Future<void> deleteChatMessage({required MessageEntity messageEntity}) async {
+    Get.back();
+    await deleteMessageOnDB(messageEntity: messageEntity);
+  }
+
   // Function to receive message from DB
   Stream<QuerySnapshot<Map<String, dynamic>>> getMessage(
       {required RoomIdRequirements roomIdRequirements}) {
@@ -143,20 +185,37 @@ class ChatFunctions {
     return true;
   }
 
+  // Function to _cancel downloading
+  void cancelDownload({
+    required MessageEntity messageEntity,
+  }) {
+    CancelToken? cancelToken = cancelTokens[messageEntity.id];
+    cancelTokens.remove(messageEntity.id);
+    cancelToken?.cancel();
+  }
+
+  // Function to cancel uploading
+  Future<void> cancelUpload({required MessageEntity messageEntity}) async {
+    final UploadTask? uploadTask = uploadTasks[messageEntity.id];
+    uploadTasks.remove(messageEntity.id);
+    await uploadTask?.cancel();
+    await deleteMessageOnDB(messageEntity: messageEntity);
+  }
+
   // Function to cancel all downloads
   Future<void> cancelAllDownloads() async {
-    MessagesFunctions.cancelTokens.forEach((key, value) {
+    cancelTokens.forEach((key, value) {
       value.cancel();
     });
-    MessagesFunctions.cancelTokens.clear();
+    cancelTokens.clear();
   }
 
   // Function to cancel all uploads
   Future<void> cancelAllUploads() async {
-    MessagesFunctions.uploadTasks.forEach((key, value) async {
+    uploadTasks.forEach((key, value) async {
       await value.cancel();
     });
-    MessagesFunctions.uploadTasks.clear();
+    uploadTasks.clear();
   }
 
   // Fuction to fech can send message status
