@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
@@ -40,6 +41,13 @@ class MessagesFunctions extends ChatFunctions {
   String messageTimeStamp({required Timestamp timestamp}) {
     final DateTime dateTime = timestamp.toDate();
     return "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}";
+  }
+
+  // Function to add new event in specific bloc
+  void _addEventToBloc({required Bloc bloc, required dynamic event}) {
+    if (!bloc.isClosed) {
+      bloc.add(event);
+    }
   }
 
   // Function to buid message title
@@ -102,17 +110,23 @@ class MessagesFunctions extends ChatFunctions {
         messageEntity: messageEntity,
         cancelToken: cancelToken,
         onReceiveProgress: (count, total) {
-          otherMessagesBloc?.add(
-            OtherMessagesDownloadingStatus(
-              OperationProgress(transferred: count, total: total),
-            ),
-          );
+          if (otherMessagesBloc != null) {
+            _addEventToBloc(
+              bloc: otherMessagesBloc,
+              event: OtherMessagesDownloadingStatus(
+                OperationProgress(transferred: count, total: total),
+              ),
+            );
+          }
         },
       );
       _removeCancelToken(messageEntity: messageEntity);
-      otherMessagesBloc!.add(OtherMessagesFileCompleted());
+      _addEventToBloc(
+          bloc: otherMessagesBloc!, event: OtherMessagesFileCompleted());
     } catch (e) {
-      otherMessagesBloc!.add(OtherMessagesDownloadError());
+      _addEventToBloc(
+          bloc: otherMessagesBloc!, event: OtherMessagesDownloadError());
+      // For prevent an Ui bug
       otherMessagesBloc = null;
     }
   }
@@ -129,18 +143,26 @@ class MessagesFunctions extends ChatFunctions {
         messageEntity: messageEntity,
         cancelToken: cancelToken,
         onReceiveProgress: (count, total) {
-          imageMessageBloc?.add(
-            ImageMessageDownloadProgress(
-                OperationProgress(transferred: count, total: total)),
-          );
+          if (imageMessageBloc != null) {
+            _addEventToBloc(
+              bloc: imageMessageBloc,
+              event: ImageMessageDownloadProgress(
+                OperationProgress(transferred: count, total: total),
+              ),
+            );
+          }
         },
       );
       _removeCancelToken(messageEntity: messageEntity);
       final File? imageFile =
           await getFileFromCache(messageId: messageEntity.id);
-      imageMessageBloc!.add(ImageMessageOperationComplete(imageFile!));
+      _addEventToBloc(
+          bloc: imageMessageBloc!,
+          event: ImageMessageOperationComplete(imageFile!));
     } catch (e) {
-      imageMessageBloc!.add(ImageMessageDownloadError());
+      _addEventToBloc(
+          bloc: imageMessageBloc!, event: ImageMessageDownloadError());
+      // For prevent an Ui bug
       imageMessageBloc = null;
     }
   }
@@ -200,7 +222,8 @@ class MessagesFunctions extends ChatFunctions {
     if (file != null) {
       await _openFile(file: file);
     } else {
-      otherMessagesBloc.add(OtherMessagesStart(messageEntity));
+      _addEventToBloc(
+          bloc: otherMessagesBloc, event: OtherMessagesStart(messageEntity));
     }
   }
 
@@ -241,8 +264,9 @@ class MessagesFunctions extends ChatFunctions {
     uploadTasks.addAll({messageEntity.id: uploadTask});
     uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {
       if (snapshot.state == TaskState.running) {
-        otherMessagesBloc.add(
-          OtherMessagesUploadingStatus(
+        _addEventToBloc(
+          bloc: otherMessagesBloc,
+          event: OtherMessagesUploadingStatus(
             OperationProgress(
               transferred: snapshot.bytesTransferred,
               total: snapshot.totalBytes,
@@ -251,7 +275,7 @@ class MessagesFunctions extends ChatFunctions {
         );
       } else if (snapshot.state == TaskState.success) {
         uploadTasks.remove(messageEntity.id);
-        otherMessagesBloc.add(OtherMessagesLoading());
+        _addEventToBloc(bloc: otherMessagesBloc, event: OtherMessagesLoading());
         final String downloadUrl = await reference.getDownloadURL();
         final MessageEntity newMessageEntity = MessageEntity(
           id: messageEntity.id,
@@ -264,9 +288,11 @@ class MessagesFunctions extends ChatFunctions {
           messageLabel: messageEntity.messageLabel,
         );
         await _updateMessageOnDB(newMessageEntity: newMessageEntity);
-        otherMessagesBloc.add(OtherMessagesFileCompleted());
+        _addEventToBloc(
+            bloc: otherMessagesBloc, event: OtherMessagesFileCompleted());
       } else if (snapshot.state == TaskState.error) {
-        otherMessagesBloc.add(OtherMessagesUploadError());
+        _addEventToBloc(
+            bloc: otherMessagesBloc, event: OtherMessagesUploadError());
       }
     });
   }
@@ -285,8 +311,9 @@ class MessagesFunctions extends ChatFunctions {
     uploadTasks.addAll({messageEntity.id: uploadTask});
     uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {
       if (snapshot.state == TaskState.running) {
-        imageMessageBloc.add(
-          ImageMessageUploadProgress(
+        _addEventToBloc(
+          bloc: imageMessageBloc,
+          event: ImageMessageUploadProgress(
             operationProgress: OperationProgress(
               transferred: snapshot.bytesTransferred,
               total: snapshot.totalBytes,
@@ -296,7 +323,7 @@ class MessagesFunctions extends ChatFunctions {
         );
       } else if (snapshot.state == TaskState.success) {
         uploadTasks.remove(messageEntity.id);
-        imageMessageBloc.add(ImageMessageLoading());
+        _addEventToBloc(bloc: imageMessageBloc, event: ImageMessageLoading());
         final String downloadUrl = await reference.getDownloadURL();
         final MessageEntity newMessageEntity = MessageEntity(
           id: messageEntity.id,
@@ -311,11 +338,15 @@ class MessagesFunctions extends ChatFunctions {
         await _updateMessageOnDB(newMessageEntity: newMessageEntity);
         final File? imageFile =
             await getFileFromCache(messageId: newMessageEntity.id);
-        imageMessageBloc.add(ImageMessageOperationComplete(imageFile!));
+        _addEventToBloc(
+            bloc: imageMessageBloc,
+            event: ImageMessageOperationComplete(imageFile!));
       } else if (snapshot.state == TaskState.error) {
         final File? imageFile =
             await getFileFromCache(messageId: messageEntity.id);
-        imageMessageBloc.add(ImageMessageUploadError(imageFile: imageFile));
+        _addEventToBloc(
+            bloc: imageMessageBloc,
+            event: ImageMessageUploadError(imageFile: imageFile));
       }
     });
   }
