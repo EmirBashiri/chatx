@@ -21,38 +21,43 @@ const String splashImagePath = "assets/Images/splash-image.svg";
 // Authentication Screen //////////////////////////////////////////
 
 // Dialogs
-const String createAcount = "Create Account";
-const String haveAcount = "Already have an account?";
-const String login = "Login";
-const String agree = "I agree to DopeSass Terms of service and Privacy policy";
-const String or = "or";
-const String withGoogle = "Continue with Google";
-const String welcomeBack = "Welcome Back";
-const String dontHaveAccount = "Don’t have an account? ";
-const String signUp = "Sign Up";
-const String forgotPassword = "Forgot Password";
-const String enterEmail =
+const String createAcountDialog = "Create Account";
+const String haveAcountDialog = "Already have an account?";
+const String loginDialog = "Login";
+const String agreeDialog =
+    "I agree to DopeSass Terms of service and Privacy policy";
+const String orDialog = "or";
+const String withGoogleDialog = "Continue with Google";
+const String welcomeBackDialog = "Welcome Back";
+const String dontHaveAccountDialog = "Don’t have an account? ";
+const String signUpDialog = "Sign Up";
+const String forgotPasswordDialog = "Forgot Password";
+const String enterEmailDialog =
     "Enter the email you used to create your account so we can send you instructions on how to reset your password.";
-const String send = "Send";
-const String resend = "Resend Email";
-const String backToLogin = "Back to Login";
-const String resetPassword = "Reset Password";
-const String choosePassword = "Choose a new password for your account";
-const String newPassword = "Your new password";
-const String confirmNewPassword = "Confirm your new password";
-const String fullName = "Full name";
-const String email = "Email";
-const String password = "Password";
-const String validateError = "This field required";
-const String agreeThePrivacy = "Please agree privacy policy to continue";
-const String tryAgain = "Try again";
-const String typeMessage = "Type a message";
-const String fileMessage = "File";
-const String imageMessage = "Image";
-const String selectMessageType = "Select";
-const String uploadAlert =
+const String sendDialog = "Send";
+const String resendDialog = "Resend Email";
+const String backToLoginDialog = "Back to Login";
+const String resetPasswordDialog = "Reset Password";
+const String choosePasswordDialog = "Choose a new password for your account";
+const String newPasswordDialog = "Your new password";
+const String confirmNewPasswordDialog = "Confirm your new password";
+const String fullNameDialog = "Full name";
+const String emailDialog = "Email";
+const String passwordDialog = "Password";
+const String validateErrorDialog = "This field required";
+const String agreeThePrivacyDialog = "Please agree privacy policy to continue";
+const String tryAgainDialog = "Try again";
+const String typeMessageDialog = "Type a message";
+const String fileMessageDialog = "File";
+const String imageMessageDialog = "Image";
+const String selectMessageTypeDialog = "Select";
+const String uploadAlertDialog =
     "Please wait until the upload is complete or cancel the upload.";
-const String ok = "Ok";
+const String okDialog = "Ok";
+const String deleteMessageDialog = "Delete message";
+const String sureToDeleteDialog = "Are you sure you want delete this message?";
+const String cancelDialog = "Cancel";
+const String deleteDialog = "Delete";
 // ///////////////////////////////////////////////////////////////////////
 
 // Home Screen //////////////////////////////////////////

@@ -13,7 +13,7 @@ class AuthFunctions {
   // Text fields validator function
 
   String? Function(String?) validator =
-      (value) => value != null && value.isNotEmpty ? null : validateError;
+      (value) => value != null && value.isNotEmpty ? null : validateErrorDialog;
 
   // Build UserEntity to use in authentication screen
 
@@ -62,7 +62,7 @@ class AuthFunctions {
 
       await _mergeInDB(appUser: appUser);
     } else {
-      showSnakeBar(title: appName, message: agreeThePrivacy);
+      showSnakeBar(title: appName, message: agreeThePrivacyDialog);
     }
   }
 

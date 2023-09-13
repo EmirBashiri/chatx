@@ -228,7 +228,7 @@ class _SenderTextField extends StatelessWidget {
           minLines: null,
           maxLines: null,
           decoration: InputDecoration(
-              hintText: typeMessage,
+              hintText: typeMessageDialog,
               hintStyle: textTheme.bodySmall,
               prefixIcon: _SendImageAndFileButton(
                 chatFunctions: chatFunctions,
@@ -258,7 +258,7 @@ class _SendImageAndFileButton extends StatelessWidget {
           builder: (context) {
             return CupertinoAlertDialog(
               title: Text(
-                selectMessageType,
+                selectMessageTypeDialog,
                 style:
                     textTheme.bodyLarge?.copyWith(color: colorScheme.primary),
               ),
@@ -270,7 +270,7 @@ class _SendImageAndFileButton extends StatelessWidget {
                     colorScheme: colorScheme,
                     textTheme: textTheme,
                     iconData: fileIcon,
-                    label: fileMessage,
+                    label: fileMessageDialog,
                     onPressed: () async => await chatFunctions.startFileSending(
                         roomIdRequirements: roomIdRequirements),
                   ),
@@ -279,7 +279,7 @@ class _SendImageAndFileButton extends StatelessWidget {
                     colorScheme: colorScheme,
                     textTheme: textTheme,
                     iconData: imageIcon,
-                    label: imageMessage,
+                    label: imageMessageDialog,
                     onPressed: () async {
                       await chatFunctions.startImageSending(
                           roomIdRequirements: roomIdRequirements);

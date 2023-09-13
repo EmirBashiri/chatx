@@ -147,7 +147,7 @@ class CustomErrorScreen extends StatelessWidget {
                     backgroundColor: colorScheme.primary),
                 onPressed: callBack,
                 child: Text(
-                  tryAgain,
+                  tryAgainDialog,
                   style: textTheme.bodyMedium!.copyWith(
                     color: colorScheme.background,
                   ),

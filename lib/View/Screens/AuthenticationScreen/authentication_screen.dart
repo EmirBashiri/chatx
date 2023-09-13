@@ -73,10 +73,10 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
             } else if (state is AuthenticationSignupScreen) {
               return AuthenticationTemplate(
                   loginMode: false,
-                  topTitle: createAcount,
-                  topDescription1: haveAcount,
-                  topDescription2: login,
-                  authButtonTitle: createAcount,
+                  topTitle: createAcountDialog,
+                  topDescription1: haveAcountDialog,
+                  topDescription2: loginDialog,
+                  authButtonTitle: createAcountDialog,
                   authButtonTap: () {
                     final UserEntity? userEntity =
                         authFunctions.buildUserEntity(
@@ -104,10 +104,10 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
             } else if (state is AuthenticationLoginScreen) {
               return AuthenticationTemplate(
                   loginMode: true,
-                  topTitle: welcomeBack,
-                  topDescription1: dontHaveAccount,
-                  topDescription2: signUp,
-                  authButtonTitle: login,
+                  topTitle: welcomeBackDialog,
+                  topDescription1: dontHaveAccountDialog,
+                  topDescription2: signUpDialog,
+                  authButtonTitle: loginDialog,
                   authButtonTap: () {
                     final UserEntity? userEntity =
                         authFunctions.buildUserEntity(
@@ -230,20 +230,20 @@ class AuthenticationTemplate extends StatelessWidget {
                           : CustomTextFiled(
                               formKey: nameKey!,
                               controller: nameController!,
-                              labelText: fullName,
+                              labelText: fullNameDialog,
                             ),
                       // Email text field
                       CustomTextFiled(
                         formKey: emailKey,
                         controller: emailController,
-                        labelText: email,
+                        labelText: emailDialog,
                       ),
                       // Password text field
                       CustomTextFiled(
                         isPasswordFill: true,
                         formKey: passwordKey,
                         controller: passwordController,
-                        labelText: password,
+                        labelText: passwordDialog,
                       ),
                       // Agree part if is signup mode
                       loginMode ? Container() : const AgreeWidget()
@@ -286,7 +286,7 @@ class AuthenticationTemplate extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Text(
-                                  or,
+                                  orDialog,
                                   style: textTheme.bodyMedium!.copyWith(),
                                 ),
                               ),
@@ -299,7 +299,7 @@ class AuthenticationTemplate extends StatelessWidget {
 
                       CustomButton(
                         backgroundColor: colorScheme.background,
-                        title: withGoogle,
+                        title: withGoogleDialog,
                         titleStyle: textTheme.bodyMedium,
                         suffixIcon: const Icon(googelIcon),
                         onPressed: googleButtonTap,
@@ -339,7 +339,7 @@ class _AgreeWidgetState extends State<AgreeWidget> {
         ),
         const Expanded(
           child: Text(
-            agree,
+            agreeDialog,
             overflow: TextOverflow.clip,
           ),
         ),
