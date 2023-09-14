@@ -3,24 +3,18 @@ import 'package:flutter/material.dart';
 
 const String appName = "ChatX";
 
-// Intro Screen ////////////////////////////////////////////////
+// Images path ////////////////////////////////////////////////////
+const String splashImagePath = "assets/Images/splash-image.svg";
 
-// Dialogs
+// ////////////////////////////////////////////////////////////////
+
+// Dialogs ///////////////////////////////////////////////////////
 const String introMainContent = '''
 Simpliest 
 Messaging App 
 ''';
 
 const String introGetStarted = "Get Started";
-
-// Images path
-const String splashImagePath = "assets/Images/splash-image.svg";
-
-// ////////////////////////////////////////////////////////////////
-
-// Authentication Screen //////////////////////////////////////////
-
-// Dialogs
 const String createAcountDialog = "Create Account";
 const String haveAcountDialog = "Already have an account?";
 const String loginDialog = "Login";
@@ -58,15 +52,10 @@ const String deleteMessageDialog = "Delete message";
 const String sureToDeleteDialog = "Are you sure you want delete this message?";
 const String cancelDialog = "Cancel";
 const String deleteDialog = "Delete";
-// ///////////////////////////////////////////////////////////////////////
-
-// Home Screen //////////////////////////////////////////
-
-// Dialogs
 const String messages = "Messages";
 const String savedMessages = "Saved Messages";
-
-////////////////////////////////////////////////////////
+const String emptyChatDialog = "No message here yet , send a message !!";
+// ///////////////////////////////////////////////////////////////////////
 
 // Duplicate tools ///////////////////////////////////////////////////////
 

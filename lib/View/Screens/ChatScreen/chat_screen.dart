@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
@@ -12,6 +13,8 @@ import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
+
+import 'bloc/chat_bloc_bloc.dart';
 
 // Application's chat screen
 class ChatScreen extends StatelessWidget {
@@ -26,6 +29,8 @@ class ChatScreen extends StatelessWidget {
       dependencyController.appFunctions.chatFunctions;
   late final MessagesFunctions messagesFunctions =
       dependencyController.appFunctions.messagesFunctions;
+  late final RoomIdRequirements roomIdRequirements = RoomIdRequirements(
+      senderUserId: senderUser.userUID, receiverUserId: receiverUser.userUID);
 
   @override
   Widget build(BuildContext context) {
@@ -34,60 +39,68 @@ class ChatScreen extends StatelessWidget {
     return WillPopScope(
       onWillPop: () async => await chatFunctions.chatScreenPopScope(),
       child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () async => await chatFunctions.closeChatScreen(),
-            icon: Icon(backIcon, color: colorScheme.primary),
-          ),
-          forceMaterialTransparency: true,
-          centerTitle: true,
-          title: Text(
-            chatFunctions.fechChatScreenTitle(
-              senderUser: senderUser,
-              receiverUser: receiverUser,
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: () async => await chatFunctions.closeChatScreen(),
+              icon: Icon(backIcon, color: colorScheme.primary),
             ),
-            style: textTheme.bodyLarge!.copyWith(
-              fontWeight: FontWeight.w700,
-              color: colorScheme.primary,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        body: StreamBuilder(
-          stream: chatFunctions.getMessage(
-            roomIdRequirements: RoomIdRequirements(
-              senderUserId: senderUser.userUID,
-              receiverUserId: receiverUser.userUID,
+            forceMaterialTransparency: true,
+            centerTitle: true,
+            title: Text(
+              chatFunctions.fechChatScreenTitle(
+                senderUser: senderUser,
+                receiverUser: receiverUser,
+              ),
+              style: textTheme.bodyLarge!.copyWith(
+                fontWeight: FontWeight.w700,
+                color: colorScheme.primary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          builder: (context, snapshot) {
-            // TODO manage all possible states here
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CustomLoadingScreen();
-            } else if (snapshot.data != null) {
-              final List<MessageEntity> messagesList = snapshot.data!.docs
-                  .map((jsonFromDB) =>
-                      MessageEntity.fromJson(json: jsonFromDB.data()))
-                  .toList();
-              senderController.messageList = messagesList;
-              return _ChatMainWidget(
-                messagesList: messagesList,
-                messagesFunctions: messagesFunctions,
-                chatFunctions: chatFunctions,
-                senderController: senderController,
-                roomIdRequirements: RoomIdRequirements(
-                  senderUserId: senderUser.userUID,
-                  receiverUserId: receiverUser.userUID,
-                ),
-              );
-            } else {
-              return Container();
-            }
-          },
-        ),
-      ),
+          body: BlocProvider(
+            create: (context) {
+              final bloc = ChatBloc(roomIdRequirements);
+              bloc.add(ChatStart());
+              return bloc;
+            },
+            child: BlocBuilder<ChatBloc, ChatBlocState>(
+              builder: (context, state) {
+                if (state is ChatLoadingScreen) {
+                  return const CustomLoadingScreen();
+                } else if (state is ChatMainScreen) {
+                  return _ChatMainWidget(
+                    messagesList: state.messagesList,
+                    messagesFunctions: messagesFunctions,
+                    senderController: senderController,
+                    chatFunctions: chatFunctions,
+                    roomIdRequirements: roomIdRequirements,
+                  );
+                } else if (state is EmptyChatScreen) {
+                  return _EmptyChatWidget(
+                    senderController: senderController,
+                    roomIdRequirements: roomIdRequirements,
+                    chatFunctions: chatFunctions,
+                  );
+                } else if (state is ChatErrorScreen) {
+                  return CustomErrorScreen(
+                      callBack: () => context.read<ChatBloc>().add(ChatStart()),
+                      errorMessage: state.errorMessage);
+                }
+                return Container();
+              },
+            ),
+          )),
     );
   }
+}
+
+// Chat screen's duplicate frame
+Widget _chatDuplicateFrame({required List<Widget> children}) {
+  return Padding(
+    padding: const EdgeInsets.all(12),
+    child: Column(children: children),
+  );
 }
 
 // Chat screen's main widget
@@ -107,25 +120,71 @@ class _ChatMainWidget extends StatelessWidget {
   final RoomIdRequirements roomIdRequirements;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          // Chat messages part
-          _MainPart(
-            messagesList: messagesList,
-            chatFunctions: chatFunctions,
-            messagesFunctions: messagesFunctions,
-          ),
-          // Chat message sender part
-          _BottomPart(
-            senderController: senderController,
-            roomIdRequirements: roomIdRequirements,
-            chatFunctions: chatFunctions,
-          ),
-        ],
-      ),
+    return _chatDuplicateFrame(
+      children: [
+        // Chat messages part
+        _MainPart(
+          messagesList: messagesList,
+          chatFunctions: chatFunctions,
+          messagesFunctions: messagesFunctions,
+        ),
+        // Chat message sender part
+        _BottomPart(
+          senderController: senderController,
+          roomIdRequirements: roomIdRequirements,
+          chatFunctions: chatFunctions,
+        ),
+      ],
     );
+  }
+}
+
+class _EmptyChatWidget extends StatelessWidget {
+  const _EmptyChatWidget({
+    required this.senderController,
+    required this.roomIdRequirements,
+    required this.chatFunctions,
+  });
+  final MessageSenderController senderController;
+  final RoomIdRequirements roomIdRequirements;
+  final ChatFunctions chatFunctions;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return _chatDuplicateFrame(children: [
+      // Empty message dialog
+      Flexible(
+        flex: 1,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: Get.width * 0.7,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: colorScheme.primary,
+              ),
+              child: Text(
+                emptyChatDialog,
+                style: textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.background,
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      // Chat message sender part
+      _BottomPart(
+        senderController: senderController,
+        roomIdRequirements: roomIdRequirements,
+        chatFunctions: chatFunctions,
+      ),
+    ]);
   }
 }
 

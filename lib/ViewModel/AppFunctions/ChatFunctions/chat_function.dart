@@ -10,6 +10,7 @@ import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
+import 'package:flutter_chatx/View/Screens/ChatScreen/bloc/chat_bloc_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,6 +32,9 @@ class ChatFunctions {
 
   // Instance of message sender controller for use in whole class
   final MessageSenderController messageSenderController = Get.find();
+
+  // Instance of firesore DB's stream
+  StreamSubscription? chatStreamSubscription;
 
   // Map of cansel tokens for cansel downloads
   static Map<String, CancelToken> cancelTokens = {};
@@ -154,11 +158,22 @@ class ChatFunctions {
   }
 
   // Function to receive message from DB
-  Stream<QuerySnapshot<Map<String, dynamic>>> getMessage(
-      {required RoomIdRequirements roomIdRequirements}) {
-    return messagesCollection(roomIdRequirements: roomIdRequirements)
-        .orderBy(MessageEntity.timestampKey, descending: true)
-        .snapshots();
+  void getMessage(
+      {required RoomIdRequirements roomIdRequirements,
+      required ChatBloc chatBloc}) {
+    final chatStream =
+        messagesCollection(roomIdRequirements: roomIdRequirements)
+            .orderBy(MessageEntity.timestampKey, descending: true)
+            .snapshots();
+
+    chatStreamSubscription = chatStream.listen((event) {
+      final List<MessageEntity> messagesList = event.docs
+          .map((jsonFromDB) => MessageEntity.fromJson(json: jsonFromDB.data()))
+          .toList();
+      chatBloc.add(ChatUpdate(messagesList));
+    }, onError: (error) {
+      chatBloc.add(ChatError(error));
+    });
   }
 
   // Fuction to fech chat screen title
@@ -175,6 +190,7 @@ class ChatFunctions {
   Future<void> closeChatScreen() async {
     await cancelAllUploads();
     await cancelAllDownloads();
+    await chatStreamSubscription?.cancel();
     Get.back();
   }
 
@@ -182,6 +198,7 @@ class ChatFunctions {
   Future<bool> chatScreenPopScope() async {
     await cancelAllUploads();
     await cancelAllDownloads();
+    await chatStreamSubscription?.cancel();
     return true;
   }
 
