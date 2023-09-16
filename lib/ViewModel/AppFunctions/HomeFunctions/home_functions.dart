@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
@@ -7,32 +9,28 @@ import 'package:flutter_chatx/View/Screens/HomeScreen/bloc/home_bloc.dart';
 class HomeFunctioins {
   // Instance of firestore for get user list stream
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // Application user list for use in the whole class
+  List<AppUser> _userList = [];
 
-  // Fech user list from Database
-  Future<void> _fechUserList({
-    required QuerySnapshot<Map<String, dynamic>> event,
-    required List<AppUser> userList,
-  }) async {
-    for (var json in event.docs) {
-      userList.add(AppUser.fromJson(json.data()));
-    }
+  // Function to Fetch user list from Database
+  Future<void> _fetchUserList(
+      {required QuerySnapshot<Map<String, dynamic>> event}) async {
+    _userList =
+        event.docs.map((json) => AppUser.fromJson(json.data())).toList();
   }
 
-  // Listen to Database user list
+  // Function to Listen to Database user list
   void listenToUsers({required HomeBloc homeBloc}) async {
-    final List<AppUser> userList = [];
     final Stream<QuerySnapshot<Map<String, dynamic>>> userListStream =
         _firestore.collection(usersCollectionPath).snapshots();
-    userListStream.listen(
-      (event) async {
-        await _fechUserList(event: event, userList: userList);
-        homeBloc.add(HomeFechUserList(userList));
-      },
-    );
+    userListStream.listen((event) async {
+      await _fetchUserList(event: event);
+      homeBloc.add(HomeUpdate(_userList));
+    }, onError: (error) => homeBloc.add(HomeError(error)));
   }
 
-  //  Fech current user
-  AppUser fechCurrentUser(
+  // Function to Fetch current user
+  AppUser fetchCurrentUser(
       {required List<AppUser> userList, required User firebaseCurrentUser}) {
     return userList
         .firstWhere((appUser) => appUser.userUID == firebaseCurrentUser.uid);

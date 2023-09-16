@@ -3,10 +3,19 @@ part of 'home_bloc.dart';
 @immutable
 abstract class HomeEvent {}
 
+// This event is called whenever home screen is set up
 class HomeStart extends HomeEvent {}
 
-class HomeFechUserList extends HomeEvent {
+// This event is called whenever the user stream receives an event
+class HomeUpdate extends HomeEvent {
   final List<AppUser> userList;
 
-  HomeFechUserList(this.userList);
+  HomeUpdate(this.userList);
+}
+
+// This event is called whenever the user stream receives an error
+class HomeError extends HomeEvent {
+  final dynamic errorExecption;
+
+  HomeError(this.errorExecption);
 }
