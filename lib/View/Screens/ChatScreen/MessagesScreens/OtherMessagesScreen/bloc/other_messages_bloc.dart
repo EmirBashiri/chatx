@@ -17,7 +17,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   late final ChatFunctions chatFunctions =
       dependencyController.appFunctions.chatFunctions;
 
-  // This function called whenever event is OtherMessagesStart
+  // This function is called whenever the event is OtherMessagesStart
   Future<void> otherMessagesStart(
       {required MessageEntity messageEntity, required Emitter emit}) async {
     if (messageEntity.needUpload) {
@@ -40,7 +40,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
     }
   }
 
-  // This function called whenever event is OtherMessagesDownloadFile
+  // This function is called whenever the event is OtherMessagesDownloadFile
   Future<void> otherMessagesDownloadFile(
       {required MessageEntity messageEntity, required Emitter emit}) async {
     emit(MessageFileLoadingScreen());
@@ -48,60 +48,60 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
         messageEntity: messageEntity, otherMessagesBloc: this);
   }
 
-  // This function called whenever event is OtherMessagesFileCompleted
+  // This function is called whenever the event is OtherMessagesFileCompleted
   void otherMessagesFileCompleted(Emitter emit) {
     emit(MessageFileReadyScreen());
   }
 
-  // This function called whenever event is OtherMessagesOpenFile
+  // This function is called whenever the event is OtherMessagesOpenFile
   Future<void> otherMessagesOpenFile(
       {required MessageEntity messageEntity, required Emitter emit}) async {
     await messagesFunctions.openFileMessage(
         messageEntity: messageEntity, otherMessagesBloc: this);
   }
 
-  // This function called whenever event is OtherMessagesCancelDownloading
+  // This function is called whenever the event is OtherMessagesCancelDownloading
   void otherMessagesCancelDownloading(
       {required MessageEntity messageEntity, required Emitter emit}) {
     messagesFunctions.cancelDownload(messageEntity: messageEntity);
     emit(MessagesPervirewScreen());
   }
 
-  // This function called whenever event is OtherMessagesCancelUploading
+  // This function is called whenever the event is OtherMessagesCancelUploading
   void otherMessagesCancelUploading(
       {required MessageEntity messageEntity, required Emitter emit}) {
     messagesFunctions.cancelUpload(messageEntity: messageEntity);
   }
 
-  // This function called whenever event is OtherMessagesDeleteErroredFile
+  // This function is called whenever the event is OtherMessagesDeleteErroredFile
   void otherMessagesDeleteErroredFile(
       {required MessageEntity messageEntity, required Emitter emit}) {
     messagesFunctions.deleteErroredMessage(messageEntity: messageEntity);
   }
 
-  // This function called whenever event is OtherMessagesDownloadingStatus
+  // This function is called whenever the event is OtherMessagesDownloadingStatus
   void otherMessagesDownloadingStatus(
       {required Emitter emit, required OperationProgress operationProgress}) {
     emit(MessageFileDownloadingScreen(operationProgress));
   }
 
-  // This function called whenever event is OtherMessagesUploadingStatus
+  // This function is called whenever the event is OtherMessagesUploadingStatus
   void otherMessagesUploadingStatus(
       {required Emitter emit, required OperationProgress operationProgress}) {
     emit(MessageFileUploadingStatusScreen(operationProgress));
   }
 
-  // This function called whenever event is OtherMessagesDownloadError
+  // This function is called whenever the event is OtherMessagesDownloadError
   void otherMessagesDownloadError(Emitter emit) {
     emit(MessageFileDownloadErrorScreen());
   }
 
-  // This function called whenever event is OtherMessagesUploadError
+  // This function is called whenever the event is OtherMessagesUploadError
   void otherMessagesUploadError(Emitter emit) {
     emit(MessageFileUploadErrorScreen());
   }
 
-  // This function called whenever event is OtherMessagesLoading
+  // This function is called whenever the event is OtherMessagesLoading
   void otherMessagesLoading(Emitter emit) {
     emit(MessageFileLoadingScreen());
   }

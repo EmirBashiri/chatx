@@ -227,26 +227,26 @@ class AuthenticationTemplate extends StatelessWidget {
                       // Name text field if is signup mode
                       loginMode
                           ? Container()
-                          : CustomTextFiled(
+                          : _CustomTextFiled(
                               formKey: nameKey!,
                               controller: nameController!,
                               labelText: fullNameDialog,
                             ),
                       // Email text field
-                      CustomTextFiled(
+                      _CustomTextFiled(
                         formKey: emailKey,
                         controller: emailController,
                         labelText: emailDialog,
                       ),
                       // Password text field
-                      CustomTextFiled(
+                      _CustomTextFiled(
                         isPasswordFill: true,
                         formKey: passwordKey,
                         controller: passwordController,
                         labelText: passwordDialog,
                       ),
                       // Agree part if is signup mode
-                      loginMode ? Container() : const AgreeWidget()
+                      loginMode ? Container() : const _AgreeWidget()
                     ],
                   ),
                 ),
@@ -316,14 +316,14 @@ class AuthenticationTemplate extends StatelessWidget {
   }
 }
 
-class AgreeWidget extends StatefulWidget {
-  const AgreeWidget({super.key});
+class _AgreeWidget extends StatefulWidget {
+  const _AgreeWidget();
 
   @override
-  State<AgreeWidget> createState() => _AgreeWidgetState();
+  State<_AgreeWidget> createState() => _AgreeWidgetState();
 }
 
-class _AgreeWidgetState extends State<AgreeWidget> {
+class _AgreeWidgetState extends State<_AgreeWidget> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -348,9 +348,8 @@ class _AgreeWidgetState extends State<AgreeWidget> {
   }
 }
 
-class CustomTextFiled extends StatefulWidget {
-  const CustomTextFiled({
-    super.key,
+class _CustomTextFiled extends StatefulWidget {
+  const _CustomTextFiled({
     required this.formKey,
     required this.controller,
     required this.labelText,
@@ -363,10 +362,10 @@ class CustomTextFiled extends StatefulWidget {
   final bool isPasswordFill;
 
   @override
-  State<CustomTextFiled> createState() => _CustomTextFiledState();
+  State<_CustomTextFiled> createState() => _CustomTextFiledState();
 }
 
-class _CustomTextFiledState extends State<CustomTextFiled> {
+class _CustomTextFiledState extends State<_CustomTextFiled> {
   // Instance of Dependency Controller for use app functions
   final DependencyController dpController = Get.find();
   // Instance of Auth Functions

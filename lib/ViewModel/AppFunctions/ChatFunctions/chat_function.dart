@@ -33,8 +33,8 @@ class ChatFunctions {
   // Instance of message sender controller for use in whole class
   final MessageSenderController messageSenderController = Get.find();
 
-  // Instance of firesore DB's stream
-  StreamSubscription? chatStreamSubscription;
+  // Instance of firesore chat DB's stream
+  StreamSubscription? _chatStreamSubscription;
 
   // Map of cansel tokens for cansel downloads
   static Map<String, CancelToken> cancelTokens = {};
@@ -166,7 +166,7 @@ class ChatFunctions {
             .orderBy(MessageEntity.timestampKey, descending: true)
             .snapshots();
 
-    chatStreamSubscription = chatStream.listen((event) {
+    _chatStreamSubscription = chatStream.listen((event) {
       final List<MessageEntity> messagesList = event.docs
           .map((jsonFromDB) => MessageEntity.fromJson(json: jsonFromDB.data()))
           .toList();
@@ -190,7 +190,7 @@ class ChatFunctions {
   Future<void> closeChatScreen() async {
     await cancelAllUploads();
     await cancelAllDownloads();
-    await chatStreamSubscription?.cancel();
+    await _chatStreamSubscription?.cancel();
     Get.back();
   }
 
@@ -198,7 +198,7 @@ class ChatFunctions {
   Future<bool> chatScreenPopScope() async {
     await cancelAllUploads();
     await cancelAllDownloads();
-    await chatStreamSubscription?.cancel();
+    await _chatStreamSubscription?.cancel();
     return true;
   }
 

@@ -6,16 +6,22 @@ part 'root_event.dart';
 part 'root_state.dart';
 
 class RootBloc extends Bloc<RootEvent, RootState> {
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+  // This function is called whenever the event is RootStart
+  void rootStart({required Emitter emit}) {
+    if (firebaseAuth.currentUser != null) {
+      emit(RootShowHomeScreen());
+    } else {
+      emit(RootShowIntro());
+    }
+  }
+
   RootBloc() : super(RootInitial()) {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     on<RootEvent>(
       (event, emit) {
         if (event is RootStart) {
-          if (firebaseAuth.currentUser != null) {
-            emit(RootShowHomeScreen());
-          } else {
-            emit(RootShowIntro());
-          }
+          rootStart(emit: emit);
         }
       },
     );

@@ -13,11 +13,53 @@ part 'authentication_state.dart';
 
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
+  final DependencyController dpController = Get.find();
+  late final AuthFunctions authFunctions =
+      dpController.appFunctions.authFunctions;
+  late final AuthNavigation authNavigation =
+      dpController.navigationSystem.authNavigation;
+
+  // This function is called whenever the event is AuthenticationSignup
+  Future<void> authenticationSignup(
+      {required Emitter emit,
+      required UserEntity userEntity,
+      required bool isPrivacyAgreed}) async {
+    emit(AuthenticationLoadingScreen());
+    try {
+      await authFunctions.signup(
+        userEntity: userEntity,
+        isPrivacyAgreed: isPrivacyAgreed,
+      );
+      authNavigation.goToHomeScreen();
+    } on FirebaseAuthException catch (error) {
+      emit(AuthenticationErrorScreen(error.message ?? defaultErrorMessage));
+    }
+  }
+
+  // This function is called whenever the event is AuthenticationLogin
+  Future<void> authenticationLogin(
+      {required Emitter emit, required UserEntity userEntity}) async {
+    emit(AuthenticationLoadingScreen());
+    try {
+      await authFunctions.login(userEntity: userEntity);
+      authNavigation.goToHomeScreen();
+    } on FirebaseAuthException catch (error) {
+      emit(AuthenticationErrorScreen(error.message ?? defaultErrorMessage));
+    }
+  }
+
+  // This function is called whenever the event is AuthenticationContinueWithGoogle
+  Future<void> authenticationContinueWithGoogle({required Emitter emit}) async {
+    emit(AuthenticationLoadingScreen());
+    try {
+      await authFunctions.continueWithGoogle();
+      authNavigation.goToHomeScreen();
+    } on FirebaseAuthException catch (error) {
+      emit(AuthenticationErrorScreen(error.message ?? defaultErrorMessage));
+    }
+  }
+
   AuthenticationBloc() : super(AuthenticationInitial()) {
-    final DependencyController dpController = Get.find();
-    final AuthFunctions authFunctions = dpController.appFunctions.authFunctions;
-    final AuthNavigation authNavigation =
-        dpController.navigationSystem.authNavigation;
     on<AuthenticationEvent>((event, emit) async {
       if (event is AuthenticationStart) {
         emit(AuthenticationSignupScreen());
@@ -26,32 +68,15 @@ class AuthenticationBloc
       } else if (event is AuthenticationGoLogin) {
         emit(AuthenticationLoginScreen());
       } else if (event is AuthenticationSignup) {
-        emit(AuthenticationLoadingScreen());
-        try {
-          await authFunctions.signup(
-            userEntity: event.userEntity,
-            isPrivacyAgreed: event.isPrivacyAgreed,
-          );
-          authNavigation.goToHomeScreen();
-        } on FirebaseAuthException catch (error) {
-          emit(AuthenticationErrorScreen(error.message ?? defaultErrorMessage));
-        }
+        await authenticationSignup(
+          emit: emit,
+          userEntity: event.userEntity,
+          isPrivacyAgreed: event.isPrivacyAgreed,
+        );
       } else if (event is AuthenticationLogin) {
-        emit(AuthenticationLoadingScreen());
-        try {
-          await authFunctions.login(userEntity: event.userEntity);
-          authNavigation.goToHomeScreen();
-        } on FirebaseAuthException catch (error) {
-          emit(AuthenticationErrorScreen(error.message ?? defaultErrorMessage));
-        }
+        await authenticationLogin(emit: emit, userEntity: event.userEntity);
       } else if (event is AuthenticationContinueWithGoogle) {
-        emit(AuthenticationLoadingScreen());
-        try {
-          await authFunctions.continueWithGoogle();
-          authNavigation.goToHomeScreen();
-        } on FirebaseAuthException catch (error) {
-          emit(AuthenticationErrorScreen(error.message ?? defaultErrorMessage));
-        }
+        await authenticationContinueWithGoogle(emit: emit);
       }
     });
   }

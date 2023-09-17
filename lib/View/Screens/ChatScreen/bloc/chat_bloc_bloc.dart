@@ -15,14 +15,14 @@ class ChatBloc extends Bloc<ChatBlocEvent, ChatBlocState> {
   final ChatFunctions chatFunctions =
       Get.find<DependencyController>().appFunctions.chatFunctions;
 
-  // This function called whenever event is ChatStart
+  // This function is called whenever the event is ChatStart
   void chatStart({required Emitter emit}) {
     emit(ChatLoadingScreen());
     chatFunctions.getMessage(
         roomIdRequirements: roomIdRequirements, chatBloc: this);
   }
 
-  // This function called whenever event is ChatUpdate
+  // This function is called whenever the event is ChatUpdate
   void chatUpdate(
       {required List<MessageEntity> messagesList, required Emitter emit}) {
     if (messagesList.isEmpty) {
@@ -32,7 +32,7 @@ class ChatBloc extends Bloc<ChatBlocEvent, ChatBlocState> {
     }
   }
 
-  // This function called whenever event is ChatError
+  // This function is called whenever the event is ChatError
   void chatError({required dynamic error, required Emitter emit}) {
     if (error is FirebaseException) {
       emit(ChatErrorScreen(error.message ?? defaultErrorMessage));

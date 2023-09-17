@@ -95,7 +95,7 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-// Chat screen's duplicate frame
+// The Chat screen's duplicate frame
 Widget _chatDuplicateFrame({required List<Widget> children}) {
   return Padding(
     padding: const EdgeInsets.all(12),
@@ -103,7 +103,7 @@ Widget _chatDuplicateFrame({required List<Widget> children}) {
   );
 }
 
-// Chat screen's main widget
+// The Chat screen's main widget
 class _ChatMainWidget extends StatelessWidget {
   const _ChatMainWidget({
     required this.messagesList,
@@ -139,6 +139,7 @@ class _ChatMainWidget extends StatelessWidget {
   }
 }
 
+// The Chat screen's empty message widget
 class _EmptyChatWidget extends StatelessWidget {
   const _EmptyChatWidget({
     required this.senderController,
@@ -188,7 +189,7 @@ class _EmptyChatWidget extends StatelessWidget {
   }
 }
 
-// Chat screen's main part
+// The Chat screen's main part
 class _MainPart extends StatelessWidget {
   const _MainPart({
     required this.messagesList,
@@ -238,7 +239,7 @@ class _MainPart extends StatelessWidget {
   }
 }
 
-// Chat screen's bottom part (Message sender part)
+// The Chat screen's bottom part (Message sender part)
 class _BottomPart extends StatelessWidget {
   const _BottomPart({
     required this.senderController,

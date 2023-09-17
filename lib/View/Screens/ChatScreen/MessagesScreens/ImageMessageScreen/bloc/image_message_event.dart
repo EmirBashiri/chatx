@@ -3,49 +3,49 @@ part of 'image_message_bloc.dart';
 @immutable
 sealed class ImageMessageEvent {}
 
-// This event called whenever image message widget setting up
+// This event is called whenever the image message widget is setting up
 class ImageMessageStart extends ImageMessageEvent {
   final MessageEntity messageEntity;
 
   ImageMessageStart(this.messageEntity);
 }
 
-// This event called whenever user want download image
+// This event is called whenever the user taps to download image
 class ImageMessageStartDownload extends ImageMessageEvent {
   final MessageEntity messageEntity;
 
   ImageMessageStartDownload(this.messageEntity);
 }
 
-// This event called whenever user want cancel image downloading
+// This event is called whenever the user taps to cancel image downloading
 class ImageMessageCancelDownload extends ImageMessageEvent {
   final MessageEntity messageEntity;
 
   ImageMessageCancelDownload(this.messageEntity);
 }
 
-// This event called whenever user want cancel image uploading
+// This event is called whenever the user taps to cancel image uploading
 class ImageMessageCancelUpload extends ImageMessageEvent {
   final MessageEntity messageEntity;
 
   ImageMessageCancelUpload(this.messageEntity);
 }
 
-// This event called whenever user want delete errored message
+// This event is called whenever the user taps to delete errored message
 class ImageMessageDeleteErroredImage extends ImageMessageEvent {
   final MessageEntity messageEntity;
 
   ImageMessageDeleteErroredImage(this.messageEntity);
 }
 
-// This event called whenever the image being downloaded to show operation progess
+// This event is called whenever the image being downloaded to show operation progess
 class ImageMessageDownloadProgress extends ImageMessageEvent {
   final OperationProgress operationProgress;
 
   ImageMessageDownloadProgress(this.operationProgress);
 }
 
-// This event called whenever the image being uploaded and sended to show operation progess
+// This event is called whenever the image being uploaded and sended to show operation progess
 class ImageMessageUploadProgress extends ImageMessageEvent {
   final OperationProgress operationProgress;
   final File? imageFile;
@@ -53,22 +53,22 @@ class ImageMessageUploadProgress extends ImageMessageEvent {
   ImageMessageUploadProgress({required this.operationProgress, this.imageFile});
 }
 
-// This event called whenever the image operatin need loading
+// This event is called whenever the image operation needs loading
 class ImageMessageLoading extends ImageMessageEvent {}
 
-// This event called whenever image operation completed
+// This event is called whenever the image operation is completed
 class ImageMessageOperationComplete extends ImageMessageEvent {
   final File imageFile;
 
   ImageMessageOperationComplete(this.imageFile);
 }
 
-// This event called whenever an errer detected in image uploading time
+// This event is called whenever an error detected in the image uploading process
 class ImageMessageUploadError extends ImageMessageEvent {
   final File? imageFile;
 
   ImageMessageUploadError({this.imageFile});
 }
 
-// This event called whenever an errer detected in image downloading time
+// This event is called whenever an errer detected in the image downloading process
 class ImageMessageDownloadError extends ImageMessageEvent {}

@@ -15,7 +15,7 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
   final MessagesFunctions messagesFunctions =
       Get.find<DependencyController>().appFunctions.messagesFunctions;
 
-  // This function called whenever event is ImageMessageStart
+  // This function is called whenever the event is ImageMessageStart
   Future<void> imageMessageStart({
     required MessageEntity messageEntity,
     required Emitter emit,
@@ -43,7 +43,7 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
     }
   }
 
-  // This function called whenever event is ImageMessageStartDownload
+  // This function is called whenever the event is ImageMessageStartDownload
   Future<void> imageMessageStartDownload({
     required MessageEntity messageEntity,
     required Emitter emit,
@@ -53,7 +53,7 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
         messageEntity: messageEntity, imageMessageBloc: this);
   }
 
-  // This function called whenever event is ImageMessageCancelDownload
+  // This function is called whenever the event is ImageMessageCancelDownload
   void imageMessageCancelDownload({
     required MessageEntity messageEntity,
     required Emitter emit,
@@ -61,7 +61,7 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
     messagesFunctions.cancelDownload(messageEntity: messageEntity);
   }
 
-  // This function called whenever event is ImageMessageCancelUpload
+  // This function is called whenever the event is ImageMessageCancelUpload
   void imageMessageCancelUpload({
     required MessageEntity messageEntity,
     required Emitter emit,
@@ -69,7 +69,7 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
     messagesFunctions.cancelUpload(messageEntity: messageEntity);
   }
 
-  // This function called whenever event is ImageMessageDeleteErroredImage
+  // This function is called whenever the event is ImageMessageDeleteErroredImage
   void imageMessageDeleteErroredImage({
     required MessageEntity messageEntity,
     required Emitter emit,
@@ -77,7 +77,7 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
     messagesFunctions.deleteErroredMessage(messageEntity: messageEntity);
   }
 
-  // This function called whenever event is ImageMessageUploadProgress
+  // This function is called whenever the event is ImageMessageUploadProgress
   void imageMessageUploadProgress(
       {required OperationProgress operationProgress,
       File? imageFile,
@@ -86,30 +86,30 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
         operationProgress: operationProgress, imageFile: imageFile));
   }
 
-  // This function called whenever event is ImageMessageDownloadProgress
+  // This function is called whenever the event is ImageMessageDownloadProgress
   void imageMessageDownloadProgress(
       {required OperationProgress operationProgress, required Emitter emit}) {
     emit(ImageMessageDownloadProgressScreen(operationProgress));
   }
 
-  // This function called whenever event is ImageMessageLoading
+  // This function is called whenever the event is ImageMessageLoading
   void imageMessageLoading({required Emitter emit}) {
     emit(ImageMessageLoadingScreen());
   }
 
-  // This function called whenever event is ImageMessageOperationComplete
+  // This function is called whenever the event is ImageMessageOperationComplete
   void imageMessageOperationComplete(
       {required File imageFile, required Emitter emit}) {
     emit(ImageMessageReadyScreen(imageFile));
   }
 
-  // This function called whenever event is ImageMessageUploadError
+  // This function is called whenever the event is ImageMessageUploadError
   void imageMessageUploadError(
       {required File? imageFile, required Emitter emit}) {
     emit(ImageMessageUploadErrorScreen(imageFile: imageFile));
   }
 
-  // This function called whenever event is ImageMessageDownloadError
+  // This function is called whenever the event is ImageMessageDownloadError
   void imageMessageDownloadError({required Emitter emit}) {
     emit(ImageMessageDownloadErrorScreen());
   }

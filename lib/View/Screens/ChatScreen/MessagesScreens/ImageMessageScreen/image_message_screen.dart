@@ -262,6 +262,7 @@ class _BuildImageWithChild extends StatelessWidget {
   }
 }
 
+// Custom image placeholder
 class _CustomPlaceholder extends StatelessWidget {
   const _CustomPlaceholder({required this.child});
 
