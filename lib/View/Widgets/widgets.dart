@@ -544,3 +544,49 @@ class MessageDeleteDialog extends StatelessWidget {
           required Color textColor}) =>
       Text(content, style: textStyle?.copyWith(color: textColor));
 }
+
+// Settings screens duplicate app bar
+AppBar settingsAppBar({
+  required ColorScheme colorScheme,
+  required TextTheme textTheme,
+  required String title,
+}) {
+  return AppBar(
+    foregroundColor: colorScheme.primary,
+    bottom: PreferredSize(
+      preferredSize: const Size.fromHeight(35),
+      child: Container(
+        margin: const EdgeInsets.only(left: 12),
+        alignment: Alignment.topLeft,
+        child: Text(title, style: textTheme.headlineSmall),
+      ),
+    ),
+  );
+}
+
+// Settings screens duplicate profile avatar widget
+class ProfileAvatar extends StatelessWidget {
+  const ProfileAvatar({super.key, required this.profileImageUrl});
+
+  final String profileImageUrl;
+  // Profile avatar diameter
+  final double _diameter = 80;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: _diameter,
+      height: _diameter,
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        shape: BoxShape.circle,
+        image: DecorationImage(
+          image: networkImageProvider(
+            imageUr: profileImageUrl,
+          ),
+        ),
+      ),
+    );
+  }
+}

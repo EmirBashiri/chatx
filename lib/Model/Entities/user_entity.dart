@@ -6,14 +6,14 @@ class AppUser {
   final String email;
   final String? password;
   final String userUID;
-  final String profileUrl;
+  final String profileImageUrl;
 
   AppUser({
     this.fullName,
     required this.email,
     this.password,
     required this.userUID,
-    this.profileUrl = defaultUserProfileUrl,
+    this.profileImageUrl = defaultUserProfileUrl,
   });
 
   static Map<String, dynamic> userEntityToJSON({required AppUser appUser}) {
@@ -22,7 +22,7 @@ class AppUser {
       userEmail: appUser.email,
       userPassword: appUser.password,
       userUid: appUser.userUID,
-      userProfileUrl: appUser.profileUrl
+      userProfileUrl: appUser.profileImageUrl
     };
   }
 
@@ -32,7 +32,7 @@ class AppUser {
         email: json[userEmail],
         password: json[userPassword],
         userUID: json[userUid],
-        profileUrl: json[userProfileUrl]);
+        profileImageUrl: json[userProfileUrl]);
   }
 }
 

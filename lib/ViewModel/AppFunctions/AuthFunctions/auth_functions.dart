@@ -82,7 +82,7 @@ class AuthFunctions {
         fullName: userCredential.user!.displayName,
         email: userCredential.user!.email!,
         userUID: userCredential.user!.uid,
-        profileUrl: userCredential.user!.photoURL ?? defaultUserProfileUrl);
+        profileImageUrl: userCredential.user!.photoURL ?? defaultUserProfileUrl);
     await _mergeInDB(appUser: appUser);
   }
 

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
+import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
+import 'package:flutter_chatx/ViewModel/NavigationSystem/SettingsNavigation/navigation.dart';
+import 'package:get/get.dart';
 
 // Duplicate padding vlaue
 const double _paddingValue = 12;
@@ -10,6 +13,7 @@ const double _paddingValue = 12;
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key, required this.currentUser});
   final AppUser currentUser;
+
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
@@ -96,8 +100,12 @@ class _ProfilePart extends StatelessWidget {
 }
 
 class _ProfileDetail extends StatelessWidget {
-  const _ProfileDetail({required this.currentUser});
+  _ProfileDetail({required this.currentUser});
   final AppUser currentUser;
+
+  final SettingsNavigation settingsNavigation =
+      Get.find<DependencyController>().navigationSystem.settingsNavigation;
+
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
@@ -108,26 +116,14 @@ class _ProfileDetail extends StatelessWidget {
         children: [
           _buildLargeText(textTheme: textTheme, content: currentUser.fullName!),
           _buildSmallText(textTheme: textTheme, content: currentUser.email),
-          _profileEditButton(
-            colorScheme: colorScheme,
-            textTheme: textTheme,
-            onTap: () {
-              // TODO implement go to profile edit screen here
-            },
-          )
+          _profileEditButton(colorScheme: colorScheme, textTheme: textTheme),
         ],
       );
     } else {
       return _columnFrame(
         children: [
           _buildLargeText(textTheme: textTheme, content: currentUser.email),
-          _profileEditButton(
-            colorScheme: colorScheme,
-            textTheme: textTheme,
-            onTap: () {
-              // TODO implement go to profile edit screen here
-            },
-          )
+          _profileEditButton(colorScheme: colorScheme, textTheme: textTheme),
         ],
       );
     }
@@ -156,13 +152,12 @@ class _ProfileDetail extends StatelessWidget {
   }
 
   Widget _profileEditButton(
-      {required ColorScheme colorScheme,
-      required TextTheme textTheme,
-      required void Function()? onTap}) {
+      {required ColorScheme colorScheme, required TextTheme textTheme}) {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: ElevatedButton(
-        onPressed: onTap,
+        onPressed: () =>
+            settingsNavigation.goToEditScreen(currentUser: currentUser),
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
             side: BorderSide(color: colorScheme.secondary),

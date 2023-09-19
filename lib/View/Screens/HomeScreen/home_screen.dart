@@ -64,17 +64,10 @@ class HomeDuplicateFrame extends StatelessWidget {
   final Widget? homeFAB;
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       floatingActionButton: homeFAB,
-      appBar: AppBar(
-        title: Text(
-          messages,
-          style: textTheme.headlineSmall!.copyWith(
-              color: colorScheme.primary, fontWeight: FontWeight.bold),
-        ),
-      ),
+      appBar: AppBar(title: Text(messages, style: textTheme.headlineSmall)),
       body: body,
     );
   }
@@ -140,7 +133,7 @@ class _HomeMainWidget extends StatelessWidget {
                         ),
                         leading: CircleAvatar(
                           backgroundImage:
-                              networkImageProvider(imageUr: user.profileUrl),
+                              networkImageProvider(imageUr: user.profileImageUrl),
                         ),
                         title: duplicateText(
                             textTheme: textTheme,

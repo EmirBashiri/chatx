@@ -55,6 +55,12 @@ const String deleteDialog = "Delete";
 const String messages = "Messages";
 const String savedMessages = "Saved Messages";
 const String emptyChatDialog = "No message here yet , send a message !!";
+const String settingsDialog = "Settings";
+const String editProfileDialog = "Edit Profile";
+const String supportDialog = "Support";
+const String shareDialog = "Share";
+const String clearCacheDialog = "Clear Cache";
+const String logoutDialog = "Logout";
 // ///////////////////////////////////////////////////////////////////////
 
 // Duplicate tools ///////////////////////////////////////////////////////
