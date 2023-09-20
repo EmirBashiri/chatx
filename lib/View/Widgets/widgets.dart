@@ -590,3 +590,22 @@ class ProfileAvatar extends StatelessWidget {
     );
   }
 }
+
+// Settings screens duplicate frame
+class SettingsDuplicateFrame extends StatelessWidget {
+  const SettingsDuplicateFrame({super.key, required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      physics: const ClampingScrollPhysics(),
+      slivers: [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Column(children: children),
+        )
+      ],
+    );
+  }
+}

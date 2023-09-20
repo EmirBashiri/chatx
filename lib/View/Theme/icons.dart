@@ -23,3 +23,4 @@ const IconData supportIcon = Icons.contact_support;
 const IconData shareIcon = Icons.share_outlined;
 const IconData cleanupIcon = FontAwesomeIcons.broomBall;
 const IconData logoutIcon = Icons.logout;
+const IconData changeIcon = Icons.change_circle;

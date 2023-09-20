@@ -61,6 +61,7 @@ const String supportDialog = "Support";
 const String shareDialog = "Share";
 const String clearCacheDialog = "Clear Cache";
 const String logoutDialog = "Logout";
+const String saveProfileDialog = "Save Profile";
 // ///////////////////////////////////////////////////////////////////////
 
 // Duplicate tools ///////////////////////////////////////////////////////

@@ -1,6 +1,7 @@
 import 'package:flutter_chatx/ViewModel/NavigationSystem/AuthNavigation/auth_navigation.dart';
 import 'package:flutter_chatx/ViewModel/NavigationSystem/HomeNavigation/navigation.dart';
 import 'package:flutter_chatx/ViewModel/NavigationSystem/IntroNavigation/navigation.dart';
+import 'package:flutter_chatx/ViewModel/NavigationSystem/SettingsNavigation/navigation.dart';
 import 'package:flutter_chatx/ViewModel/NavigationSystem/SplashNavigation/navigation.dart';
 
 class NavigationSystem {
@@ -15,4 +16,7 @@ class NavigationSystem {
 
   // home screen navigaton system
   final HomeNavigation homeNavigation = HomeNavigation();
+
+  // settings screen navigaton system
+  final SettingsNavigation settingsNavigation = SettingsNavigation();
 }
