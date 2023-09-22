@@ -89,5 +89,6 @@ const String userProfileUrl = "User Profile Url";
 
 const String fileMessagesBucket = "Files/";
 const String imageMessagesBucket = "Images/";
+const String avatarsBucket = "Avatars/";
 
 //////////////////////////////////////////////////////////////////////

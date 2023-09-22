@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
@@ -164,6 +165,11 @@ class CustomErrorScreen extends StatelessWidget {
 // Application custom network image provider
 ExtendedNetworkImageProvider networkImageProvider({required String imageUr}) {
   return ExtendedNetworkImageProvider(imageUr, cache: true);
+}
+
+// Application custom file image provider
+ExtendedFileImageProvider fileImageProvider({required String imageFilePath}) {
+  return ExtendedFileImageProvider(File(imageFilePath));
 }
 
 // Application custom loading widget
@@ -550,9 +556,11 @@ AppBar settingsAppBar({
   required ColorScheme colorScheme,
   required TextTheme textTheme,
   required String title,
+  Widget? leading,
 }) {
   return AppBar(
     foregroundColor: colorScheme.primary,
+    leading: leading,
     bottom: PreferredSize(
       preferredSize: const Size.fromHeight(35),
       child: Container(
@@ -566,9 +574,9 @@ AppBar settingsAppBar({
 
 // Settings screens duplicate profile avatar widget
 class ProfileAvatar extends StatelessWidget {
-  const ProfileAvatar({super.key, required this.profileImageUrl});
+  const ProfileAvatar({super.key, required this.image});
 
-  final String profileImageUrl;
+  final ImageProvider<Object> image;
   // Profile avatar diameter
   final double _diameter = 80;
 
@@ -581,11 +589,7 @@ class ProfileAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer,
         shape: BoxShape.circle,
-        image: DecorationImage(
-          image: networkImageProvider(
-            imageUr: profileImageUrl,
-          ),
-        ),
+        image: DecorationImage(image: image),
       ),
     );
   }

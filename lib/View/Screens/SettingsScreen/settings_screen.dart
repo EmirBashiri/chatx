@@ -81,7 +81,7 @@ class _ProfilePart extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ProfileAvatar(
-              profileImageUrl: currentUser.profileImageUrl,
+              image: networkImageProvider(imageUr: currentUser.profileImageUrl),
             ),
             _ProfileDetail(currentUser: currentUser),
           ],

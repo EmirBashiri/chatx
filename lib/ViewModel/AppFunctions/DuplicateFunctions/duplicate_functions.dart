@@ -18,7 +18,7 @@ abstract class DuplicateFunctions {
   // Function to merge user information in Database
   Future<void> mergeInDB({required AppUser appUser}) async => await firestore
       .collection(usersCollectionPath)
-      .doc(appUser.email)
+      .doc(appUser.userUID)
       .set(AppUser.userEntityToJSON(appUser: appUser), SetOptions(merge: true));
 
   // Fuction to pick image from user storage
