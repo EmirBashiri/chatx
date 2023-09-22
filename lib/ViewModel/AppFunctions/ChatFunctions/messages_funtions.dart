@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
@@ -16,15 +15,9 @@ import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function
 import 'package:open_file/open_file.dart';
 
 class MessagesFunctions extends ChatFunctions {
-  // Insrance of firebase auth for use in whole file
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
-  // Insrance of firebase storage for use in whole file
-  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
-
   // Function to check message sender is applications current user or not
   bool senderIsCurrentUser({required MessageEntity messageEntity}) {
-    if (messageEntity.senderUserId == _firebaseAuth.currentUser!.uid) {
+    if (messageEntity.senderUserId == firebaseAuth.currentUser!.uid) {
       return true;
     } else {
       return false;
@@ -233,7 +226,7 @@ class MessagesFunctions extends ChatFunctions {
         fechFileName(filePath: messageEntity.messageContent);
     final File messageFile = File(messageEntity.messageContent);
     final Reference reference =
-        _firebaseStorage.ref("$fileMessagesBucket$fileName");
+        firebaseStorage.ref("$fileMessagesBucket$fileName");
     final UploadTask uploadTask = reference.putFile(messageFile);
     ChatFunctions.uploadTasks.addAll({messageEntity.id: uploadTask});
     uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {
@@ -280,7 +273,7 @@ class MessagesFunctions extends ChatFunctions {
         fechFileName(filePath: messageEntity.messageContent);
     final File imageFile = File(messageEntity.messageContent);
     final Reference reference =
-        _firebaseStorage.ref("$imageMessagesBucket$fileName");
+        firebaseStorage.ref("$imageMessagesBucket$fileName");
     final UploadTask uploadTask = reference.putFile(imageFile);
     ChatFunctions.uploadTasks.addAll({messageEntity.id: uploadTask});
     uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {

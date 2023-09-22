@@ -11,9 +11,8 @@ import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.d
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/View/Screens/ChatScreen/bloc/chat_bloc_bloc.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/DuplicateFunctions/duplicate_functions.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -26,10 +25,7 @@ import '../../../View/Widgets/widgets.dart';
 const String messagesCollectionKey = "Messages";
 const String messagesDocKey = "User Messages";
 
-class ChatFunctions {
-  // Instance of firestore to speak with DB
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+class ChatFunctions extends DuplicateFunctions {
   // Instance of message sender controller for use in whole class
   final MessageSenderController messageSenderController = Get.find();
 
@@ -72,7 +68,7 @@ class ChatFunctions {
   // Function to fech messages collection from firebase firestore DB
   CollectionReference<Map<String, dynamic>> messagesCollection(
       {required RoomIdRequirements roomIdRequirements}) {
-    return _firestore
+    return firestore
         .collection(messagesCollectionKey)
         .doc(messagesDocKey)
         .collection(
@@ -288,56 +284,15 @@ class ChatFunctions {
     }
   }
 
-  // Function to compress image
-  Future<File> _imageCompressor({required File imageFile}) async {
-    File compressedImageFile;
-    Future<File> compressImage({required int quality}) async {
-      final String targetPath =
-          "${imageFile.path}-compressed-${extension(imageFile.path)}";
-      final XFile? compressor = await FlutterImageCompress.compressAndGetFile(
-          imageFile.path, targetPath,
-          quality: quality);
-      imageFile.deleteSync(recursive: true);
-      return File(compressor!.path);
-    }
-
-    // Convert bit to megabit
-    final double imageSize = imageFile.lengthSync() / 1000000;
-    if (imageSize < 1) {
-      compressedImageFile = await compressImage(quality: 90);
-      return compressedImageFile;
-    } else if (imageSize < 3) {
-      compressedImageFile = await compressImage(quality: 80);
-      return compressedImageFile;
-    } else if (imageSize < 6) {
-      compressedImageFile = await compressImage(quality: 65);
-      return compressedImageFile;
-    } else {
-      compressedImageFile = await compressImage(quality: 50);
-      return compressedImageFile;
-    }
-  }
-
-  // Fuction to pick file from user storage
-  Future<File?> _pickImage() async {
-    final XFile? xFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (xFile != null) {
-      final File file = File(xFile.path);
-      return file;
-    }
-    return null;
-  }
-
   // Fuction to start image sending operation
   Future<void> startImageSending(
       {required RoomIdRequirements roomIdRequirements}) async {
     Get.back();
-    final File? imageFile = await _pickImage();
+    final File? imageFile = await imagePicker();
     if (imageFile != null) {
       // Compressing image for decrease image size and make it easy to render
       final File compressedImageFile =
-          await _imageCompressor(imageFile: imageFile);
+          await imageCompressor(imageFile: imageFile);
       final MessageEntity messageEntity = _fechUploadNeededMessage(
         roomIdRequirements: roomIdRequirements,
         messageType: MessageType.image,

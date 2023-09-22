@@ -8,6 +8,42 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:233569956709:android:b01f95ce856b09f887278c",
+        "android_client_info": {
+          "package_name": "com.chatx.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "233569956709-5ftgdsl68dbdaev6qdb6eehplqhggurk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC5WqBDQuwmXGe9zrod2y2v3ptWf-Yh94"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "233569956709-5ftgdsl68dbdaev6qdb6eehplqhggurk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "233569956709-4h3vau5avc3bipb4bvd6aq9itk1joe3h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterChatx"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:233569956709:android:3d9fe89754fed9dc87278c",
         "android_client_info": {
           "package_name": "com.example.flutter_chatx"

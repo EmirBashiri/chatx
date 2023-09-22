@@ -36,7 +36,7 @@ class AppUser {
   }
 }
 
-// Entirty that come from controllers
+// Entities that comes from controllers
 class UserEntity {
   final String? fullName;
   final String email;

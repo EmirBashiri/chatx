@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCC5WqBDQuwmXGe9zrod2y2v3ptWf-Yh94',
-    appId: '1:233569956709:android:3d9fe89754fed9dc87278c',
+    appId: '1:233569956709:android:b01f95ce856b09f887278c',
     messagingSenderId: '233569956709',
     projectId: 'chatx-31159',
     databaseURL: 'https://chatx-31159-default-rtdb.asia-southeast1.firebasedatabase.app',

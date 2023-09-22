@@ -1,22 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/DuplicateFunctions/duplicate_functions.dart';
 
-class AuthFunctions {
-  // Insrances of firebase auth and firebase firestore
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+class AuthFunctions extends DuplicateFunctions {
   // Text fields validator function
-
   String? Function(String?) validator =
       (value) => value != null && value.isNotEmpty ? null : validateErrorDialog;
 
   // Build UserEntity to use in authentication screen
-
   UserEntity? buildUserEntity(
       {required GlobalKey<FormState> emailKey,
       required GlobalKey<FormState> passwordKey,
@@ -44,23 +38,20 @@ class AuthFunctions {
   }
 
   // Signup functaion
-
   Future<void> signup(
       {required UserEntity userEntity, required bool isPrivacyAgreed}) async {
     if (isPrivacyAgreed) {
       final UserCredential userCredential =
-          await _firebaseAuth.createUserWithEmailAndPassword(
+          await firebaseAuth.createUserWithEmailAndPassword(
         email: userEntity.email,
         password: userEntity.password,
       );
-
       final AppUser appUser = AppUser(
           fullName: userEntity.fullName,
           email: userEntity.email,
           password: userEntity.password,
           userUID: userCredential.user!.uid);
-
-      await _mergeInDB(appUser: appUser);
+      await mergeInDB(appUser: appUser);
     } else {
       showSnakeBar(title: appName, message: agreeThePrivacyDialog);
     }
@@ -68,7 +59,7 @@ class AuthFunctions {
 
   // Login function
   Future<void> login({required UserEntity userEntity}) async {
-    await _firebaseAuth.signInWithEmailAndPassword(
+    await firebaseAuth.signInWithEmailAndPassword(
       email: userEntity.email,
       password: userEntity.password,
     );
@@ -77,18 +68,13 @@ class AuthFunctions {
   // Continue with google function
   Future<void> continueWithGoogle() async {
     UserCredential userCredential =
-        await _firebaseAuth.signInWithProvider(GoogleAuthProvider());
+        await firebaseAuth.signInWithProvider(GoogleAuthProvider());
     final AppUser appUser = AppUser(
         fullName: userCredential.user!.displayName,
         email: userCredential.user!.email!,
         userUID: userCredential.user!.uid,
-        profileImageUrl: userCredential.user!.photoURL ?? defaultUserProfileUrl);
-    await _mergeInDB(appUser: appUser);
+        profileImageUrl:
+            userCredential.user!.photoURL ?? defaultUserProfileUrl);
+    await mergeInDB(appUser: appUser);
   }
-
-  //  Merge information in Database
-  Future<void> _mergeInDB({required AppUser appUser}) async => await _firestore
-      .collection(usersCollectionPath)
-      .doc(appUser.email)
-      .set(AppUser.userEntityToJSON(appUser: appUser), SetOptions(merge: true));
 }
