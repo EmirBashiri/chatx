@@ -36,6 +36,8 @@ dependencies:
   record: ^4.4.4
   change_app_package_name: ^1.1.0
   badges: ^3.1.2
+  url_launcher: ^6.1.14
+  share_plus: ^4.5.3
 
 dev_dependencies:
   flutter_test:

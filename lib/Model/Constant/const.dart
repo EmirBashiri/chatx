@@ -62,6 +62,7 @@ const String shareDialog = "Share";
 const String clearCacheDialog = "Clear Cache";
 const String logoutDialog = "Logout";
 const String saveProfileDialog = "Save Profile";
+const String cacheClearedDialog = "Cache cleared successfully";
 // ///////////////////////////////////////////////////////////////////////
 
 // Duplicate tools ///////////////////////////////////////////////////////
@@ -71,6 +72,10 @@ const ScrollPhysics defaultPhysics = BouncingScrollPhysics();
 const String defaultErrorMessage = "Undefined Error";
 const String defaultUserProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/chatx-31159.appspot.com/o/ChatXTools%2Fperson.png?alt=media&token=94609089-bd1e-4f4e-a49c-34d1af3b5329";
+
+// Applications support email
+const String appSupportEmail = "chatxsupp@gmail.com";
+const String appShareLink = "https://github.com/EmirBashiri/chatx";
 //////////////////////////////////////////////////////////////////////////
 
 // message box duplicate border radius

@@ -4,6 +4,7 @@ import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.d
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
+import 'package:flutter_chatx/ViewModel/AppFunctions/SettingsFunctions/settings_functions.dart';
 import 'package:flutter_chatx/ViewModel/NavigationSystem/SettingsNavigation/navigation.dart';
 import 'package:get/get.dart';
 
@@ -11,56 +12,57 @@ import 'package:get/get.dart';
 const double _paddingValue = 12;
 
 class SettingScreen extends StatelessWidget {
-  const SettingScreen({super.key, required this.currentUser});
+  SettingScreen({super.key, required this.currentUser});
   final AppUser currentUser;
+
+  final SettingsFunctions settingsFunctions =
+      Get.find<DependencyController>().appFunctions.settingsFunctions;
 
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: settingsAppBar(
-        colorScheme: colorScheme,
-        textTheme: textTheme,
-        title: settingsDialog,
-      ),
-      body: SettingsDuplicateFrame(
-        children: [
-          _ProfilePart(currentUser: currentUser),
-          // Support action
-          _SettingsAction(
-            iconData: supportIcon,
-            title: supportDialog,
-            onTap: () {
-              //  TODO implement settings action here
-            },
-          ),
-          // Share action
-          _SettingsAction(
-            iconData: shareIcon,
-            title: shareDialog,
-            onTap: () {
-              //  TODO implement settings action here
-            },
-          ),
-          // Clean cache action
-          _SettingsAction(
-            iconData: cleanupIcon,
-            title: clearCacheDialog,
-            onTap: () {
-              //  TODO implement settings action here
-            },
-          ),
-          // Logout action
-          _SettingsAction(
-            iconData: logoutIcon,
-            title: logoutDialog,
-            leadingColor: colorScheme.tertiaryContainer,
-            onTap: () {
-              //  TODO implement settings action here
-            },
-          ),
-        ],
+    return Container(
+      color: colorScheme.background,
+      padding: settingsFunctions.settingsPadding,
+      child: Scaffold(
+        primary: false,
+        appBar: settingsAppBar(
+          primary: false,
+          colorScheme: colorScheme,
+          textTheme: textTheme,
+          title: settingsDialog,
+        ),
+        body: SettingsDuplicateFrame(
+          children: [
+            _ProfilePart(currentUser: currentUser),
+            // Support action
+            _SettingsAction(
+              iconData: supportIcon,
+              title: supportDialog,
+              onTap: settingsFunctions.supportEmailContact,
+            ),
+            // Share action
+            _SettingsAction(
+              iconData: shareIcon,
+              title: shareDialog,
+              onTap: settingsFunctions.shareApplication,
+            ),
+            // Clean cache action
+            _SettingsAction(
+              iconData: cleanupIcon,
+              title: clearCacheDialog,
+              onTap: settingsFunctions.clearCache,
+            ),
+            // Logout action
+            _SettingsAction(
+              iconData: logoutIcon,
+              title: logoutDialog,
+              leadingColor: colorScheme.tertiaryContainer,
+              onTap: settingsFunctions.signOut,
+            ),
+          ],
+        ),
       ),
     );
   }

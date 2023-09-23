@@ -556,9 +556,11 @@ AppBar settingsAppBar({
   required ColorScheme colorScheme,
   required TextTheme textTheme,
   required String title,
+  bool primary=true,
   Widget? leading,
 }) {
   return AppBar(
+    primary: primary,
     foregroundColor: colorScheme.primary,
     leading: leading,
     bottom: PreferredSize(

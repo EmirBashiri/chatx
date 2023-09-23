@@ -1,15 +1,24 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
+import 'package:flutter_chatx/View/Screens/AuthenticationScreen/authentication_screen.dart';
+import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/DuplicateFunctions/duplicate_functions.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsFunctions extends DuplicateFunctions {
   // Boolean to determine whether the user can leave the profie edit screen or not
   bool canClose = true;
+
+  // settings screens default padding
+  final EdgeInsets settingsPadding =
+      MediaQueryData.fromView(Get.window).padding;
 
   // Instance of firebase storage upload task
   UploadTask? uploadTask;
@@ -199,5 +208,36 @@ class SettingsFunctions extends DuplicateFunctions {
       await _cancelAvatarUploading();
       Get.back();
     }
+  }
+
+  // Function to open email app and contact with ChatX support
+  Future<void> supportEmailContact() async {
+    Uri emailURL = Uri.parse("mailto:$appSupportEmail");
+    await launchUrl(emailURL);
+  }
+
+  // Function to share application
+  Future<void> shareApplication() async {
+    await Share.share(appShareLink);
+  }
+
+  // Function to clear application cache
+  Future<void> clearCache() async {
+    final Directory cacheDirectory = await getTemporaryDirectory();
+    if (await cacheDirectory.exists()) {
+      await cacheDirectory.delete(recursive: true);
+    }
+    showSnakeBar(title: appName, message: cacheClearedDialog);
+  }
+
+  // Function to sign out from the application
+  Future<void> signOut() async {
+    await firebaseAuth.signOut();
+    navigator!.pop();
+    navigator!.pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const AuthenticationScreen(),
+      ),
+    );
   }
 }
