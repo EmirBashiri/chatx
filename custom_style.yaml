@@ -1,0 +1,29 @@
+# Application's native styles file
+
+dev_dependencies:
+
+  # Package for application icon
+  flutter_launcher_icons: "^0.13.1"
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/Logo/logo.png"
+
+
+# Package for applicatoin native splash screen
+flutter_native_splash:
+
+# Style for old android versions 
+  color: "#FFFFFF"
+  image: assets/Logo/splash-image.png
+  branding: assets/Logo/branding.png
+  fullscreen: true
+
+# Style for Android 12 and above versions
+  android_12:
+
+   color: "#FFFFFF"
+   image: assets/Logo/splash-image.png
+   branding: assets/Logo/branding.png
+   fullscreen: true
