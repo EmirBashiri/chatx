@@ -135,14 +135,12 @@ class ChatFunctions extends DuplicateFunctions {
     if (!messageEntity.needUpload) {
       // calling this function to cancel possibe download process
       cancelDownload(messageEntity: messageEntity);
-      showDialog(
-        context: Get.context!,
-        builder: (context) {
-          return MessageDeleteDialog(
-            chatFunctions: this,
-            messageEntity: messageEntity,
-          );
-        },
+      showCustomDialog(
+        title: deleteMessageDialog,
+        content: sureToDeleteDialog,
+        mainActionTitle: deleteDialog,
+        onMainActionTapped: () async =>
+            await deleteChatMessage(messageEntity: messageEntity),
       );
     }
   }

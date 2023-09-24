@@ -48,7 +48,7 @@ class AuthFunctions extends DuplicateFunctions {
       );
       final AppUser appUser = AppUser(
           fullName: userEntity.fullName,
-          email: userEntity.email,
+          email: userEntity.email.trim(),
           password: userEntity.password,
           userUID: userCredential.user!.uid);
       await mergeInDB(appUser: appUser);
@@ -60,7 +60,7 @@ class AuthFunctions extends DuplicateFunctions {
   // Login function
   Future<void> login({required UserEntity userEntity}) async {
     await firebaseAuth.signInWithEmailAndPassword(
-      email: userEntity.email,
+      email: userEntity.email.trim(),
       password: userEntity.password,
     );
   }

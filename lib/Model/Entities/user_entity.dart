@@ -19,7 +19,7 @@ class AppUser {
   static Map<String, dynamic> userEntityToJSON({required AppUser appUser}) {
     return {
       userFullName: appUser.fullName,
-      userEmail: appUser.email,
+      userEmail: appUser.email.trim(),
       userPassword: appUser.password,
       userUid: appUser.userUID,
       userProfileUrl: appUser.profileImageUrl

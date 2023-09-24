@@ -174,6 +174,7 @@ class SettingsFunctions extends DuplicateFunctions {
           AppUser updatedUser = canUpdate.$2!;
           await _userUpdater(
               currentUser: currentUser, updatedUser: updatedUser);
+          uploadTask = null;
           isSuccess = true;
         }
       },
@@ -232,12 +233,19 @@ class SettingsFunctions extends DuplicateFunctions {
 
   // Function to sign out from the application
   Future<void> signOut() async {
-    await firebaseAuth.signOut();
-    navigator!.pop();
-    navigator!.pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const AuthenticationScreen(),
-      ),
+    showCustomDialog(
+      title: logOutDialog,
+      content: sureToLogOutDialog,
+      mainActionTitle: logOutDialog,
+      onMainActionTapped: () async {
+        await firebaseAuth.signOut();
+        navigator!.popUntil((route) => route.isFirst);
+        navigator!.pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const AuthenticationScreen(),
+          ),
+        );
+      },
     );
   }
 }

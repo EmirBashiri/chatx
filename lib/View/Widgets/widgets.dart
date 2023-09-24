@@ -484,12 +484,37 @@ class VoiceTimerWidget extends StatelessWidget {
   }
 }
 
-// Chat screen's message deletion dialog
-class MessageDeleteDialog extends StatelessWidget {
-  const MessageDeleteDialog(
-      {super.key, required this.chatFunctions, required this.messageEntity});
-  final ChatFunctions chatFunctions;
-  final MessageEntity messageEntity;
+// Application custom dialog
+void showCustomDialog({
+  required String title,
+  required String content,
+  required String mainActionTitle,
+  required void Function() onMainActionTapped,
+}) {
+  showDialog(
+    context: Get.context!,
+    builder: (context) {
+      return _CustomDialog(
+        title: title,
+        content: content,
+        mainActionTitle: mainActionTitle,
+        onMainActionTapped: onMainActionTapped,
+      );
+    },
+  );
+}
+
+class _CustomDialog extends StatelessWidget {
+  const _CustomDialog({
+    required this.title,
+    required this.content,
+    required this.mainActionTitle,
+    required this.onMainActionTapped,
+  });
+  final String title;
+  final String content;
+  final String mainActionTitle;
+  final void Function() onMainActionTapped;
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -498,16 +523,17 @@ class MessageDeleteDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: colorScheme.primary,
       title: buildText(
-        content: deleteMessageDialog,
+        label: title,
         textStyle: textTheme.bodyLarge,
         textColor: colorScheme.background,
       ),
       content: buildText(
-        content: sureToDeleteDialog,
+        label: content,
         textStyle: textTheme.bodyMedium,
         textColor: colorScheme.background,
       ),
       actions: [
+        // Cancel action
         buildActionButton(
           backgroundColor: colorScheme.background,
           title: cancelDialog,
@@ -515,13 +541,13 @@ class MessageDeleteDialog extends StatelessWidget {
           textColor: colorScheme.secondary,
           onPressed: () => Get.back(),
         ),
+        // Main Action
         buildActionButton(
           backgroundColor: colorScheme.background,
-          title: deleteDialog,
+          title: mainActionTitle,
           textStyle: textTheme.bodyMedium,
           textColor: colorScheme.error,
-          onPressed: () async =>
-              chatFunctions.deleteChatMessage(messageEntity: messageEntity),
+          onPressed: onMainActionTapped,
         ),
       ],
     );
@@ -537,7 +563,7 @@ class MessageDeleteDialog extends StatelessWidget {
       style: ElevatedButton.styleFrom(backgroundColor: backgroundColor),
       onPressed: onPressed,
       child: buildText(
-        content: title,
+        label: title,
         textStyle: textStyle,
         textColor: textColor,
       ),
@@ -545,10 +571,10 @@ class MessageDeleteDialog extends StatelessWidget {
   }
 
   Text buildText(
-          {required String content,
+          {required String label,
           required TextStyle? textStyle,
           required Color textColor}) =>
-      Text(content, style: textStyle?.copyWith(color: textColor));
+      Text(label, style: textStyle?.copyWith(color: textColor));
 }
 
 // Settings screens duplicate app bar
@@ -556,7 +582,7 @@ AppBar settingsAppBar({
   required ColorScheme colorScheme,
   required TextTheme textTheme,
   required String title,
-  bool primary=true,
+  bool primary = true,
   Widget? leading,
 }) {
   return AppBar(

@@ -57,7 +57,7 @@ class SettingScreen extends StatelessWidget {
             // Logout action
             _SettingsAction(
               iconData: logoutIcon,
-              title: logoutDialog,
+              title: logOutDialog,
               leadingColor: colorScheme.tertiaryContainer,
               onTap: settingsFunctions.signOut,
             ),

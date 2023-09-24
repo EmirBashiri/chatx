@@ -31,6 +31,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       {required List<AppUser> userListFromDB,
       required HomeFunctioins homeFunctioins,
       required Emitter emit}) {
+    emit(HomeLoadingScreen());
     final List<AppUser> userList = userListFromDB;
     final AppUser currentUser = homeFunctioins.fetchCurrentUser(
         userList: userList, firebaseCurrentUser: firebaseAuth.currentUser!);

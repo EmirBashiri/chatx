@@ -60,9 +60,10 @@ const String editProfileDialog = "Edit Profile";
 const String supportDialog = "Support";
 const String shareDialog = "Share";
 const String clearCacheDialog = "Clear Cache";
-const String logoutDialog = "Logout";
+const String logOutDialog = "Log Out";
 const String saveProfileDialog = "Save Profile";
 const String cacheClearedDialog = "Cache cleared successfully";
+const String sureToLogOutDialog = "Are you sure you want to log out?";
 // ///////////////////////////////////////////////////////////////////////
 
 // Duplicate tools ///////////////////////////////////////////////////////
