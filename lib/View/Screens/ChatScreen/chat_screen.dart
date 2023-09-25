@@ -5,15 +5,15 @@ import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/Model/Entities/user_entity.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessageScreen/image_message_screen.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/othet_messages_screen.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/TextMessageScreen/text_message_screen.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
 
+import 'MessageWidgets/ImageMessageWidget/image_message.dart';
+import 'MessageWidgets/OtherMessageWidget/othet_message.dart';
+import 'MessageWidgets/TextMessageWidget/text_message.dart';
 import 'bloc/chat_bloc_bloc.dart';
 
 // Application's chat screen
@@ -216,17 +216,17 @@ class _MainPart extends StatelessWidget {
               builder: (context) {
                 switch (messageEntity.messageType) {
                   case MessageType.txt:
-                    return TexetMessageScreen(
+                    return TexetMessageWidget(
                       messageEntity: messageEntity,
                       messagesFunctions: messagesFunctions,
                     );
                   case MessageType.image:
-                    return ImageMessageScreen(
+                    return ImageMessageWidget(
                         key: Key(messageEntity.id),
                         messageEntity: messageEntity,
                         messagesFunctions: messagesFunctions);
                   case MessageType.other:
-                    return OthetMessagesScreen(
+                    return OthetMessagesWidget(
                         messageEntity: messageEntity,
                         key: Key(messageEntity.id));
                 }

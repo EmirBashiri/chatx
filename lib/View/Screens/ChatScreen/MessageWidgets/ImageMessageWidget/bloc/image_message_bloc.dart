@@ -20,13 +20,13 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
     required MessageEntity messageEntity,
     required Emitter emit,
   }) async {
-    emit(ImageMessageLoadingScreen());
+    emit(ImageMessageLoadingState());
     if (messageEntity.needUpload) {
       try {
         await messagesFunctions.uploadImageMessage(
             imageMessageBloc: this, messageEntity: messageEntity);
       } catch (e) {
-        emit(ImageMessageUploadErrorScreen());
+        emit(ImageMessageUploadErrorState());
       }
     } else {
       final bool isFileDownloaded = await messagesFunctions.isFileDownloaded(
@@ -36,9 +36,9 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
       if (isFileDownloaded) {
         final imageFile = await messagesFunctions.getFileFromCache(
             messageId: messageEntity.id);
-        emit(ImageMessageReadyScreen(imageFile!));
+        emit(ImageMessageReadyState(imageFile!));
       } else {
-        emit(ImageMessagePerviewScreen());
+        emit(ImageMessagePerviewState());
       }
     }
   }
@@ -48,7 +48,7 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
     required MessageEntity messageEntity,
     required Emitter emit,
   }) async {
-    emit(ImageMessageLoadingScreen());
+    emit(ImageMessageLoadingState());
     await messagesFunctions.downloadImageFile(
         messageEntity: messageEntity, imageMessageBloc: this);
   }
@@ -82,36 +82,36 @@ class ImageMessageBloc extends Bloc<ImageMessageEvent, ImageMessageState> {
       {required OperationProgress operationProgress,
       File? imageFile,
       required Emitter emit}) {
-    emit(ImageMessageUoloadProgressScreen(
+    emit(ImageMessageUoloadProgressState(
         operationProgress: operationProgress, imageFile: imageFile));
   }
 
   // This function is called whenever the event is ImageMessageDownloadProgress
   void imageMessageDownloadProgress(
       {required OperationProgress operationProgress, required Emitter emit}) {
-    emit(ImageMessageDownloadProgressScreen(operationProgress));
+    emit(ImageMessageDownloadProgressState(operationProgress));
   }
 
   // This function is called whenever the event is ImageMessageLoading
   void imageMessageLoading({required Emitter emit}) {
-    emit(ImageMessageLoadingScreen());
+    emit(ImageMessageLoadingState());
   }
 
   // This function is called whenever the event is ImageMessageOperationComplete
   void imageMessageOperationComplete(
       {required File imageFile, required Emitter emit}) {
-    emit(ImageMessageReadyScreen(imageFile));
+    emit(ImageMessageReadyState(imageFile));
   }
 
   // This function is called whenever the event is ImageMessageUploadError
   void imageMessageUploadError(
       {required File? imageFile, required Emitter emit}) {
-    emit(ImageMessageUploadErrorScreen(imageFile: imageFile));
+    emit(ImageMessageUploadErrorState(imageFile: imageFile));
   }
 
   // This function is called whenever the event is ImageMessageDownloadError
   void imageMessageDownloadError({required Emitter emit}) {
-    emit(ImageMessageDownloadErrorScreen());
+    emit(ImageMessageDownloadErrorState());
   }
 
   ImageMessageBloc() : super(ImageMessageInitial()) {

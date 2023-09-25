@@ -3,8 +3,8 @@ import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 
-class TexetMessageScreen extends StatefulWidget {
-  const TexetMessageScreen(
+class TexetMessageWidget extends StatefulWidget {
+  const TexetMessageWidget(
       {super.key,
       required this.messageEntity,
       required this.messagesFunctions});
@@ -12,10 +12,10 @@ class TexetMessageScreen extends StatefulWidget {
   final MessagesFunctions messagesFunctions;
 
   @override
-  State<TexetMessageScreen> createState() => _TexetMessageScreenState();
+  State<TexetMessageWidget> createState() => _TexetMessageWidgetState();
 }
 
-class _TexetMessageScreenState extends State<TexetMessageScreen>
+class _TexetMessageWidgetState extends State<TexetMessageWidget>
     with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {

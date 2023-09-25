@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Dependency/GetX/Controller/getx_controller.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 import 'package:get/get.dart';
 
-class OthetMessagesScreen extends StatefulWidget {
-  const OthetMessagesScreen({super.key, required this.messageEntity});
+import 'bloc/other_messages_bloc.dart';
+
+class OthetMessagesWidget extends StatefulWidget {
+  const OthetMessagesWidget({super.key, required this.messageEntity});
   final MessageEntity messageEntity;
 
   @override
-  State<OthetMessagesScreen> createState() => _OthetMessagesScreenState();
+  State<OthetMessagesWidget> createState() => _OthetMessagesWidgetState();
 }
 
-class _OthetMessagesScreenState extends State<OthetMessagesScreen>
+class _OthetMessagesWidgetState extends State<OthetMessagesWidget>
     with AutomaticKeepAliveClientMixin {
   final MessagesFunctions messagesFunctions =
       Get.find<DependencyController>().appFunctions.messagesFunctions;
@@ -33,19 +34,19 @@ class _OthetMessagesScreenState extends State<OthetMessagesScreen>
         },
         child: BlocBuilder<OtherMessagesBloc, OtherMessagesState>(
           builder: (context, state) {
-            if (state is MessagesPervirewScreen) {
-              return _FilePerviewScreen(
+            if (state is MessagesPervirewState) {
+              return _FilePerviewState(
                 messageEntity: widget.messageEntity,
                 messagesFunctions: messagesFunctions,
               );
-            } else if (state is MessageFileLoadingScreen) {
-              return _FileOperationScreen(
+            } else if (state is MessageFileLoadingState) {
+              return _FileOperationState(
                 messageEntity: widget.messageEntity,
                 messagesFunctions: messagesFunctions,
                 statusWidget: LoadingWidget(widgetSize: Get.width * 0.1),
               );
-            } else if (state is MessageFileDownloadingScreen) {
-              return _FileOperationScreen(
+            } else if (state is MessageFileDownloadingState) {
+              return _FileOperationState(
                 messageEntity: widget.messageEntity,
                 messagesFunctions: messagesFunctions,
                 statusWidget: CustomProgressIndicator(
@@ -56,8 +57,8 @@ class _OthetMessagesScreenState extends State<OthetMessagesScreen>
                   messagesFunctions: messagesFunctions,
                 ),
               );
-            } else if (state is MessageFileUploadingStatusScreen) {
-              return _FileOperationScreen(
+            } else if (state is MessageFileUploadingStatusState) {
+              return _FileOperationState(
                 messageEntity: widget.messageEntity,
                 messagesFunctions: messagesFunctions,
                 statusWidget: CustomProgressIndicator(
@@ -69,8 +70,8 @@ class _OthetMessagesScreenState extends State<OthetMessagesScreen>
                   messagesFunctions: messagesFunctions,
                 ),
               );
-            } else if (state is MessageFileDownloadErrorScreen) {
-              return _FileOperationScreen(
+            } else if (state is MessageFileDownloadErrorState) {
+              return _FileOperationState(
                 messageEntity: widget.messageEntity,
                 messagesFunctions: messagesFunctions,
                 statusWidget: IconButton.filled(
@@ -80,8 +81,8 @@ class _OthetMessagesScreenState extends State<OthetMessagesScreen>
                   icon: const Icon(errorIcon),
                 ),
               );
-            } else if (state is MessageFileUploadErrorScreen) {
-              return _FileOperationScreen(
+            } else if (state is MessageFileUploadErrorState) {
+              return _FileOperationState(
                 messageEntity: widget.messageEntity,
                 messagesFunctions: messagesFunctions,
                 statusWidget: IconButton.filled(
@@ -90,8 +91,8 @@ class _OthetMessagesScreenState extends State<OthetMessagesScreen>
                   icon: const Icon(errorIcon),
                 ),
               );
-            } else if (state is MessageFileReadyScreen) {
-              return _FileReadyScreen(
+            } else if (state is MessageFileReadyState) {
+              return _FileReadyState(
                 messageEntity: widget.messageEntity,
                 messagesFunctions: messagesFunctions,
               );
@@ -148,8 +149,8 @@ class _FileTitle extends StatelessWidget {
   }
 }
 
-class _FilePerviewScreen extends StatelessWidget {
-  const _FilePerviewScreen({
+class _FilePerviewState extends StatelessWidget {
+  const _FilePerviewState({
     required this.messageEntity,
     required this.messagesFunctions,
   });
@@ -175,8 +176,8 @@ class _FilePerviewScreen extends StatelessWidget {
   }
 }
 
-class _FileOperationScreen extends StatelessWidget {
-  const _FileOperationScreen({
+class _FileOperationState extends StatelessWidget {
+  const _FileOperationState({
     required this.messageEntity,
     required this.messagesFunctions,
     required this.statusWidget,
@@ -197,8 +198,8 @@ class _FileOperationScreen extends StatelessWidget {
   }
 }
 
-class _FileReadyScreen extends StatelessWidget {
-  const _FileReadyScreen({
+class _FileReadyState extends StatelessWidget {
+  const _FileReadyState({
     required this.messageEntity,
     required this.messagesFunctions,
   });

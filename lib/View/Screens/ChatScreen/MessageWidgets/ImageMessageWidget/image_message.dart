@@ -5,15 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessageScreen/bloc/image_message_bloc.dart';
 import 'package:flutter_chatx/View/Theme/icons.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/messages_funtions.dart';
 
+import 'bloc/image_message_bloc.dart';
+
 const double duplicateHeight = 120;
 
-class ImageMessageScreen extends StatefulWidget {
-  const ImageMessageScreen({
+class ImageMessageWidget extends StatefulWidget {
+  const ImageMessageWidget({
     super.key,
     required this.messageEntity,
     required this.messagesFunctions,
@@ -23,10 +24,10 @@ class ImageMessageScreen extends StatefulWidget {
   final MessagesFunctions messagesFunctions;
 
   @override
-  State<ImageMessageScreen> createState() => _ImageMessageScreenState();
+  State<ImageMessageWidget> createState() => _ImageMessageWidgetState();
 }
 
-class _ImageMessageScreenState extends State<ImageMessageScreen>
+class _ImageMessageWidgetState extends State<ImageMessageWidget>
     with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
@@ -39,35 +40,35 @@ class _ImageMessageScreenState extends State<ImageMessageScreen>
       },
       child: BlocBuilder<ImageMessageBloc, ImageMessageState>(
         builder: (context, state) {
-          if (state is ImageMessagePerviewScreen) {
-            return _ImagePerviewScreen(messageEntity: widget.messageEntity);
-          } else if (state is ImageMessageLoadingScreen) {
-            return _ImageLoadingScreen(messageEntity: widget.messageEntity);
-          } else if (state is ImageMessageUoloadProgressScreen) {
-            return _ImageMessageUploadProgressScreen(
+          if (state is ImageMessagePerviewState) {
+            return _ImagePerviewState(messageEntity: widget.messageEntity);
+          } else if (state is ImageMessageLoadingState) {
+            return _ImageLoadingState(messageEntity: widget.messageEntity);
+          } else if (state is ImageMessageUoloadProgressState) {
+            return _ImageMessageUploadProgressState(
               messageEntity: widget.messageEntity,
               operationProgress: state.operationProgress,
               imageFile: state.imageFile,
               messagesFunctions: widget.messagesFunctions,
             );
-          } else if (state is ImageMessageDownloadProgressScreen) {
-            return _ImageMessageDownloadProgressScreen(
+          } else if (state is ImageMessageDownloadProgressState) {
+            return _ImageMessageDownloadProgressState(
               messageEntity: widget.messageEntity,
               operationProgress: state.operationProgress,
               messagesFunctions: widget.messagesFunctions,
             );
-          } else if (state is ImageMessageReadyScreen) {
-            return _ImageMessageReadyScreen(
+          } else if (state is ImageMessageReadyState) {
+            return _ImageMessageReadyState(
               messageEntity: widget.messageEntity,
               imageFile: state.imageFile,
               messagesFunctions: widget.messagesFunctions,
             );
-          } else if (state is ImageMessageUploadErrorScreen) {
-            return _ImageMessageUploadErrorScreen(
+          } else if (state is ImageMessageUploadErrorState) {
+            return _ImageMessageUploadErrorState(
                 messageEntity: widget.messageEntity,
                 imageFile: state.imageFile);
-          } else if (state is ImageMessageDownloadErrorScreen) {
-            return _ImageMessageDownloadErrorScreen(
+          } else if (state is ImageMessageDownloadErrorState) {
+            return _ImageMessageDownloadErrorState(
                 messageEntity: widget.messageEntity);
           }
           return Container();
@@ -80,8 +81,8 @@ class _ImageMessageScreenState extends State<ImageMessageScreen>
   bool get wantKeepAlive => true;
 }
 
-class _ImagePerviewScreen extends StatelessWidget {
-  const _ImagePerviewScreen({
+class _ImagePerviewState extends StatelessWidget {
+  const _ImagePerviewState({
     required this.messageEntity,
   });
 
@@ -102,8 +103,8 @@ class _ImagePerviewScreen extends StatelessWidget {
   }
 }
 
-class _ImageLoadingScreen extends StatelessWidget {
-  const _ImageLoadingScreen({required this.messageEntity});
+class _ImageLoadingState extends StatelessWidget {
+  const _ImageLoadingState({required this.messageEntity});
 
   final MessageEntity messageEntity;
 
@@ -116,8 +117,8 @@ class _ImageLoadingScreen extends StatelessWidget {
   }
 }
 
-class _ImageMessageUploadProgressScreen extends StatelessWidget {
-  const _ImageMessageUploadProgressScreen(
+class _ImageMessageUploadProgressState extends StatelessWidget {
+  const _ImageMessageUploadProgressState(
       {required this.messageEntity,
       required this.operationProgress,
       this.imageFile,
@@ -147,8 +148,8 @@ class _ImageMessageUploadProgressScreen extends StatelessWidget {
   }
 }
 
-class _ImageMessageDownloadProgressScreen extends StatelessWidget {
-  const _ImageMessageDownloadProgressScreen(
+class _ImageMessageDownloadProgressState extends StatelessWidget {
+  const _ImageMessageDownloadProgressState(
       {required this.messageEntity,
       required this.operationProgress,
       required this.messagesFunctions});
@@ -175,8 +176,8 @@ class _ImageMessageDownloadProgressScreen extends StatelessWidget {
   }
 }
 
-class _ImageMessageReadyScreen extends StatelessWidget {
-  const _ImageMessageReadyScreen(
+class _ImageMessageReadyState extends StatelessWidget {
+  const _ImageMessageReadyState(
       {required this.messageEntity,
       required this.imageFile,
       required this.messagesFunctions});
@@ -197,8 +198,8 @@ class _ImageMessageReadyScreen extends StatelessWidget {
   }
 }
 
-class _ImageMessageUploadErrorScreen extends StatelessWidget {
-  const _ImageMessageUploadErrorScreen(
+class _ImageMessageUploadErrorState extends StatelessWidget {
+  const _ImageMessageUploadErrorState(
       {required this.messageEntity, this.imageFile});
 
   final MessageEntity messageEntity;
@@ -221,8 +222,8 @@ class _ImageMessageUploadErrorScreen extends StatelessWidget {
   }
 }
 
-class _ImageMessageDownloadErrorScreen extends StatelessWidget {
-  const _ImageMessageDownloadErrorScreen({required this.messageEntity});
+class _ImageMessageDownloadErrorState extends StatelessWidget {
+  const _ImageMessageDownloadErrorState({required this.messageEntity});
 
   final MessageEntity messageEntity;
 

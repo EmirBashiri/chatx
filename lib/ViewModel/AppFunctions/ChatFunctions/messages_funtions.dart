@@ -8,11 +8,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatx/Model/Constant/const.dart';
 import 'package:flutter_chatx/Model/Entities/duplicate_entities.dart';
 import 'package:flutter_chatx/Model/Entities/message_entiry.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/ImageMessageScreen/bloc/image_message_bloc.dart';
-import 'package:flutter_chatx/View/Screens/ChatScreen/MessagesScreens/OtherMessagesScreen/bloc/other_messages_bloc.dart';
 import 'package:flutter_chatx/View/Widgets/widgets.dart';
 import 'package:flutter_chatx/ViewModel/AppFunctions/ChatFunctions/chat_function.dart';
 import 'package:open_file/open_file.dart';
+
+import '../../../View/Screens/ChatScreen/MessageWidgets/ImageMessageWidget/bloc/image_message_bloc.dart';
+import '../../../View/Screens/ChatScreen/MessageWidgets/OtherMessageWidget/bloc/other_messages_bloc.dart';
 
 class MessagesFunctions extends ChatFunctions {
   // Function to check message sender is applications current user or not

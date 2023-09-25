@@ -21,21 +21,21 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   Future<void> otherMessagesStart(
       {required MessageEntity messageEntity, required Emitter emit}) async {
     if (messageEntity.needUpload) {
-      emit(MessageFileLoadingScreen());
+      emit(MessageFileLoadingState());
       try {
         await messagesFunctions.uploadFileMessage(
             otherMessagesBloc: this, messageEntity: messageEntity);
       } catch (e) {
-        emit(MessageFileUploadErrorScreen());
+        emit(MessageFileUploadErrorState());
       }
     } else {
       final bool isFileDownloaded = await messagesFunctions.isFileDownloaded(
         messageId: messageEntity.id,
       );
       if (isFileDownloaded) {
-        emit(MessageFileReadyScreen());
+        emit(MessageFileReadyState());
       } else {
-        emit(MessagesPervirewScreen());
+        emit(MessagesPervirewState());
       }
     }
   }
@@ -43,14 +43,14 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   // This function is called whenever the event is OtherMessagesDownloadFile
   Future<void> otherMessagesDownloadFile(
       {required MessageEntity messageEntity, required Emitter emit}) async {
-    emit(MessageFileLoadingScreen());
+    emit(MessageFileLoadingState());
     await messagesFunctions.downloadFile(
         messageEntity: messageEntity, otherMessagesBloc: this);
   }
 
   // This function is called whenever the event is OtherMessagesFileCompleted
   void otherMessagesFileCompleted(Emitter emit) {
-    emit(MessageFileReadyScreen());
+    emit(MessageFileReadyState());
   }
 
   // This function is called whenever the event is OtherMessagesOpenFile
@@ -64,7 +64,7 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   void otherMessagesCancelDownloading(
       {required MessageEntity messageEntity, required Emitter emit}) {
     messagesFunctions.cancelDownload(messageEntity: messageEntity);
-    emit(MessagesPervirewScreen());
+    emit(MessagesPervirewState());
   }
 
   // This function is called whenever the event is OtherMessagesCancelUploading
@@ -82,28 +82,28 @@ class OtherMessagesBloc extends Bloc<OtherMessagesEvent, OtherMessagesState> {
   // This function is called whenever the event is OtherMessagesDownloadingStatus
   void otherMessagesDownloadingStatus(
       {required Emitter emit, required OperationProgress operationProgress}) {
-    emit(MessageFileDownloadingScreen(operationProgress));
+    emit(MessageFileDownloadingState(operationProgress));
   }
 
   // This function is called whenever the event is OtherMessagesUploadingStatus
   void otherMessagesUploadingStatus(
       {required Emitter emit, required OperationProgress operationProgress}) {
-    emit(MessageFileUploadingStatusScreen(operationProgress));
+    emit(MessageFileUploadingStatusState(operationProgress));
   }
 
   // This function is called whenever the event is OtherMessagesDownloadError
   void otherMessagesDownloadError(Emitter emit) {
-    emit(MessageFileDownloadErrorScreen());
+    emit(MessageFileDownloadErrorState());
   }
 
   // This function is called whenever the event is OtherMessagesUploadError
   void otherMessagesUploadError(Emitter emit) {
-    emit(MessageFileUploadErrorScreen());
+    emit(MessageFileUploadErrorState());
   }
 
   // This function is called whenever the event is OtherMessagesLoading
   void otherMessagesLoading(Emitter emit) {
-    emit(MessageFileLoadingScreen());
+    emit(MessageFileLoadingState());
   }
 
   OtherMessagesBloc() : super(OtherMessagesInitial()) {

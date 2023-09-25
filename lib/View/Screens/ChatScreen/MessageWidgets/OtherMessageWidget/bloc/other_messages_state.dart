@@ -6,28 +6,28 @@ sealed class OtherMessagesState {}
 final class OtherMessagesInitial extends OtherMessagesState {}
 
 // This state is launched whenever other messages screen is setting up
-class MessagesPervirewScreen extends OtherMessagesState {}
+class MessagesPervirewState extends OtherMessagesState {}
 
 // This state is launched whenever the messages file is loading
-class MessageFileLoadingScreen extends OtherMessagesState {}
+class MessageFileLoadingState extends OtherMessagesState {}
 
 // This state is launched whenever the file is being downloaded to display the progress
-class MessageFileDownloadingScreen extends OtherMessagesState {
+class MessageFileDownloadingState extends OtherMessagesState {
   final OperationProgress operationProgress;
-  MessageFileDownloadingScreen(this.operationProgress);
+  MessageFileDownloadingState(this.operationProgress);
 }
 
 // This state is launched whenever the file is being uploaded to display the progress
-class MessageFileUploadingStatusScreen extends OtherMessagesState {
+class MessageFileUploadingStatusState extends OtherMessagesState {
   final OperationProgress operationProgress;
-  MessageFileUploadingStatusScreen(this.operationProgress);
+  MessageFileUploadingStatusState(this.operationProgress);
 }
 
 // This state is launched whenever the messages file is being downloaded and an error detected
-class MessageFileDownloadErrorScreen extends OtherMessagesState {}
+class MessageFileDownloadErrorState extends OtherMessagesState {}
 
 // This state is launched whenever the messages file is being uploaded and an error detected
-class MessageFileUploadErrorScreen extends OtherMessagesState {}
+class MessageFileUploadErrorState extends OtherMessagesState {}
 
 // This state is launched whenever the messages file is ready
-class MessageFileReadyScreen extends OtherMessagesState {}
+class MessageFileReadyState extends OtherMessagesState {}

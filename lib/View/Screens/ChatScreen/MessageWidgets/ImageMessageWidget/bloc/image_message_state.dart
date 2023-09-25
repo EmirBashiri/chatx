@@ -6,38 +6,38 @@ sealed class ImageMessageState {}
 final class ImageMessageInitial extends ImageMessageState {}
 
 // This state is launched whenever the image message is ready to download
-class ImageMessagePerviewScreen extends ImageMessageState {}
+class ImageMessagePerviewState extends ImageMessageState {}
 
 // This state is launched whenever the image operation needs loading
-class ImageMessageLoadingScreen extends ImageMessageState {}
+class ImageMessageLoadingState extends ImageMessageState {}
 
 // This state is launched whenever the image being downloaded and sended to show operation progess
-class ImageMessageDownloadProgressScreen extends ImageMessageState {
+class ImageMessageDownloadProgressState extends ImageMessageState {
   final OperationProgress operationProgress;
-  ImageMessageDownloadProgressScreen(this.operationProgress);
+  ImageMessageDownloadProgressState(this.operationProgress);
 }
 
 // This state is launched whenever the image being uploaded and sended to show operation progess
-class ImageMessageUoloadProgressScreen extends ImageMessageState {
+class ImageMessageUoloadProgressState extends ImageMessageState {
   final OperationProgress operationProgress;
   final File? imageFile;
-  ImageMessageUoloadProgressScreen(
+  ImageMessageUoloadProgressState(
       {required this.operationProgress, required this.imageFile});
 }
 
 // This state is launched whenever the image operation is completed
-class ImageMessageReadyScreen extends ImageMessageState {
+class ImageMessageReadyState extends ImageMessageState {
   final File imageFile;
 
-  ImageMessageReadyScreen(this.imageFile);
+  ImageMessageReadyState(this.imageFile);
 }
 
 // This state is launched whenever an errer detected in the image uploading process
-class ImageMessageUploadErrorScreen extends ImageMessageState {
+class ImageMessageUploadErrorState extends ImageMessageState {
   final File? imageFile;
 
-  ImageMessageUploadErrorScreen({this.imageFile});
+  ImageMessageUploadErrorState({this.imageFile});
 }
 
 // This state is launched whenever an errer detected in the image downloaded process
-class ImageMessageDownloadErrorScreen extends ImageMessageState {}
+class ImageMessageDownloadErrorState extends ImageMessageState {}
